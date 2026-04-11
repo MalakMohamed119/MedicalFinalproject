@@ -1,0 +1,10 @@
+<app-navbar></app-navbar>
+<div class="clinics">
+  <h1>My Clinics</h1>
+  <div *ngFor="let clinic of clinics" class="clinic-card">
+    <h3>{{ clinic.clinicName }}</h3>
+    <p>{{ clinic.clinicAddress }}</p>
+    <p>{{ clinic.doctorName }}</p>
+  </div>
+</div>
+<app-footer></app-footer>

@@ -1,0 +1,94 @@
+<div class="login-container">
+  <div class="logo-wrapper">
+    <div class="logo-box">
+      <img src="assets/logo.png" alt="Care Home Logo">
+    </div>
+    <p class="subtitle">Care Management Platform</p>
+  </div>
+
+  <div class="login-card">
+    <h3>Welcome Back</h3>
+    <p #typedElement></p>
+
+    <div class="tab-container">
+      <button routerLink="/login" class="tab-btn active">Login</button>
+      <button routerLink="/register" class="tab-btn">Register</button>
+    </div>
+
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onSubmit()"
+      class="login-form"
+    >
+
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
+        />
+
+        <div class="error-message" *ngIf="formControls['email'].touched">
+          <span *ngIf="formControls['email'].errors?.['required']">
+            Email is required
+          </span>
+          <span *ngIf="formControls['email'].errors?.['email']">
+            Please enter a valid email
+          </span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <label>Password</label>
+        <div class="password-field">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.is-invalid]="formControls['password'].touched && formControls['password'].invalid"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <i class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="formControls['password'].touched">
+          <span *ngIf="formControls['password'].errors?.['required']">
+            Password is required
+          </span>
+          <span *ngIf="formControls['password'].errors?.['minlength']">
+            Password must be at least 6 characters
+          </span>
+        </div>
+      </div>
+
+      <div class="form-options">
+        <a routerLink="/forgot-password" class="forgot-password">
+          Forgot password?
+        </a>
+      </div>
+
+      <!-- API Error -->
+      <div class="error-message" *ngIf="errorMessage()">
+        {{ errorMessage() }}
+      </div>
+
+      <button
+        type="submit"
+        class="sign-in-btn"
+        [disabled]="isLoading()"
+      >
+        {{ isLoading() ? 'Signing In...' : 'Sign In' }}
+      </button>
+
+    </form>
+  </div>
+</div>

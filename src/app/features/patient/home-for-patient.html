@@ -1,0 +1,80 @@
+<app-navbar></app-navbar>
+
+<section class="dashboard-wrapper">
+  <div class="container">
+    
+    <!-- Hero -->
+    <header class="welcome-hero">
+      <div class="hero-content">
+        
+        <h1>MedGuid Health Platform</h1>
+        <p class="hero-subtitle">Discover trusted clinics and book appointments seamlessly. Your wellness journey starts here.</p>
+      </div>
+      <div class="heartbeat-container">
+        <i class="bi bi-heart-fill heartbeat-icon"></i>
+        <div class="pulse-glow"></div>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-section">
+      <h3>Find Available Clinics</h3>
+      <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input 
+          type="text" 
+          placeholder="Search by clinic, doctor, or location..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()">
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="card-grid" *ngIf="filteredClinics.length > 0; else emptyState">
+      <div class="clinic-card" *ngFor="let clinic of filteredClinics; trackBy: trackByClinic">
+        <div class="card-inner">
+          <div class="card-header">
+   
+          </div>
+
+          <div class="clinic-icon">
+            <i class="bi bi-hospital"></i>
+          </div>
+
+          <div class="clinic-info">
+            <h3>{{ clinic.clinicName }}</h3>
+            <p class="doctor-name">{{ clinic.doctorName }}</p>
+            <p class="location">
+              <i class="bi bi-geo-alt"></i>
+              {{ clinic.clinicAddress }}
+            </p>
+          </div>
+
+          <div class="availability">
+            <i class="bi bi-calendar"></i>
+            {{ clinic.availableSlots }} slots available
+          </div>
+
+          <button class="cta-button" (click)="bookClinic(clinic.id)">
+            Book Appointment
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="clinic-card empty-state">
+        <i class="bi bi-search"></i>
+        <h3>No clinics match your search</h3>
+        <p>Try different keywords or clear the search</p>
+        <button class="cta-button" (click)="searchTerm = ''">
+          Clear Search
+        </button>
+      </div>
+    </ng-template>
+
+  </div>
+</section>
+
+<app-footer></app-footer>

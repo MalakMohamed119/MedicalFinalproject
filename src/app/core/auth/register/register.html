@@ -1,0 +1,157 @@
+<div class="login-container">
+  <div class="logo-wrapper">
+    <div class="logo-box">
+      <img src="assets/logo.png" alt="Care Home Logo">
+    </div>
+    <p class="subtitle">Care Management Platform</p>
+  </div>
+
+  <div class="login-card">
+    <h3>Create Account</h3>
+    <p #typedElement></p>
+
+    <div class="tab-container">
+      <button routerLink="/login" class="tab-btn">Login</button>
+      <button routerLink="/register" class="tab-btn active">Register</button>
+    </div>
+
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="handleRegister()"
+      class="login-form"
+    >
+
+      <!-- Name -->
+      <div class="input-group">
+        <label>Full Name</label>
+        <input
+          type="text"
+          formControlName="name"
+          placeholder="Enter your full name"
+          [class.is-invalid]="formControls['name'].touched && formControls['name'].invalid"
+        />
+
+        <div class="error-message" *ngIf="formControls['name'].touched">
+          <span *ngIf="formControls['name'].errors?.['required']">
+            Name is required
+          </span>
+          <span *ngIf="formControls['name'].errors?.['minlength']">
+            Name must be at least 3 characters
+          </span>
+          <span *ngIf="formControls['name'].errors?.['maxlength']">
+            Name must be less than 30 characters
+          </span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="input-group">
+        <label>Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="your@email.com"
+          [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
+        />
+
+        <div class="error-message" *ngIf="formControls['email'].touched">
+          <span *ngIf="formControls['email'].errors?.['required']">
+            Email is required
+          </span>
+          <span *ngIf="formControls['email'].errors?.['email']">
+            Please enter a valid email
+          </span>
+        </div>
+      </div>
+
+      <!-- Phone -->
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input
+          type="tel"
+          formControlName="phone"
+          placeholder="01xxxxxxxxx"
+          [class.is-invalid]="formControls['phone'].touched && formControls['phone'].invalid"
+        />
+
+        <div class="error-message" *ngIf="formControls['phone'].touched">
+          <span *ngIf="formControls['phone'].errors?.['required']">
+            Phone number is required
+          </span>
+          <span *ngIf="formControls['phone'].errors?.['pattern']">
+            Please enter a valid Egyptian phone number
+          </span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="input-group">
+        <label>Password</label>
+        <div class="password-field">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Create a password"
+            (input)="checkPasswordMatch()"
+            [class.is-invalid]="formControls['password'].touched && formControls['password'].invalid"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('password')"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <i class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="formControls['password'].touched">
+          <span *ngIf="formControls['password'].errors?.['required']">
+            Password is required
+          </span>
+          <span *ngIf="formControls['password'].errors?.['pattern']">
+            Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character
+          </span>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="input-group">
+        <label>Confirm Password</label>
+        <div class="password-field">
+          <input
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="rePassword"
+            placeholder="Confirm your password"
+            (input)="checkPasswordMatch()"
+            [class.is-invalid]="formControls['rePassword'].touched && passwordMismatch"
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePasswordVisibility('confirm')"
+            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+          >
+            <i class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</i>
+          </button>
+        </div>
+        <div class="error-message" *ngIf="formControls['rePassword'].touched">
+          <span *ngIf="formControls['rePassword'].errors?.['required']">
+            Please confirm your password
+          </span>
+          <span *ngIf="passwordMismatch">
+            Passwords do not match
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="sign-in-btn"
+        [disabled]="isLoading"
+      >
+        {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+      </button>
+
+    </form>
+  </div>
+</div>

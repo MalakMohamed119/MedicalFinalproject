@@ -1,0 +1,11 @@
+<app-navbar></app-navbar>
+<div class="doctors">
+  <h1>Manage Doctors</h1>
+  <div *ngFor="let doctor of doctors" class="doctor-card">
+    <h3>{{ doctor.displayName }}</h3>
+    <p>Email: {{ doctor.email }}</p>
+    <p>Specialty: {{ doctor.specialty }}</p>
+    <p>Active: {{ doctor.isActive ? 'Yes' : 'No' }}</p>
+  </div>
+</div>
+<app-footer></app-footer>

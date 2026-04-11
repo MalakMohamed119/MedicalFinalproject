@@ -1,0 +1,10 @@
+<app-navbar></app-navbar>
+<div class="timeslots">
+  <h1>Timeslot Management</h1>
+  <div *ngFor="let appt of appointments" class="slot">
+    <p>Date: {{ appt.date }} {{ appt.startTime }} - {{ appt.endTime }}</p>
+    <p>Status: {{ appt.status }}</p>
+    <p>Patient: {{ appt.patientId }}</p>
+  </div>
+</div>
+<app-footer></app-footer>
