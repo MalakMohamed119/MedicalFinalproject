@@ -9,7 +9,7 @@ import { finalize } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = 'http://localhost:8080/Clinic/Authentication';
+  private readonly apiUrl = 'http://localhost:8082/auth/Clinic/Authentication';
   private readonly tokenKey = 'auth_token';
 
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
@@ -78,7 +78,7 @@ export class AuthService {
     // If we have tokens, try to call the logout API
     if (refreshToken && accessToken) {
       console.log('Calling logout API...');
-      this.http.post(`${this.apiUrl}/Logout`, { refreshToken })
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken })
         .pipe(
           tap(() => console.log('Logout API call successful')),
           catchError(error => {
@@ -108,7 +108,7 @@ export class AuthService {
 
   login(credentials: { Email: string; Password: string }): Observable<any> {
     console.log('Sending Login Payload:', credentials);
-    return this.http.post(`${this.apiUrl}/Login`, credentials, { headers: { 'Content-Type': 'application/json' } }).pipe(
+    return this.http.post(`${this.apiUrl}/login`, credentials, { headers: { 'Content-Type': 'application/json' } }).pipe(
       tap((response: any) => {
         if (response?.accessToken) {
           this.setToken(response.accessToken);
@@ -117,7 +117,7 @@ export class AuthService {
             localStorage.setItem('refreshToken', response.refreshToken);
           }
 
-          this.router.navigate(['/home-for-patient']);
+          // Navigation handled by caller
         }
       }),
       catchError((error: HttpErrorResponse) => {
@@ -144,21 +144,11 @@ export class AuthService {
       phoneNumber: userData.phone
     };
 
-    return this.http.post(`${this.apiUrl}/Register`, payload)
+    return this.http.post(`${this.apiUrl}/register`, payload)
       .pipe(catchError(this.handleRegisterError));
   }
 
   /* ================= ERROR HANDLING ================= */
-
-  private handleLoginError(error: HttpErrorResponse) {
-    let message = 'Login failed';
-
-    if (error.status === 401) {
-      message = 'Invalid email or password';
-    }
-
-    return throwError(() => new Error(message));
-  }
 
   private handleRegisterError(error: HttpErrorResponse) {
     let message = 'Registration failed';
@@ -168,3 +158,4 @@ export class AuthService {
     return throwError(() => new Error(message));
   }
 }
+
