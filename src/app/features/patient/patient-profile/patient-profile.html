@@ -1,0 +1,110 @@
+<app-navbar></app-navbar>
+
+<section class="patient-profile-page">
+  <div class="page-inner">
+    <header class="profile-summary">
+      <div class="profile-summary__avatar" aria-hidden="true">
+        <span>{{ patientInitials }}</span>
+      </div>
+      <div class="profile-summary__content">
+        <h1 class="profile-summary__name">{{ patientName }}</h1>
+        <ul class="profile-chips">
+          <li class="profile-chip">
+            <i class="bi bi-calendar3" aria-hidden="true"></i>
+            Age {{ age }}
+          </li>
+          <li class="profile-chip">
+            <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
+            {{ gender }}
+          </li>
+          <li class="profile-chip">
+            <i class="bi bi-droplet" aria-hidden="true"></i>
+            {{ bloodType }}
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="appointments-block">
+      <div class="appointments-block__header">
+        <h2 class="appointments-block__title">Appointments</h2>
+        <div class="tabs" role="tablist" aria-label="Appointment history">
+          <button
+            type="button"
+            class="tabs__btn"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'upcoming'"
+            [class.tabs__btn--active]="activeTab === 'upcoming'"
+            (click)="setTab('upcoming')">
+            Upcoming
+            <span class="tabs__count">{{ upcoming.length }}</span>
+          </button>
+          <button
+            type="button"
+            class="tabs__btn"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'past'"
+            [class.tabs__btn--active]="activeTab === 'past'"
+            (click)="setTab('past')">
+            Past
+            <span class="tabs__count">{{ past.length }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tabs-panels">
+        <div
+          *ngIf="activeTab === 'upcoming'"
+          class="tab-panel"
+          role="tabpanel"
+          aria-label="Upcoming appointments">
+          <ul class="upcoming-list">
+            <li *ngFor="let a of upcoming" class="upcoming-card">
+              <div class="upcoming-card__main">
+                <h3 class="upcoming-card__clinic">{{ a.clinicName }}</h3>
+                <p class="upcoming-card__when">
+                  <span class="upcoming-card__line">
+                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                    {{ a.dateLabel }}
+                  </span>
+                  <span class="upcoming-card__line">
+                    <i class="bi bi-clock" aria-hidden="true"></i>
+                    {{ a.timeLabel }}
+                  </span>
+                </p>
+              </div>
+              <button type="button" class="btn-cancel" (click)="cancelAppointment(a)">Cancel</button>
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="activeTab === 'past'" class="tab-panel" role="tabpanel" aria-label="Past appointments">
+          <div class="past-table-wrap">
+            <table class="past-table">
+              <thead>
+                <tr>
+                  <th scope="col">Clinic</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Doctor</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let p of past">
+                  <td data-label="Clinic">{{ p.clinicName }}</td>
+                  <td data-label="Date">{{ p.dateLabel }}</td>
+                  <td data-label="Doctor">{{ p.doctorName }}</td>
+                  <td data-label="Status">
+                    <span class="badge-completed">Completed</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-footer></app-footer>

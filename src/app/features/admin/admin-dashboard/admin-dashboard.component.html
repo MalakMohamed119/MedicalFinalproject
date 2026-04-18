@@ -1,0 +1,171 @@
+<div class="admin-shell">
+  <div
+    class="admin-sidebar-backdrop"
+    [class.admin-sidebar-backdrop--visible]="sidebarOpen()"
+    (click)="closeSidebar()"
+    aria-hidden="true"></div>
+
+  <aside
+    class="admin-sidebar"
+    [class.admin-sidebar--open]="sidebarOpen()"
+    aria-label="Main navigation">
+    <div class="admin-sidebar__brand">
+      <i class="bi bi-heart-pulse" aria-hidden="true"></i>
+      <span>MedGuid Admin</span>
+      <button
+        type="button"
+        class="admin-sidebar__close"
+        (click)="closeSidebar()"
+        aria-label="Close menu">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+    <nav class="admin-sidebar__nav">
+      <a
+        routerLink="/admin-dashboard"
+        routerLinkActive="admin-sidebar__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="admin-sidebar__link"
+        (click)="closeSidebar()">
+        <i class="bi bi-speedometer2" aria-hidden="true"></i>
+        Dashboard
+      </a>
+      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="bi bi-hospital" aria-hidden="true"></i>
+        Clinics
+      </a>
+      <a
+        routerLink="/admin/manage-doctors"
+        routerLinkActive="admin-sidebar__link--active"
+        class="admin-sidebar__link"
+        (click)="closeSidebar()">
+        <i class="bi bi-person-badge" aria-hidden="true"></i>
+        Doctors
+      </a>
+      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="bi bi-calendar-week" aria-hidden="true"></i>
+        Appointments
+      </a>
+      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
+        <i class="bi bi-gear" aria-hidden="true"></i>
+        Settings
+      </a>
+    </nav>
+    <div class="admin-sidebar__footer">
+      <span class="admin-sidebar__version">v2.4 · Internal</span>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar__lead">
+        <button
+          type="button"
+          class="admin-menu-toggle"
+          (click)="toggleSidebar()"
+          aria-label="Open navigation menu"
+          [attr.aria-expanded]="sidebarOpen()">
+          <i class="bi bi-list" aria-hidden="true"></i>
+        </button>
+        <div>
+          <h1 class="admin-topbar__title">Overview</h1>
+          <p class="admin-topbar__subtitle">Real-time snapshot of your network</p>
+        </div>
+      </div>
+      <div class="admin-topbar__meta">
+        <span class="admin-topbar__pill">
+          <i class="bi bi-circle-fill admin-topbar__live" aria-hidden="true"></i>
+          Live data
+        </span>
+      </div>
+    </header>
+
+    <section class="stats-row" aria-label="Key metrics">
+      <article class="stat-card" *ngFor="let s of stats">
+        <div class="stat-card__icon-wrap">
+          <i class="bi stat-card__icon" [ngClass]="s.icon" aria-hidden="true"></i>
+        </div>
+        <div class="stat-card__body">
+          <p class="stat-card__label">{{ s.label }}</p>
+          <p class="stat-card__value">{{ s.value }}</p>
+          <p
+            class="stat-card__delta"
+            [class.stat-card__delta--positive]="s.deltaTone === 'positive'"
+            [class.stat-card__delta--negative]="s.deltaTone === 'negative'"
+            [class.stat-card__delta--neutral]="s.deltaTone === 'neutral'">
+            {{ s.deltaLabel }}
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel panel--table" aria-labelledby="recent-heading">
+        <div class="panel__head">
+          <h2 id="recent-heading" class="panel__title">Recent Appointments</h2>
+          <button type="button" class="panel__action">View all</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Patient Name</th>
+                <th scope="col">Service</th>
+                <th scope="col">Time</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of recentAppointments">
+                <td data-label="Patient">{{ row.patientName }}</td>
+                <td data-label="Service">{{ row.service }}</td>
+                <td data-label="Time">
+                  <span class="data-table__time">
+                    <i class="bi bi-clock" aria-hidden="true"></i>
+                    {{ row.timeLabel }}
+                  </span>
+                </td>
+                <td data-label="Status">
+                  <span
+                    class="badge"
+                    [ngClass]="{
+                      'badge--confirmed': row.status === 'Confirmed',
+                      'badge--pending': row.status === 'Pending',
+                      'badge--cancelled': row.status === 'Cancelled'
+                    }">
+                    {{ row.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel panel--side" aria-labelledby="top-clinics-heading">
+        <div class="panel__head">
+          <h2 id="top-clinics-heading" class="panel__title">Top Clinics</h2>
+          <span class="panel__hint">By patient rating</span>
+        </div>
+        <ul class="top-list">
+          <li *ngFor="let c of topClinics; let i = index" class="top-list__item">
+            <span class="top-list__rank">{{ i + 1 }}</span>
+            <div class="top-list__avatar" aria-hidden="true">{{ c.initials }}</div>
+            <div class="top-list__info">
+              <p class="top-list__name">{{ c.name }}</p>
+              <p class="top-list__sub">{{ c.subtitle }}</p>
+              <div class="top-list__stars" [attr.aria-label]="'Rating ' + c.rating + ' out of 5'">
+                <i
+                  *ngFor="let n of starSlots"
+                  class="bi top-list__star"
+                  [class.bi-star-fill]="isStarFilled(c.rating, n)"
+                  [class.bi-star]="!isStarFilled(c.rating, n)"></i>
+                <span class="top-list__rating-num">{{ c.rating }}</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>

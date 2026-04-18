@@ -101,7 +101,7 @@
             (click)="togglePasswordVisibility('password')"
             [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
           >
-            <i class="material-icons">{{ showPassword ? 'visibility_off' : 'visibility' }}</i>
+            <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
           </button>
         </div>
         <div class="error-message" *ngIf="formControls['password'].touched">
@@ -131,7 +131,7 @@
             (click)="togglePasswordVisibility('confirm')"
             [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
           >
-            <i class="material-icons">{{ showConfirmPassword ? 'visibility_off' : 'visibility' }}</i>
+            <i class="bi" [class.bi-eye-fill]="!showConfirmPassword" [class.bi-eye-slash-fill]="showConfirmPassword"></i>
           </button>
         </div>
         <div class="error-message" *ngIf="formControls['rePassword'].touched">

@@ -33,15 +33,6 @@ export class Login {
 
     const { email, password } = this.loginForm.value;
 
-    // ADMIN BYPASS - FIRST THING
-    if (email === 'ClinciAdmin@gmail.com' && password === 'P@ssw0rd') {
-      console.log('✅ Admin Manual Bypass Triggered');
-      localStorage.setItem('auth_token', 'manual-admin-token');
-      localStorage.setItem('userEmail', 'ClinciAdmin');
-      this.router.navigate(['/system-dashboard']);
-      return;
-    }
-
     // NORMAL LOGIN
     this.isLoading.set(true);
     this.errorMessage.set('');
@@ -57,7 +48,14 @@ export class Login {
         this.isLoading.set(false);
         localStorage.setItem('auth_token', response.accessToken || response.token || 'default-token');
         localStorage.setItem('userEmail', email);
-        this.router.navigate(['/home-for-patient']);
+        localStorage.setItem('userRole', response.role || 'Patient');
+        const role = JSON.parse(atob(localStorage.getItem('auth_token')!.split('.')[1] || '{}')).role || 'Patient';
+        const roleRoutes = {
+          'Admin': '/admin-dashboard',
+          'Doctor': '/doctor/dashboard',
+          'Patient': '/home-for-patient'
+        };
+        this.router.navigate([roleRoutes[role as keyof typeof roleRoutes] || '/home-for-patient']);
       },
       error: (error) => {
         console.error('Login error', error);
