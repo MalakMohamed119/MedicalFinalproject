@@ -1,0 +1,100 @@
+<div class="add-doctor-container">
+  <h2>Add New Doctor</h2>
+  <form [formGroup]="addDoctorForm" (ngSubmit)="onSubmit()" novalidate>
+    
+    <div class="form-group">
+      <label for="fullName">Full Name</label>
+      <input 
+        id="fullName" 
+        formControlName="fullName" 
+        type="text" 
+        placeholder="Enter doctor's full name"
+        class="form-control"
+        [class.error]="formControls.fullName.touched && formControls.fullName.invalid">
+      <div *ngIf="formControls.fullName.touched && formControls.fullName.invalid" class="error-message">
+        Full name is required (min 2 chars)
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input 
+        id="email" 
+        formControlName="email" 
+        type="email" 
+        placeholder="doctor@example.com"
+        class="form-control"
+        [class.error]="formControls.email.touched && formControls.email.invalid">
+      <div *ngIf="formControls.email.touched && formControls.email.invalid" class="error-message">
+        Valid email is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <div class="password-container">
+        <input 
+          id="password" 
+          formControlName="password" 
+          [type]="showPassword ? 'text' : 'password'" 
+          placeholder="Strong password"
+          class="form-control"
+          [class.error]="formControls.password.touched && formControls.password.invalid">
+        <button type="button" class="toggle-password" (click)="togglePassword()">
+          {{ showPassword ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+      <div *ngIf="formControls.password.touched && formControls.password.invalid" class="error-message">
+        Password must be at least 6 characters
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="specialty">Specialty</label>
+        <select id="specialty" formControlName="specialty" class="form-control">
+          <option value="">Select specialty</option>
+          <option value="Cardiology">Cardiology</option>
+          <option value="Neurology">Neurology</option>
+          <option value="Orthopedics">Orthopedics</option>
+          <option value="Pediatrics">Pediatrics</option>
+          <option value="Dermatology">Dermatology</option>
+          <option value="General Medicine">General Medicine</option>
+        </select>
+        <div *ngIf="formControls.specialty.touched && formControls.specialty.invalid" class="error-message">
+          Specialty is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input 
+          id="phoneNumber" 
+          formControlName="phoneNumber" 
+          type="tel" 
+          placeholder="01xxxxxxxxx"
+          class="form-control"
+          [class.error]="formControls.phoneNumber.touched && formControls.phoneNumber.invalid">
+        <div *ngIf="formControls.phoneNumber.touched && formControls.phoneNumber.invalid" class="error-message">
+          Valid phone number required
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" routerLink="/admin-dashboard" class="btn btn-secondary">
+        <i class="bi-arrow-left"></i> Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="addDoctorForm.invalid || isLoading()">
+        <span *ngIf="isLoading()"><i class="bi-hourglass-split"></i> Creating...</span>
+        <span *ngIf="!isLoading()"><i class="bi-plus-lg"></i> Add Doctor</span>
+      </button>
+    </div>
+
+    <div *ngIf="errorMessage()" class="error-toast">
+      {{ errorMessage() }}
+      <button type="button" (click)="dismissError()">&times;</button>
+    </div>
+  </form>
+</div>
+

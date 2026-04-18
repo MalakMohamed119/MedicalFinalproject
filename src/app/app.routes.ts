@@ -13,6 +13,8 @@ import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard
 import { Login } from './core/auth/login/login';
 import { Register } from './core/auth/register/register';
 import { LogoutComponent } from './core/auth/logout/logout.component';
+import { AddDoctorComponent } from './features/admin/add-doctor/add-doctor.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -70,7 +72,12 @@ export const routes: Routes = [
     component: ManageDoctors,
     // canActivate: [authGuard]
   },
+  { 
+    path: 'admin/add-doctor', 
+    component: AddDoctorComponent
+  },
   
   // 404 - Not Found (keep this last)
   { path: '**', component: NotFound }
+
 ];

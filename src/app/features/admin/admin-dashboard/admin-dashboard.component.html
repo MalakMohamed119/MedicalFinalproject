@@ -80,92 +80,112 @@
       </div>
     </header>
 
-    <section class="stats-row" aria-label="Key metrics">
-      <article class="stat-card" *ngFor="let s of stats">
-        <div class="stat-card__icon-wrap">
-          <i class="bi stat-card__icon" [ngClass]="s.icon" aria-hidden="true"></i>
+    @if (!loading()) {
+      @if (error()) {
+        <div class="error-message">
+          {{ error() }}
+          <button (click)="loadDashboardData()">Retry</button>
         </div>
-        <div class="stat-card__body">
-          <p class="stat-card__label">{{ s.label }}</p>
-          <p class="stat-card__value">{{ s.value }}</p>
-          <p
-            class="stat-card__delta"
-            [class.stat-card__delta--positive]="s.deltaTone === 'positive'"
-            [class.stat-card__delta--negative]="s.deltaTone === 'negative'"
-            [class.stat-card__delta--neutral]="s.deltaTone === 'neutral'">
-            {{ s.deltaLabel }}
-          </p>
-        </div>
-      </article>
-    </section>
-
-    <div class="content-grid">
-      <section class="panel panel--table" aria-labelledby="recent-heading">
-        <div class="panel__head">
-          <h2 id="recent-heading" class="panel__title">Recent Appointments</h2>
-          <button type="button" class="panel__action">View all</button>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th scope="col">Patient Name</th>
-                <th scope="col">Service</th>
-                <th scope="col">Time</th>
-                <th scope="col">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let row of recentAppointments">
-                <td data-label="Patient">{{ row.patientName }}</td>
-                <td data-label="Service">{{ row.service }}</td>
-                <td data-label="Time">
-                  <span class="data-table__time">
-                    <i class="bi bi-clock" aria-hidden="true"></i>
-                    {{ row.timeLabel }}
-                  </span>
-                </td>
-                <td data-label="Status">
-                  <span
-                    class="badge"
-                    [ngClass]="{
-                      'badge--confirmed': row.status === 'Confirmed',
-                      'badge--pending': row.status === 'Pending',
-                      'badge--cancelled': row.status === 'Cancelled'
-                    }">
-                    {{ row.status }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="panel panel--side" aria-labelledby="top-clinics-heading">
-        <div class="panel__head">
-          <h2 id="top-clinics-heading" class="panel__title">Top Clinics</h2>
-          <span class="panel__hint">By patient rating</span>
-        </div>
-        <ul class="top-list">
-          <li *ngFor="let c of topClinics; let i = index" class="top-list__item">
-            <span class="top-list__rank">{{ i + 1 }}</span>
-            <div class="top-list__avatar" aria-hidden="true">{{ c.initials }}</div>
-            <div class="top-list__info">
-              <p class="top-list__name">{{ c.name }}</p>
-              <p class="top-list__sub">{{ c.subtitle }}</p>
-              <div class="top-list__stars" [attr.aria-label]="'Rating ' + c.rating + ' out of 5'">
-                <i
-                  *ngFor="let n of starSlots"
-                  class="bi top-list__star"
-                  [class.bi-star-fill]="isStarFilled(c.rating, n)"
-                  [class.bi-star]="!isStarFilled(c.rating, n)"></i>
-                <span class="top-list__rating-num">{{ c.rating }}</span>
-              </div>
+      } @else {
+        <section class="stats-row" aria-label="Key metrics">
+          <article class="stat-card" *ngFor="let s of stats()">
+            <div class="stat-card__icon-wrap">
+              <i class="bi stat-card__icon" [ngClass]="s.icon" aria-hidden="true"></i>
             </div>
-          </li>
-        </ul>
-      </section>
-    </div>
+            <div class="stat-card__body">
+              <p class="stat-card__label">{{ s.label }}</p>
+              <p class="stat-card__value">{{ s.value }}</p>
+              <p
+                class="stat-card__delta"
+                [class.stat-card__delta--positive]="s.deltaTone === 'positive'"
+                [class.stat-card__delta--negative]="s.deltaTone === 'negative'"
+                [class.stat-card__delta--neutral]="s.deltaTone === 'neutral'">
+                {{ s.deltaLabel }}
+              </p>
+            </div>
+          </article>
+        </section>
+
+        <div class="content-grid">
+          <section class="panel panel--table" aria-labelledby="doctors-heading">
+            <div class="panel__head">
+              <h2 id="doctors-heading" class="panel__title">All Doctors</h2>
+              <a routerLink="/admin/add-doctor" class="panel__action">Create New Doctor</a>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Display Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Specialty</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (doctor of doctors(); track doctor.id) {
+                    <tr>
+                      <td data-label="Display Name">{{ doctor.displayName || 'N/A' }}</td>
+                      <td data-label="Email">{{ doctor.email }}</td>
+                      <td data-label="Specialty">{{ doctor.specialty || 'General' }}</td>
+                      <td data-label="Status">
+                        <span class="badge" [class.badge--confirmed]="doctor.isActive" [class.badge--cancelled]="!doctor.isActive">
+                          {{ doctor.isActive ? 'Active' : 'Inactive' }}
+                        </span>
+                      </td>
+                      <td data-label="Actions">
+                        <button 
+                          class="btn btn--sm btn--outline me-1" 
+                          (click)="toggleDoctorStatus(doctor)" 
+                          [disabled]="loading()">
+                          {{ doctor.isActive ? 'Deactivate' : 'Activate' }}
+                        </button>
+                        <button 
+                          class="btn btn--sm btn--danger" 
+                          (click)="deleteDoctor(doctor)" 
+                          [hidden]="doctor.email === currentUserEmail">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="text-center py-4 text-muted">No doctors found.</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel panel--side" aria-labelledby="top-clinics-heading">
+            <div class="panel__head">
+              <h2 id="top-clinics-heading" class="panel__title">Top Clinics</h2>
+              <span class="panel__hint">Highest rated doctors</span>
+            </div>
+            <ul class="top-list">
+              <li *ngFor="let clinic of clinics(); let i = index" class="top-list__item">
+                <span class="top-list__rank">{{ i + 1 }}</span>
+                <div class="top-list__avatar" aria-hidden="true">{{ clinic.doctorName.substring(0,2).toUpperCase() }}</div>
+                <div class="top-list__info">
+                  <p class="top-list__name">{{ clinic.clinicName }}</p>
+                  <p class="top-list__sub">{{ clinic.doctorName }} · {{ clinic.clinicAddress }}</p>
+                  <div class="top-list__stars" aria-label="Clinic quality">
+                    <i *ngFor="let n of starSlots" class="bi top-list__star bi-star-fill"></i>
+                    <span class="top-list__rating-num">4.8</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </section>
+        </div>
+      }
+    } @else {
+      <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    }
   </div>
 </div>

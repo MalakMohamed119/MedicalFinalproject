@@ -42,20 +42,20 @@ export class Login {
       Password: password
     };
 
-    this.authService.login(credentials).subscribe({
+        this.authService.login(credentials).subscribe({
       next: (response) => {
         console.log('Login successful', response);
         this.isLoading.set(false);
-        localStorage.setItem('auth_token', response.accessToken || response.token || 'default-token');
+        this.authService.setToken(response.accessToken || response.token || '');
         localStorage.setItem('userEmail', email);
-        localStorage.setItem('userRole', response.role || 'Patient');
-        const role = JSON.parse(atob(localStorage.getItem('auth_token')!.split('.')[1] || '{}')).role || 'Patient';
-        const roleRoutes = {
-          'Admin': '/admin-dashboard',
-          'Doctor': '/doctor/dashboard',
-          'Patient': '/home-for-patient'
-        };
-        this.router.navigate([roleRoutes[role as keyof typeof roleRoutes] || '/home-for-patient']);
+        const role = this.authService.getRole();
+        console.log('User Role detected:', role);
+        if (role === 'Admin' || role === 'ClinicAdmin') {
+          this.router.navigate(['/admin-dashboard']);
+        } else {
+          this.router.navigate(['/home-for-patient']);
+        }
+
       },
       error: (error) => {
         console.error('Login error', error);
@@ -63,6 +63,7 @@ export class Login {
         this.isLoading.set(false);
       }
     });
+
   }
 
   get formControls() {

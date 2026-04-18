@@ -1,9 +1,13 @@
+
 <app-navbar></app-navbar>
 <div class="dashboard">
   <h1>Doctor Dashboard</h1>
-  <p>Total Appointments: {{ dashboardData.totalAppointments }}</p>
-  <p>Confirmed: {{ dashboardData.confirmedAppointments }}</p>
-  <p>Cancelled: {{ dashboardData.cancelledAppointments }}</p>
-  <p>Available Slots: {{ dashboardData.availableTimeSlots }}</p>
+  @if (dashboardData) {
+    <p>Total Appointments: {{ dashboardData.todaysAppointments }}</p>
+    <p>Confirmed: {{ dashboardData.confirmedAppointments }}</p>
+    <p>Cancelled: {{ dashboardData.cancelledAppointments }}</p>
+    <p>Available Slots: {{ dashboardData.availableTimeSlots }}</p>
+  }
 </div>
 <app-footer></app-footer>
+

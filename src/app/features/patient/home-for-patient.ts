@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Footer } from '../../shared/components/footer/footer';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClinicResponse } from '../../shared/models/clinic-response.interface';
+import { ClinicService } from '../../core/services/clinic.service';
 
 type ClinicCard = ClinicResponse & {
   rating: number;
@@ -20,93 +21,46 @@ type ClinicCard = ClinicResponse & {
   styleUrl: './home-for-patient.scss'
 })
 export class HomeForPatient implements OnInit {
+  private clinicService = inject(ClinicService);
   readonly starNumbers: number[] = [1, 2, 3, 4, 5];
 
   clinics: ClinicCard[] = [];
   filteredClinics: ClinicCard[] = [];
   searchTerm: string = '';
   stats = {
-    totalClinics: 47,
+    totalClinics: 0,
     totalDoctors: 23,
     happyPatients: 1247
   };
+  isLoading = false;
+  error: string | null = null;
 
   ngOnInit(): void {
-    this.clinics = [
-      {
-        id: 1,
-        doctorId: '1',
-        clinicName: 'Modern Dental Clinic',
-        doctorName: 'Dr. Malak Mohamed',
-        clinicAddress: 'Heliopolis, Cairo',
-        description: 'Advanced dental care',
-        specialty: 'Dental',
-        rating: 4.9,
-        availableSlots: 12,
-        image: ''
+    this.loadClinics();
+  }
+
+  loadClinics(): void {
+    this.isLoading = true;
+    this.error = null;
+    this.clinicService.getAllClinics({}).subscribe({
+      next: (data: ClinicResponse[]) => {
+        this.clinics = data.map((clinic: ClinicResponse) => ({
+          ...clinic,
+          rating: 4.8,
+          availableSlots: 10,
+          image: 'assets/images/clinic-placeholder.jpg',
+          specialty: 'Medical Specialist'
+        }));
+        this.filteredClinics = [...this.clinics];
+        this.stats.totalClinics = this.clinics.length;
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        doctorId: '2',
-        clinicName: 'Heart & Soul Center',
-        doctorName: 'Dr. Ahmed Mostafa',
-        clinicAddress: 'Maadi, Cairo',
-        description: 'Expert cardiac services',
-        specialty: 'Cardiology',
-        rating: 4.8,
-        availableSlots: 8,
-        image: ''
-      },
-      {
-        id: 3,
-        doctorId: '3',
-        clinicName: 'Global Eye Care',
-        doctorName: 'Dr. Sarah Hassan',
-        clinicAddress: 'Zamalek, Cairo',
-        description: 'Precision eye surgery',
-        specialty: 'Ophthalmology',
-        rating: 5.0,
-        availableSlots: 15,
-        image: ''
-      },
-      {
-        id: 4,
-        doctorId: '4',
-        clinicName: 'Elite Medical Center',
-        doctorName: 'Dr. Sara Ahmed',
-        clinicAddress: 'Nasr City, Cairo',
-        description: 'Comprehensive healthcare',
-        specialty: 'General',
-        rating: 4.7,
-        availableSlots: 20,
-        image: ''
-      },
-      {
-        id: 5,
-        doctorId: '5',
-        clinicName: 'Prime Pediatrics',
-        doctorName: 'Dr. Omar Khaled',
-        clinicAddress: 'New Cairo, Cairo',
-        description: 'Child healthcare specialists',
-        specialty: 'Pediatrics',
-        rating: 4.9,
-        availableSlots: 10,
-        image: ''
-      },
-      {
-        id: 6,
-        doctorId: '6',
-        clinicName: 'Vision Care Institute',
-        doctorName: 'Dr. Layla Ibrahim',
-        clinicAddress: 'Dokki, Cairo',
-        description: 'Advanced eye treatments',
-        specialty: 'Ophthalmology',
-        rating: 4.8,
-        availableSlots: 14,
-        image: ''
+      error: (err: any) => {
+        console.error('Failed to load clinics:', err);
+        this.error = 'Failed to load clinics';
+        this.isLoading = false;
       }
-    ];
-    this.filteredClinics = [...this.clinics];
+    });
   }
 
   clearSearch(): void {
@@ -136,7 +90,7 @@ export class HomeForPatient implements OnInit {
     return starNumber <= Math.round(r);
   }
 
-  trackByClinic(index: number, clinic: any): any {
+trackByClinic(index: number, clinic: ClinicCard): number {
     return clinic.id;
   }
 }

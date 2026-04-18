@@ -71,69 +71,83 @@
       <span class="section-heading__meta">{{ filteredClinics.length }} listings</span>
     </div>
 
-    <div class="card-grid" *ngIf="filteredClinics.length > 0; else emptyState">
-      <article class="clinic-card" *ngFor="let clinic of filteredClinics; trackBy: trackByClinic">
-        <div class="clinic-card__top">
-          <span class="clinic-card__specialty">{{ clinic.specialty }}</span>
-          <div
-            class="clinic-card__rating"
-            [attr.aria-label]="'Rating ' + clinic.rating + ' out of 5'">
-            <span class="clinic-card__rating-num">{{ clinic.rating }}</span>
-            <div class="clinic-card__stars" role="presentation">
-              <i
-                *ngFor="let n of starNumbers"
-                class="bi star-icon"
-                [class.bi-star-fill]="isStarFilled(clinic.rating, n)"
-                [class.bi-star]="!isStarFilled(clinic.rating, n)"></i>
+    <div *ngIf="isLoading; else content">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading clinics...</p>
+      </div>
+    </div>
+    <ng-template #content>
+      <div *ngIf="error; else clinicsList" class="error-state">
+        <i class="bi bi-exclamation-triangle"></i>
+        <p>{{ error }}</p>
+        <button (click)="loadClinics()" class="cta-button cta-button--small">Retry</button>
+      </div>
+      <ng-template #clinicsList>
+        <div class="card-grid" *ngIf="filteredClinics.length > 0; else emptyState">
+          <article class="clinic-card" *ngFor="let clinic of filteredClinics; trackBy: trackByClinic">
+            <div class="clinic-card__top">
+              <span class="clinic-card__specialty">{{ clinic.specialty }}</span>
+              <div
+                class="clinic-card__rating"
+                [attr.aria-label]="'Rating ' + clinic.rating + ' out of 5'">
+                <span class="clinic-card__rating-num">{{ clinic.rating }}</span>
+                <div class="clinic-card__stars" role="presentation">
+                  <i
+                    *ngFor="let n of starNumbers"
+                    class="bi star-icon"
+                    [class.bi-star-fill]="isStarFilled(clinic.rating, n)"
+                    [class.bi-star]="!isStarFilled(clinic.rating, n)"></i>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div class="clinic-card__brand">
-          <div class="clinic-card__avatar">
-            <i class="bi bi-building-check" aria-hidden="true"></i>
-          </div>
-          <div class="clinic-card__titles">
-            <h3>{{ clinic.clinicName }}</h3>
-            <p class="clinic-card__tagline">{{ clinic.description }}</p>
-          </div>
-        </div>
+            <div class="clinic-card__brand">
+              <div class="clinic-card__avatar">
+                <i class="bi bi-building-check" aria-hidden="true"></i>
+              </div>
+              <div class="clinic-card__titles">
+                <h3>{{ clinic.clinicName }}</h3>
+                <p class="clinic-card__tagline">{{ clinic.description }}</p>
+              </div>
+            </div>
 
-        <div class="clinic-card__details">
-          <p class="clinic-row">
-            <i class="bi bi-person-badge" aria-hidden="true"></i>
-            <span>{{ clinic.doctorName }}</span>
-          </p>
-          <p class="clinic-row">
-            <i class="bi bi-geo-alt" aria-hidden="true"></i>
-            <span>{{ clinic.clinicAddress }}</span>
-          </p>
-        </div>
+            <div class="clinic-card__details">
+              <p class="clinic-row">
+                <i class="bi bi-person-badge" aria-hidden="true"></i>
+                <span>{{ clinic.doctorName }}</span>
+              </p>
+              <p class="clinic-row">
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                <span>{{ clinic.clinicAddress }}</span>
+              </p>
+            </div>
 
-        <div class="clinic-card__footer">
-          <div class="availability-pill">
-            <i class="bi bi-calendar-check" aria-hidden="true"></i>
-            <span>{{ clinic.availableSlots }} open slots</span>
+            <div class="clinic-card__footer">
+              <div class="availability-pill">
+                <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                <span>{{ clinic.availableSlots }} open slots</span>
+              </div>
+              <button type="button" class="cta-button" (click)="bookClinic(clinic.id)">
+                <span>Book visit</span>
+                <i class="bi bi-arrow-right-short cta-button__arrow" aria-hidden="true"></i>
+              </button>
+            </div>
+          </article>
+        </div>
+      </ng-template>
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <div class="empty-state__icon-wrap">
+            <i class="bi bi-search-heart" aria-hidden="true"></i>
           </div>
-          <button type="button" class="cta-button" (click)="bookClinic(clinic.id)">
-            <span>Book visit</span>
-            <i class="bi bi-arrow-right-short cta-button__arrow" aria-hidden="true"></i>
+          <h3>No matches</h3>
+          <p>Try another keyword or browse all clinics again.</p>
+          <button type="button" class="cta-button cta-button--ghost" (click)="clearSearch()">
+            Reset search
           </button>
         </div>
-      </article>
-    </div>
-
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <div class="empty-state__icon-wrap">
-          <i class="bi bi-search-heart" aria-hidden="true"></i>
-        </div>
-        <h3>No matches</h3>
-        <p>Try another keyword or browse all clinics again.</p>
-        <button type="button" class="cta-button cta-button--ghost" (click)="clearSearch()">
-          Reset search
-        </button>
-      </div>
+      </ng-template>
     </ng-template>
   </div>
 </section>
