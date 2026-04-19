@@ -28,7 +28,7 @@ export const routes: Routes = [
   { 
     path: 'home-for-patient', 
     component: HomeForPatient,
-    // canActivate: [authGuard]
+   canActivate: [authGuard]
   },
   {
     path: 'clinic-details',
@@ -41,12 +41,12 @@ export const routes: Routes = [
   { 
     path: 'doctor/dashboard', 
     component: DoctorDashboard,
-    // canActivate: [authGuard]
+   canActivate: [authGuard]
   },
   { 
     path: 'doctor/my-clinics', 
     component: MyClinics,
-    // canActivate: [authGuard]
+   canActivate: [authGuard]
   },
   { 
     path: 'doctor/manage-slots', 
@@ -70,14 +70,14 @@ export const routes: Routes = [
   { 
     path: 'admin/manage-doctors', 
     component: ManageDoctors,
-    // canActivate: [authGuard]
+   canActivate: [authGuard]
   },
   { 
     path: 'admin/add-doctor', 
     component: AddDoctorComponent
   },
   
-  // 404 - Not Found (keep this last)
+//  404 - Not Found (keep this last)
   { path: '**', component: NotFound }
 
 ];

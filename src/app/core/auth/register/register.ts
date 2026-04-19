@@ -26,8 +26,7 @@ export class Register {
     this.registerForm = this._formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/)]],
-      rePassword: ['', [Validators.required]],
+password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],      rePassword: ['', [Validators.required]],
       phone: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]]
     });
   }
@@ -57,11 +56,10 @@ export class Register {
     this.isLoading = true;
     
     const userData = {
-      name: this.registerForm.get('name')?.value,
+      displayName: this.registerForm.get('name')?.value,
       email: this.registerForm.get('email')?.value.toLowerCase(),
       password: this.registerForm.get('password')?.value,
-      rePassword: this.registerForm.get('rePassword')?.value,
-      phone: this.registerForm.get('phone')?.value
+      phoneNumber: this.registerForm.get('phone')?.value
     };
 
     this._authService.register(userData).subscribe({

@@ -42,8 +42,9 @@ export class HomeForPatient implements OnInit {
   loadClinics(): void {
     this.isLoading = true;
     this.error = null;
-    this.clinicService.getAllClinics({}).subscribe({
-      next: (data: ClinicResponse[]) => {
+this.clinicService.getAllClinics({}).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : (res.data || res.results || res || []);
         this.clinics = data.map((clinic: ClinicResponse) => ({
           ...clinic,
           rating: 4.8,
@@ -55,6 +56,7 @@ export class HomeForPatient implements OnInit {
         this.stats.totalClinics = this.clinics.length;
         this.isLoading = false;
       },
+
       error: (err: any) => {
         console.error('Failed to load clinics:', err);
         this.error = 'Failed to load clinics';

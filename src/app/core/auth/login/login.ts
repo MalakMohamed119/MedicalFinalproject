@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-login',
@@ -33,7 +34,6 @@ export class Login {
 
     const { email, password } = this.loginForm.value;
 
-    // NORMAL LOGIN
     this.isLoading.set(true);
     this.errorMessage.set('');
 
@@ -49,15 +49,22 @@ export class Login {
         this.isLoading.set(false);
         localStorage.setItem('token', res.accessToken);
         localStorage.setItem('email', res.email || email);
-
-        // Shortcut Admin check for testing (role in JWT)
-        if (res.email === 'ClinciAdmin@gmail.com' || res.displayName === 'ClinciAdmin') {
-          localStorage.setItem('role', 'Admin');
+        
+        // Decode JWT for role with MS Claim
+        const decodedToken: any = jwtDecode(res.accessToken);
+        console.log('Decoded JWT:', decodedToken);
+        const role = decodedToken.role || 
+                     decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 
+                     decodedToken['role'] || 'Patient';
+        console.log('Extracted Role:', role);
+        localStorage.setItem('role', role);
+        
+        if (role === 'Admin') {
           this.router.navigate(['/admin-dashboard']);
+        } else if (role === 'Doctor') {
+          this.router.navigate(['/doctor-dashboard']);
         } else {
-          // Default for other users (Patient/Doctor - expand when role decoded)
-          localStorage.setItem('role', 'Patient');
-          this.router.navigate(['/patient-dashboard']);
+          this.router.navigate(['/home-for-patient']);
         }
       },
       error: (error: any) => {

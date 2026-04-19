@@ -36,6 +36,7 @@
     "classlist.js": "^1.1.20150312",
     "core-js": "^3.48.0",
     "express": "^5.1.0",
+    "jwt-decode": "^4.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "typed.js": "^3.0.0",

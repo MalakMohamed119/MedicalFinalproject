@@ -4,9 +4,6 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { ClinicService } from '../../../core/services/clinic.service';
 
-
-
-
 @Component({
   selector: 'app-add-doctor',
   standalone: true,
@@ -19,7 +16,6 @@ export class AddDoctorComponent {
   private clinicService = inject(ClinicService);
   private router = inject(Router);
 
-
   showPassword = false;
   isLoading = signal(false);
   errorMessage = signal('');
@@ -27,7 +23,7 @@ export class AddDoctorComponent {
   addDoctorForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],
     specialty: ['', Validators.required],
     phoneNumber: ['', [Validators.required, Validators.pattern(/01[0-9]{9}/)]]
   });
@@ -58,7 +54,6 @@ export class AddDoctorComponent {
     this.errorMessage.set('');
 
     this.clinicService.createDoctor(doctorData).subscribe({
-
       next: (res: any) => {
         alert('Doctor added successfully!');
         this.router.navigate(['/admin-dashboard']);
@@ -69,8 +64,6 @@ export class AddDoctorComponent {
         this.isLoading.set(false);
       }
     });
-
-
   }
 
   dismissError() {
