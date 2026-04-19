@@ -2,7 +2,8 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { ClinicService } from '../../../core/services/clinic.service';
+
 
 
 
@@ -15,8 +16,9 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class AddDoctorComponent {
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
+  private clinicService = inject(ClinicService);
   private router = inject(Router);
+
 
   showPassword = false;
   isLoading = signal(false);
@@ -46,8 +48,8 @@ export class AddDoctorComponent {
 
     const doctorData = {
       displayName: this.addDoctorForm.value.fullName,
-      Email: this.addDoctorForm.value.email,
-      Password: this.addDoctorForm.value.password,
+      email: this.addDoctorForm.value.email,
+      password: this.addDoctorForm.value.password,
       phoneNumber: this.addDoctorForm.value.phoneNumber,
       specialty: this.addDoctorForm.value.specialty
     };
@@ -55,7 +57,8 @@ export class AddDoctorComponent {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.authService.registerDoctor(doctorData).subscribe({
+    this.clinicService.createDoctor(doctorData).subscribe({
+
       next: (res: any) => {
         alert('Doctor added successfully!');
         this.router.navigate(['/admin-dashboard']);

@@ -26,7 +26,7 @@ export class Register {
     this.registerForm = this._formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],
+      password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$/)]],
       rePassword: ['', [Validators.required]],
       phone: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]]
     });
@@ -58,59 +58,20 @@ export class Register {
     
     const userData = {
       name: this.registerForm.get('name')?.value,
-      email: this.registerForm.get('email')?.value.toLowerCase(), // Convert email to lowercase
+      email: this.registerForm.get('email')?.value.toLowerCase(),
       password: this.registerForm.get('password')?.value,
       rePassword: this.registerForm.get('rePassword')?.value,
       phone: this.registerForm.get('phone')?.value
     };
 
-    this._authService.signup(userData).subscribe({
+    this._authService.register(userData).subscribe({
       next: (response: any) => {
         console.log('Registration successful', response);
-        // Show success message in the card
-        const successMessage = document.createElement('div');
-        successMessage.className = 'alert alert-success mt-3';
-        successMessage.textContent = 'Registration successful! You can now login.';
-        
-        const form = document.querySelector('form');
-        if (form) {
-          form.insertAdjacentElement('afterend', successMessage);
-        }
-        
-        // Clear the form
         this.registerForm.reset();
-        
-        // Navigate to login after 2 seconds
-        setTimeout(() => {
-          this._router.navigate(['/login']);
-        }, 2000);
+        this._router.navigate(['/login']);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Registration error', error);
-        
-        // Show error message in the card
-        const errorElement = document.createElement('div');
-        errorElement.className = 'alert alert-danger mt-3';
-        
-        // Check for specific error messages
-        if (error.error?.message?.includes('already in use')) {
-          errorElement.textContent = 'This email is already registered. Please use a different email or try to login.';
-        } else {
-          errorElement.textContent = error.error?.message || 'Registration failed. Please check your information and try again.';
-        }
-        
-        // Remove any existing error messages
-        const existingError = document.querySelector('.alert-danger');
-        if (existingError) {
-          existingError.remove();
-        }
-        
-        const form = document.querySelector('form');
-        if (form) {
-          form.insertAdjacentElement('afterend', errorElement);
-        }
-        
-        this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
@@ -131,3 +92,4 @@ export class Register {
     }
   }
 }
+

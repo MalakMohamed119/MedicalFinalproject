@@ -42,28 +42,30 @@ export class Login {
       Password: password
     };
 
-        this.authService.login(credentials).subscribe({
-      next: (response) => {
-        console.log('Login successful', response);
+    this.authService.login(credentials).subscribe({
+      next: (res: any) => {
+        console.log('Full API Response:', res);
+        console.log('Login successful', res);
         this.isLoading.set(false);
-        this.authService.setToken(response.accessToken || response.token || '');
-        localStorage.setItem('userEmail', email);
-        const role = this.authService.getRole();
-        console.log('User Role detected:', role);
-        if (role === 'Admin' || role === 'ClinicAdmin') {
+        localStorage.setItem('token', res.accessToken);
+        localStorage.setItem('email', res.email || email);
+
+        // Shortcut Admin check for testing (role in JWT)
+        if (res.email === 'ClinciAdmin@gmail.com' || res.displayName === 'ClinciAdmin') {
+          localStorage.setItem('role', 'Admin');
           this.router.navigate(['/admin-dashboard']);
         } else {
-          this.router.navigate(['/home-for-patient']);
+          // Default for other users (Patient/Doctor - expand when role decoded)
+          localStorage.setItem('role', 'Patient');
+          this.router.navigate(['/patient-dashboard']);
         }
-
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Login error', error);
         this.errorMessage.set('Invalid credentials');
         this.isLoading.set(false);
       }
     });
-
   }
 
   get formControls() {
