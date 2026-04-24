@@ -30,27 +30,33 @@ export class Login {
   }
 
   onSubmit() {
-    if (this.loginForm.invalid) return;
-
-    const { email, password } = this.loginForm.value;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const credentials = {
-      Email: email,
-      Password: password
+    if (typeof window !== 'undefined') {
+      localStorage.clear();
+    }
+
+    const { email, password } = this.loginForm.value;
+    const credentials = { 
+      Email: email, 
+      Password: password 
     };
+
+    console.log('Login attempt with:', email);
 
     this.authService.login(credentials).subscribe({
       next: (res: any) => {
         console.log('Full API Response:', res);
         console.log('Login successful', res);
-        this.isLoading.set(false);
         localStorage.setItem('token', res.accessToken);
         localStorage.setItem('email', res.email || email);
         
-        // Decode JWT for role with MS Claim
         const decodedToken: any = jwtDecode(res.accessToken);
         console.log('Decoded JWT:', decodedToken);
         const role = decodedToken.role || 
@@ -62,14 +68,18 @@ export class Login {
         if (role === 'Admin') {
           this.router.navigate(['/admin-dashboard']);
         } else if (role === 'Doctor') {
-          this.router.navigate(['/doctor-dashboard']);
+          this.router.navigate(['/doctor/dashboard']);
         } else {
           this.router.navigate(['/home-for-patient']);
         }
+        this.isLoading.set(false);
       },
-      error: (error: any) => {
-        console.error('Login error', error);
-        this.errorMessage.set('Invalid credentials');
+      error: (err: any) => {
+        console.error('Login error:', err);
+        console.error('Server Error Detail:', err.error);
+        console.error('Full error response:', err);
+        const errorMessage = err.error?.detail || err.error?.message || err.error?.title || 'Invalid email or password';
+        this.errorMessage.set(errorMessage);
         this.isLoading.set(false);
       }
     });
@@ -83,4 +93,3 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 }
-

@@ -1,139 +1,121 @@
-import { Component, HostListener, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
-import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
-import { PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
+import { jwtDecode } from 'jwt-decode';
 
-
-export interface AdminStatCard {
-  id: string;
+interface StatCard {
   label: string;
-  value: string;
-  deltaLabel: string;
-  deltaTone: 'positive' | 'negative' | 'neutral';
+  value: number;
+  color: string;
   icon: string;
 }
-
-import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
-import { DoctorResponse } from '../../../shared/models/doctor-response.interface';
-
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminDashboard implements OnInit {
-  private readonly authService = inject(AuthService);
-  private readonly clinicService = inject(ClinicService);
-  private readonly router = inject(Router);
+export class AdminDashboardComponent implements OnInit {
+  private authService = inject(AuthService);
+  private clinicService = inject(ClinicService);
+  private router = inject(Router);
 
   readonly sidebarOpen = signal(false);
-  readonly stats = signal<AdminStatCard[]>([]);
-  readonly clinics = signal<ClinicResponse[]>([]);
-  readonly doctors = signal<DoctorResponse[]>([]);
+  readonly stats = signal<StatCard[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
 
-  get currentUserEmail(): string {
-    return localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).email || '' : '';
-  }
-
-  readonly starSlots = [1, 2, 3, 4, 5];
-
   ngOnInit(): void {
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    
     const role = this.authService.getRole();
-    console.log('AdminDashboard role check:', role);
-    if (role !== 'Admin') {
+    console.log('Admin Dashboard - Current Role:', role);
+    console.log('Admin Dashboard - Is Admin:', role === 'Admin');
+
+    // Debug JWT token
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        console.log('Admin Dashboard - JWT Token Claims:', decoded);
+        console.log('Admin Dashboard - Token Role Claims:', {
+          role: decoded.role,
+          msRole: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
+          roleAlt: decoded['role']
+        });
+      } catch (e) {
+        console.error('Admin Dashboard - Failed to decode JWT:', e);
+      }
+    } else {
+      console.log('Admin Dashboard - No token found in localStorage');
+    }
+
+    if (!role || role !== 'Admin') {
+      console.log('Admin Dashboard - Redirecting to login: not admin');
       this.router.navigate(['/login']);
       return;
     }
 
-    this.loadDashboardData();
+    console.log('Admin Dashboard - Loading dashboard data...');
+    this.loadDashboard();
   }
 
-
-  loadDashboardData(): void {
+  loadDashboard(): void {
     this.loading.set(true);
     this.error.set('');
 
     this.clinicService.getAdminDashboard().subscribe({
-      next: (dashboardStats: DashboardResponse) => {
-        console.log('Stats Response:', dashboardStats);
+      next: (data: DashboardResponse) => {
         this.stats.set([
           {
-            id: 'totalAppts',
             label: 'Total Appointments',
-            value: (dashboardStats.todaysAppointments ?? 0).toString(),
-            deltaLabel: '+12% this month',
-            deltaTone: 'positive',
-            icon: 'bi-calendar-event'
+            value: data.totalAppointments || 0,
+            color: '#2563eb', // blue
+            icon: 'bi-calendar-check'
           },
           {
-            id: 'confirmed',
             label: 'Confirmed Appointments',
-            value: (dashboardStats.confirmedAppointments ?? 0).toString(),
-            deltaLabel: '+8% vs yesterday',
-            deltaTone: 'positive',
+            value: data.confirmedAppointments || 0,
+            color: '#16a34a', // green
             icon: 'bi-check-circle'
           },
           {
-            id: 'cancelled',
             label: 'Cancelled Appointments',
-            value: (dashboardStats.cancelledAppointments ?? 0).toString(),
-            deltaLabel: '-4% vs last week',
-            deltaTone: 'negative',
+            value: data.cancelledAppointments || 0,
+            color: '#dc2626', // red
             icon: 'bi-x-circle'
           },
           {
-            id: 'slots',
             label: 'Available Time Slots',
-            value: (dashboardStats.availableTimeSlots ?? 0).toString(),
-            deltaLabel: '+15% this month',
-            deltaTone: 'positive',
+            value: data.availableTimeSlots || 0,
+            color: '#7c3aed', // purple
             icon: 'bi-clock'
           }
         ]);
-
-        // Load doctors
-        this.clinicService.getAllDoctors(0, 10).subscribe({
-          next: (res: any) => {
-            console.log('Doctors Received:', res);
-            // Support both direct array and paginated result
-            const doctorsList = Array.isArray(res) ? res : (res?.data || []);
-            this.doctors.set(doctorsList);
-            this.loading.set(false);
-          },
-          error: (err) => {
-            console.error('Failed to load doctors:', err);
-            this.error.set('Failed to load doctors');
-            this.loading.set(false);
-          }
-        });
-
+        this.loading.set(false);
       },
       error: (err: any) => {
-        this.error.set('Failed to load dashboard data');
+        console.error('Dashboard load error:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.message);
+        console.error('Error details:', err.error);
+
+        if (err.status === 403) {
+          this.error.set('Access denied. You do not have admin privileges.');
+        } else if (err.status === 401) {
+          this.error.set('Authentication failed. Please log in again.');
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        } else {
+          this.error.set('Failed to load dashboard data');
+        }
         this.loading.set(false);
-        console.error(err);
       }
     });
-
-  }
-
-  isStarFilled(rating: number, star: number): boolean {
-    return star <= Math.round(rating);
   }
 
   toggleSidebar(): void {
@@ -144,49 +126,13 @@ export class AdminDashboard implements OnInit {
     this.sidebarOpen.set(false);
   }
 
-  toggleDoctorStatus(doctor: DoctorResponse): void {
-    if (!doctor.id) return;
-    const newActive = !doctor.isActive!;
-    const request = newActive 
-      ? this.clinicService.activateDoctor(doctor.id!) 
-      : this.clinicService.deactivateDoctor(doctor.id!);
-
-    request.subscribe({
-      next: () => {
-        this.doctors.update(doctors => 
-          doctors.map(d => d.id === doctor.id ? { ...d, isActive: newActive } : d)
-        );
-      },
-      error: (err) => {
-        console.error('Toggle failed:', err);
-        this.error.set('Failed to toggle doctor status');
-      }
-    });
-  }
-
-  deleteDoctor(doctor: DoctorResponse): void {
-    if (doctor.email === this.currentUserEmail) {
-      this.error.set('Cannot delete your own account');
-      return;
-    }
-    if (!confirm(`Delete "${doctor.displayName || doctor.email}"?`)) return;
-
-    this.clinicService.deleteUser(doctor.email).subscribe({
-      next: () => {
-        this.doctors.update(doctors => doctors.filter(d => d.id !== doctor.id));
-      },
-      error: (err) => {
-        console.error('Delete failed:', err);
-        this.error.set('Failed to delete doctor');
-      }
-    });
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.sidebarOpen()) {
-      this.closeSidebar();
-    }
+    this.closeSidebar();
   }
 }
-

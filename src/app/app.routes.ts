@@ -7,8 +7,8 @@ import { PatientProfile } from './features/patient/patient-profile/patient-profi
 import { DoctorDashboard } from './features/doctor/dashboard/dashboard.component';
 import { MyClinics } from './features/doctor/my-clinics/my-clinics.component';
 import { TimeslotManagement } from './features/doctor/timeslot-management/timeslot-management.component';
-import { ManageDoctors } from './features/admin/manage-doctors/manage-doctors.component';
-import { AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard.component';
+import { ManageDoctorsComponent as ManageDoctors } from './features/admin/manage-doctors/manage-doctors.component';
+import { AdminDashboardComponent as AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard.component';
 
 import { Login } from './core/auth/login/login';
 import { Register } from './core/auth/register/register';

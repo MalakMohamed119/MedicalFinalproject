@@ -19,10 +19,13 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
 
   console.log('Interceptor seeing request to:', req.url);
   console.log('Interceptor - Token found:', !!token);
+  if (token) {
+    console.log('Interceptor - Token preview:', token.substring(0, 50) + '...');
+  }
 
   let modifiedReq = req;
 
-  if (token && req.url.startsWith(environment.apiUrl)) {
+  if (token && req.url.startsWith(environment.apiUrl) && !req.url.includes('/auth/Clinic/Authentication/')) {
     modifiedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

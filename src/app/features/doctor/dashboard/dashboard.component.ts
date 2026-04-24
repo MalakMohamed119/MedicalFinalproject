@@ -24,7 +24,7 @@ export class DoctorDashboard implements OnInit {
   }
 
   private loadDashboard(): void {
-    this.clinicService.getAdminDashboard().subscribe({
+    this.clinicService.getDoctorDashboard().subscribe({
       next: (data: DashboardResponse) => {
         this.dashboardData = data;
         this.loading = false;

@@ -4,5 +4,6 @@ export interface ClinicResponse {
   doctorName: string;
   clinicName: string;
   clinicAddress: string;
+  phoneNumber?: string;
   description: string;
 }

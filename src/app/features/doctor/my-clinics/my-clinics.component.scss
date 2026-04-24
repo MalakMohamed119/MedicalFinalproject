@@ -1,12 +1,426 @@
-.clinics {
+.clinics-container {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
 }
 
-.clinic-card {
-  border: 1px solid #ddd;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+  }
 }
+
+// Buttons Styling
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.75rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+    }
+  }
+
+  &.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1e7e34 0%, #145a27 100%);
+    }
+  }
+
+  &.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #545b62 0%, #3d424a 100%);
+    }
+  }
+
+  &.btn-outline-primary {
+    background: white;
+    color: #007bff;
+    border: 2px solid #007bff;
+
+    &:hover:not(:disabled) {
+      background: #007bff;
+      color: white;
+    }
+  }
+
+  &.btn-outline-danger {
+    background: white;
+    color: #dc3545;
+    border: 2px solid #dc3545;
+
+    &:hover:not(:disabled) {
+      background: #dc3545;
+      color: white;
+    }
+  }
+
+  &.btn-sm {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  i {
+    font-size: 1.1em;
+  }
+}
+
+// Form Styling
+.clinic-form {
+  margin-bottom: 2rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e9ecef;
+
+  h3 {
+    color: #2c3e50;
+    margin: 0 0 2rem 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.75rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1rem;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+  }
+
+  &.error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+
+    &:focus {
+      box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+    }
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+
+  .btn {
+    flex: 1;
+  }
+}
+
+// Clinics Grid
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 2rem;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loading {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #007bff;
+  }
+}
+
+.no-clinics {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px dashed #dee2e6;
+
+  i {
+    font-size: 4rem;
+    color: #adb5bd;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h3 {
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+  }
+
+  p {
+    color: #6c757d;
+    margin: 0 0 2rem 0;
+    font-size: 1.05rem;
+  }
+}
+
+// Clinic Cards
+.clinic-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.clinic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+
+  h3 {
+    color: #2c3e50;
+    margin: 0;
+    flex: 1;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+}
+
+.clinic-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.clinic-info {
+  .info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: #495057;
+    font-size: 1rem;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    i {
+      color: #007bff;
+      margin-top: 0.25rem;
+      min-width: 20px;
+      font-size: 1.1em;
+    }
+
+    span {
+      flex: 1;
+      line-height: 1.6;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .clinics-container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .btn {
+      width: 100%;
+    }
+  }
+
+  .clinics-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .clinic-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    h3 {
+      font-size: 1.2rem;
+    }
+  }
+
+  .clinic-actions {
+    align-self: flex-start;
+    width: 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
+
+  .form-card {
+    padding: 1.5rem;
+
+    h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .clinics-container {
+    padding: 0.75rem;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+    padding: 1rem;
+
+    h1 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .form-control {
+    font-size: 16px; // Prevent zoom on iOS
+  }
+
+  .btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .clinic-card {
+    padding: 1.5rem;
+  }
+
+  .clinic-header h3 {
+    font-size: 1.1rem;
+  }
+}
+

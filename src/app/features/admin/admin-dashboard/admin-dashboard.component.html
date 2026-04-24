@@ -1,191 +1,119 @@
-<div class="admin-shell">
-  <div
-    class="admin-sidebar-backdrop"
-    [class.admin-sidebar-backdrop--visible]="sidebarOpen()"
-    (click)="closeSidebar()"
-    aria-hidden="true"></div>
-
-  <aside
-    class="admin-sidebar"
-    [class.admin-sidebar--open]="sidebarOpen()"
-    aria-label="Main navigation">
-    <div class="admin-sidebar__brand">
-      <i class="bi bi-heart-pulse" aria-hidden="true"></i>
-      <span>MedGuid Admin</span>
-      <button
-        type="button"
-        class="admin-sidebar__close"
-        (click)="closeSidebar()"
-        aria-label="Close menu">
-        <i class="bi bi-x-lg" aria-hidden="true"></i>
+<div class="admin-page">
+  <!-- Welcome Header -->
+  <div class="welcome-header">
+    <div class="welcome-content">
+      <h1>Welcome, Admin! 👋</h1>
+      <p>Manage PSW verifications, applications, and offers from here.</p>
+    </div>
+    <div class="welcome-actions">
+      <button type="button" class="logout-btn" (click)="logout()" title="Logout">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
       </button>
+      <div class="welcome-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
     </div>
-    <nav class="admin-sidebar__nav">
-      <a
-        routerLink="/admin-dashboard"
-        routerLinkActive="admin-sidebar__link--active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="admin-sidebar__link"
-        (click)="closeSidebar()">
-        <i class="bi bi-speedometer2" aria-hidden="true"></i>
-        Dashboard
+  </div>
+
+  <div *ngIf="error() as loadError" class="dashboard-error">{{ loadError }}</div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <div class="stat-card verifications">
+      <div class="stat-icon">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ loading() ? '—' : stats()[0]?.value }}</span>
+        <span class="stat-label">{{ stats()[0]?.label }}</span>
+      </div>
+      <a routerLink="/admin/manage-doctors" class="stat-link">
+        View All <i class="fa-solid fa-arrow-right"></i>
       </a>
-      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
-        <i class="bi bi-hospital" aria-hidden="true"></i>
-        Clinics
-      </a>
-      <a
-        routerLink="/admin/manage-doctors"
-        routerLinkActive="admin-sidebar__link--active"
-        class="admin-sidebar__link"
-        (click)="closeSidebar()">
-        <i class="bi bi-person-badge" aria-hidden="true"></i>
-        Doctors
-      </a>
-      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
-        <i class="bi bi-calendar-week" aria-hidden="true"></i>
-        Appointments
-      </a>
-      <a routerLink="/admin-dashboard" class="admin-sidebar__link" (click)="closeSidebar()">
-        <i class="bi bi-gear" aria-hidden="true"></i>
-        Settings
-      </a>
-    </nav>
-    <div class="admin-sidebar__footer">
-      <span class="admin-sidebar__version">v2.4 · Internal</span>
     </div>
-  </aside>
 
-  <div class="admin-main">
-    <header class="admin-topbar">
-      <div class="admin-topbar__lead">
-        <button
-          type="button"
-          class="admin-menu-toggle"
-          (click)="toggleSidebar()"
-          aria-label="Open navigation menu"
-          [attr.aria-expanded]="sidebarOpen()">
-          <i class="bi bi-list" aria-hidden="true"></i>
-        </button>
-        <div>
-          <h1 class="admin-topbar__title">Overview</h1>
-          <p class="admin-topbar__subtitle">Real-time snapshot of your network</p>
-        </div>
+    <div class="stat-card applications">
+      <div class="stat-icon">
+        <i class="fa-solid fa-file-signature"></i>
       </div>
-      <div class="admin-topbar__meta">
-        <span class="admin-topbar__pill">
-          <i class="bi bi-circle-fill admin-topbar__live" aria-hidden="true"></i>
-          Live data
-        </span>
+      <div class="stat-info">
+        <span class="stat-number">{{ loading() ? '—' : stats()[1]?.value }}</span>
+        <span class="stat-label">{{ stats()[1]?.label }}</span>
       </div>
-    </header>
+      <a routerLink="/admin/manage-doctors" class="stat-link">
+        View All <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
 
-    @if (!loading()) {
-      @if (error()) {
-        <div class="error-message">
-          {{ error() }}
-          <button (click)="loadDashboardData()">Retry</button>
-        </div>
-      } @else {
-        <section class="stats-row" aria-label="Key metrics">
-          <article class="stat-card" *ngFor="let s of stats()">
-            <div class="stat-card__icon-wrap">
-              <i class="bi stat-card__icon" [ngClass]="s.icon" aria-hidden="true"></i>
-            </div>
-            <div class="stat-card__body">
-              <p class="stat-card__label">{{ s.label }}</p>
-              <p class="stat-card__value">{{ s.value }}</p>
-              <p
-                class="stat-card__delta"
-                [class.stat-card__delta--positive]="s.deltaTone === 'positive'"
-                [class.stat-card__delta--negative]="s.deltaTone === 'negative'"
-                [class.stat-card__delta--neutral]="s.deltaTone === 'neutral'">
-                {{ s.deltaLabel }}
-              </p>
-            </div>
-          </article>
-        </section>
-
-        <div class="content-grid">
-          <section class="panel panel--table" aria-labelledby="doctors-heading">
-            <div class="panel__head">
-              <h2 id="doctors-heading" class="panel__title">All Doctors</h2>
-              <a routerLink="/admin/add-doctor" class="panel__action">Create New Doctor</a>
-            </div>
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Display Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Specialty</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (doctor of doctors(); track doctor.id) {
-                    <tr>
-                      <td data-label="Display Name">{{ doctor.displayName || 'N/A' }}</td>
-                      <td data-label="Email">{{ doctor.email }}</td>
-                      <td data-label="Specialty">{{ doctor.specialty || 'General' }}</td>
-                      <td data-label="Status">
-                        <span class="badge" [class.badge--confirmed]="doctor.isActive" [class.badge--cancelled]="!doctor.isActive">
-                          {{ doctor.isActive ? 'Active' : 'Inactive' }}
-                        </span>
-                      </td>
-                      <td data-label="Actions">
-                        <button 
-                          class="btn btn--sm btn--outline me-1" 
-                          (click)="toggleDoctorStatus(doctor)" 
-                          [disabled]="loading()">
-                          {{ doctor.isActive ? 'Deactivate' : 'Activate' }}
-                        </button>
-                        <button 
-                          class="btn btn--sm btn--danger" 
-                          (click)="deleteDoctor(doctor)" 
-                          [hidden]="doctor.email === currentUserEmail">
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td colspan="5" class="text-center py-4 text-muted">No doctors found.</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="panel panel--side" aria-labelledby="top-clinics-heading">
-            <div class="panel__head">
-              <h2 id="top-clinics-heading" class="panel__title">Top Clinics</h2>
-              <span class="panel__hint">Highest rated doctors</span>
-            </div>
-            <ul class="top-list">
-              <li *ngFor="let clinic of clinics(); let i = index" class="top-list__item">
-                <span class="top-list__rank">{{ i + 1 }}</span>
-                <div class="top-list__avatar" aria-hidden="true">{{ clinic.doctorName.substring(0,2).toUpperCase() }}</div>
-                <div class="top-list__info">
-                  <p class="top-list__name">{{ clinic.clinicName }}</p>
-                  <p class="top-list__sub">{{ clinic.doctorName }} · {{ clinic.clinicAddress }}</p>
-                  <div class="top-list__stars" aria-label="Clinic quality">
-                    <i *ngFor="let n of starSlots" class="bi top-list__star bi-star-fill"></i>
-                    <span class="top-list__rating-num">4.8</span>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </section>
-        </div>
-      }
-    } @else {
-      <div class="loading-overlay">
-        <div class="spinner"></div>
-        <p>Loading dashboard...</p>
+    <div class="stat-card offers">
+      <div class="stat-icon">
+        <i class="fa-solid fa-briefcase"></i>
       </div>
-    }
+      <div class="stat-info">
+        <span class="stat-number">{{ loading() ? '—' : stats()[2]?.value }}</span>
+        <span class="stat-label">{{ stats()[2]?.label }}</span>
+      </div>
+      <a routerLink="/admin/manage-doctors" class="stat-link">
+        View All <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="stat-card users">
+      <div class="stat-icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ loading() ? '—' : stats()[3]?.value }}</span>
+        <span class="stat-label">{{ stats()[3]?.label }}</span>
+      </div>
+      <a routerLink="/admin/manage-doctors" class="stat-link">
+        View All <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Navigation Cards -->
+  <h2 class="section-title">Quick Actions</h2>
+  <div class="admin-links">
+    <a routerLink="/admin/manage-doctors" class="admin-card">
+      <div class="card-icon verifications">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <div class="card-content">
+        <h2>Doctors</h2>
+        <p>Manage doctors and clinics</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/manage-doctors" class="admin-card">
+      <div class="card-icon applications">
+        <i class="fa-solid fa-clipboard-list"></i>
+      </div>
+      <div class="card-content">
+        <h2>Appointments</h2>
+        <p>Review appointments</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/manage-doctors" class="admin-card">
+      <div class="card-icon offers">
+        <i class="fa-solid fa-handshake"></i>
+      </div>
+      <div class="card-content">
+        <h2>Offers</h2>
+        <p>Manage offers</p>
+      </div>
+    </a>
+
+    <a routerLink="/admin/manage-doctors" class="admin-card">
+      <div class="card-icon users">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="card-content">
+        <h2>Users</h2>
+        <p>Browse users directory</p>
+      </div>
+    </a>
   </div>
 </div>

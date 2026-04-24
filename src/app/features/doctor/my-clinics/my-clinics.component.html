@@ -1,10 +1,106 @@
 <app-navbar></app-navbar>
-<div class="clinics">
-  <h1>My Clinics</h1>
-  <div *ngFor="let clinic of clinics" class="clinic-card">
-    <h3>{{ clinic.clinicName }}</h3>
-    <p>{{ clinic.clinicAddress }}</p>
-    <p>{{ clinic.doctorName }}</p>
+<div class="clinics-container">
+  <div class="header">
+    <h1>My Clinics</h1>
+    <button class="btn btn-primary" (click)="showAddClinicForm()">
+      <i class="fas fa-plus"></i> Add New Clinic
+    </button>
+  </div>
+
+  <!-- Add/Edit Form -->
+  <div class="clinic-form" *ngIf="showAddForm">
+    <div class="form-card">
+      <h3>{{ editingClinic ? 'Edit Clinic' : 'Add New Clinic' }}</h3>
+      <form [formGroup]="clinicForm" (ngSubmit)="saveClinic()">
+        <div class="form-group">
+          <label for="clinicName">Clinic Name *</label>
+          <input
+            type="text"
+            id="clinicName"
+            formControlName="clinicName"
+            class="form-control"
+            [class.error]="clinicForm.get('clinicName')?.invalid && clinicForm.get('clinicName')?.touched"
+          >
+          <div class="error-message" *ngIf="clinicForm.get('clinicName')?.invalid && clinicForm.get('clinicName')?.touched">
+            Clinic name is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="clinicAddress">Address *</label>
+          <input
+            type="text"
+            id="clinicAddress"
+            formControlName="clinicAddress"
+            class="form-control"
+            [class.error]="clinicForm.get('clinicAddress')?.invalid && clinicForm.get('clinicAddress')?.touched"
+          >
+          <div class="error-message" *ngIf="clinicForm.get('clinicAddress')?.invalid && clinicForm.get('clinicAddress')?.touched">
+            Address is required
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            class="form-control"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="clinicForm.invalid || loading">
+            <i class="fas fa-save"></i> {{ editingClinic ? 'Update' : 'Create' }} Clinic
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Clinics List -->
+  <div class="clinics-grid" *ngIf="!showAddForm">
+    <div class="loading" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Loading clinics...
+    </div>
+
+    <div class="no-clinics" *ngIf="!loading && clinics.length === 0">
+      <i class="fas fa-clinic-medical"></i>
+      <h3>No clinics found</h3>
+      <p>You haven't added any clinics yet.</p>
+      <button class="btn btn-primary" (click)="showAddClinicForm()">
+        <i class="fas fa-plus"></i> Add Your First Clinic
+      </button>
+    </div>
+
+    <div class="clinic-card" *ngFor="let clinic of clinics">
+      <div class="clinic-header">
+        <h3>{{ clinic.clinicName }}</h3>
+        <div class="clinic-actions">
+          <button class="btn btn-sm btn-outline-primary" (click)="editClinic(clinic)" title="Edit">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteClinic(clinic)" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="clinic-info">
+        <div class="info-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>{{ clinic.clinicAddress }}</span>
+        </div>
+        <div class="info-item" *ngIf="clinic.description">
+          <i class="fas fa-info-circle"></i>
+          <span>{{ clinic.description }}</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 <app-footer></app-footer>

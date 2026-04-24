@@ -20,17 +20,19 @@ export class AuthService {
   }
 
   logout(): void {
+    if (typeof window === 'undefined') return;
     localStorage.clear();
   }
 
   isLoggedIn(): boolean {
+    if (typeof window === 'undefined') return false;
     return !!localStorage.getItem('token');
   }
 
   getRole(): string | null {
+    if (typeof window === 'undefined') return null;
     const role = localStorage.getItem('role');
     console.log('Current User Role:', role);
     return role;
   }
 }
-
