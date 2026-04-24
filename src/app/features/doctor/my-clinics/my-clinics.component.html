@@ -1,5 +1,22 @@
 <app-navbar></app-navbar>
 <div class="clinics-container">
+  <!-- Alert Messages -->
+  <div class="alert alert-error" *ngIf="error" (click)="clearMessages()">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ error }}</span>
+    <button type="button" class="alert-close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <div class="alert alert-success" *ngIf="success" (click)="clearMessages()">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ success }}</span>
+    <button type="button" class="alert-close">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
   <div class="header">
     <h1>My Clinics</h1>
     <button class="btn btn-primary" (click)="showAddClinicForm()">
@@ -81,11 +98,14 @@
       <div class="clinic-header">
         <h3>{{ clinic.clinicName }}</h3>
         <div class="clinic-actions">
-          <button class="btn btn-sm btn-outline-primary" (click)="editClinic(clinic)" title="Edit">
-            <i class="fas fa-edit"></i>
+          <button class="btn btn-sm btn-outline-info" (click)="viewClinic(clinic)" title="View Details">
+            <i class="fas fa-eye"></i> View
           </button>
-          <button class="btn btn-sm btn-outline-danger" (click)="deleteClinic(clinic)" title="Delete">
-            <i class="fas fa-trash"></i>
+          <button class="btn btn-sm btn-outline-primary" (click)="editClinic(clinic)" title="Edit Clinic">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteClinic(clinic)" title="Delete Clinic">
+            <i class="fas fa-trash"></i> Delete
           </button>
         </div>
       </div>
@@ -99,6 +119,10 @@
           <i class="fas fa-info-circle"></i>
           <span>{{ clinic.description }}</span>
         </div>
+      </div>
+
+      <div class="clinic-footer">
+        <small>ID: {{ clinic.id }}</small>
       </div>
     </div>
   </div>

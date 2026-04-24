@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap, catchError, throwError } from 'rxjs';
+import { Observable, timeout, throwError } from 'rxjs';
+import { tap, catchError, retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { DoctorResponse } from '../../shared/models/doctor-response.interface';
 import { TimeSlot } from '../../shared/models/timeslot.interface';
@@ -14,15 +14,48 @@ export class ClinicService {
   constructor(private http: HttpClient) {}
 
   getAdminDashboard(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/api/Dashboard/admin/Dashboard`);
+    return this.http.get(`${this.apiUrl}/api/api/Dashboard/admin/Dashboard`).pipe(
+      tap((response) => console.log('Admin dashboard response:', response)),
+      catchError((error) => {
+        console.error('Admin dashboard error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getDoctorDashboard(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`);
+    console.log('Calling getDoctorDashboard with URL:', `${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`);
+    return this.http.get(`${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    }).pipe(
+      retry(2), // Retry up to 2 times on failure
+      timeout(30000), // Increased to 30 seconds
+      tap((response) => {
+        console.log('✅ Doctor dashboard response received:', response);
+      }),
+      catchError((error) => {
+        console.error('❌ Doctor dashboard error:', error);
+        console.error('Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          url: error.url
+        });
+        return throwError(() => error);
+      })
+    );
   }
 
   getDoctorClinicDashboard(clinicId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/api/api/Dashboard/DoctorClinic/Dashboard/${clinicId}`);
+    return this.http.get(`${this.apiUrl}/api/api/Dashboard/DoctorClinic/Dashboard/${clinicId}`).pipe(
+      tap((response) => console.log('Doctor clinic dashboard response:', response)),
+      catchError((error) => {
+        console.error('Doctor clinic dashboard error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getAllClinics(params: any): Observable<ClinicResponse[]> {
