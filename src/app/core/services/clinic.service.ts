@@ -25,11 +25,7 @@ export class ClinicService {
 
   getDoctorDashboard(): Observable<any> {
     console.log('Calling getDoctorDashboard with URL:', `${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`);
-    return this.http.get(`${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
-      }
-    }).pipe(
+    return this.http.get(`${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`).pipe(
       retry(2), // Retry up to 2 times on failure
       timeout(30000), // Increased to 30 seconds
       tap((response) => {

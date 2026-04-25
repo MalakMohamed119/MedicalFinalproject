@@ -1,7 +1,8 @@
+@use 'sass:color';
 // src/app/features/admin/manage-doctors/manage-doctors.component.scss
 
 // Design System Variables (shared)
-$primary: #2563eb;
+$primary: #0B7A8B;
 $success: #16a34a;
 $danger: #dc2626;
 $warning: #d97706;
@@ -40,6 +41,39 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: $gray-800;
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .back-btn {
+    background: white;
+    color: $primary;
+    padding: 0.875rem 1.75rem;
+    border-radius: $border-radius-lg;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: $transition;
+    box-shadow: $shadow;
+    border: 2px solid $primary;
+
+    &:hover {
+      background: $primary;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+
   .add-btn {
     background: $primary;
     color: white;
@@ -54,7 +88,7 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: $shadow;
 
     &:hover {
-      background: darken($primary, 5%);
+      background: color.adjust($primary, $lightness: -5%);
       transform: translateY(-2px);
       box-shadow: $shadow-lg;
     }
@@ -237,8 +271,7 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
-  .toggle-btn,
-  .delete-btn {
+  .toggle-btn {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: $border-radius;
@@ -259,20 +292,7 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     color: white;
 
     &:hover:not(:disabled) {
-      background: darken($primary, 5%);
-    }
-  }
-
-  .delete-btn {
-    background: $danger;
-    color: white;
-
-    &:hover:not(:disabled) {
-      background: darken($danger, 5%);
-    }
-
-    i {
-      margin-right: 0.25rem;
+      background: color.adjust($primary, $lightness: -5%);
     }
   }
 }
@@ -319,7 +339,7 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transition: $transition;
 
   &:hover:not(:disabled) {
-    background: darken($primary, 5%);
+    background: color.adjust($primary, $lightness: -5%);
   }
 
   &:disabled {
@@ -343,6 +363,10 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     flex-direction: column;
     align-items: stretch;
     text-align: center;
+  }
+
+  .header-actions {
+    justify-content: center;
   }
 
   .doctors-table {

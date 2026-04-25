@@ -4,62 +4,85 @@
   <div class="page-inner">
     <header class="profile-summary">
       <div class="profile-summary__avatar" aria-hidden="true">
-        <span>{{ patientInitials }}</span>
+        <span>{{ patientInitials() }}</span>
       </div>
       <div class="profile-summary__content">
-        <h1 class="profile-summary__name">{{ patientName }}</h1>
+        <h1 class="profile-summary__name">{{ patientName() }}</h1>
         <ul class="profile-chips">
           <li class="profile-chip">
             <i class="bi bi-calendar3" aria-hidden="true"></i>
-            Age {{ age }}
+            Age {{ age() }}
           </li>
           <li class="profile-chip">
             <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
-            {{ gender }}
+            {{ gender() }}
           </li>
           <li class="profile-chip">
             <i class="bi bi-droplet" aria-hidden="true"></i>
-            {{ bloodType }}
+            {{ bloodType() }}
           </li>
         </ul>
       </div>
     </header>
 
     <div class="appointments-block">
-      <div class="appointments-block__header">
-        <h2 class="appointments-block__title">Appointments</h2>
+      <!-- Loading State -->
+      <div *ngIf="loading()" class="loading-state">
+        <div class="spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <p>Loading your appointments...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error() && !loading()" class="error-state">
+        <div class="error-content">
+          <i class="fas fa-exclamation-circle"></i>
+          <h2>Oops! Something went wrong</h2>
+          <p>{{ error() }}</p>
+          <button class="btn btn-retry" (click)="loadData()">
+            <i class="fas fa-redo"></i> Try Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Appointments Content -->
+      <div *ngIf="!loading() && !error()">
+        <div class="appointments-block__header">
+          <h2 class="appointments-block__title">Appointments</h2>
         <div class="tabs" role="tablist" aria-label="Appointment history">
           <button
             type="button"
             class="tabs__btn"
             role="tab"
-            [attr.aria-selected]="activeTab === 'upcoming'"
-            [class.tabs__btn--active]="activeTab === 'upcoming'"
+            [attr.aria-selected]="activeTab() === 'upcoming'"
+            [class.tabs__btn--active]="activeTab() === 'upcoming'"
             (click)="setTab('upcoming')">
             Upcoming
-            <span class="tabs__count">{{ upcoming.length }}</span>
+            <span class="tabs__count">{{ upcoming().length }}</span>
           </button>
           <button
             type="button"
             class="tabs__btn"
             role="tab"
-            [attr.aria-selected]="activeTab === 'past'"
-            [class.tabs__btn--active]="activeTab === 'past'"
+            [attr.aria-selected]="activeTab() === 'past'"
+            [class.tabs__btn--active]="activeTab() === 'past'"
             (click)="setTab('past')">
             Past
-            <span class="tabs__count">{{ past.length }}</span>
+            <span class="tabs__count">{{ past().length }}</span>
           </button>
         </div>
+      </div>
       </div>
 
       <div class="tabs-panels">
         <div
-          *ngIf="activeTab === 'upcoming'"
+          *ngIf="activeTab() === 'upcoming'"
           class="tab-panel"
           role="tabpanel"
           aria-label="Upcoming appointments">
           <ul class="upcoming-list">
-            <li *ngFor="let a of upcoming" class="upcoming-card">
+            <li *ngFor="let a of upcoming()" class="upcoming-card">
               <div class="upcoming-card__main">
                 <h3 class="upcoming-card__clinic">{{ a.clinicName }}</h3>
                 <p class="upcoming-card__when">
@@ -73,12 +96,12 @@
                   </span>
                 </p>
               </div>
-              <button type="button" class="btn-cancel" (click)="cancelAppointment(a)">Cancel</button>
+              <button type="button" class="btn-cancel" (click)="cancelAppointment(a.id)">Cancel</button>
             </li>
           </ul>
         </div>
 
-        <div *ngIf="activeTab === 'past'" class="tab-panel" role="tabpanel" aria-label="Past appointments">
+        <div *ngIf="activeTab() === 'past'" class="tab-panel" role="tabpanel" aria-label="Past appointments">
           <div class="past-table-wrap">
             <table class="past-table">
               <thead>
@@ -90,12 +113,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let p of past">
+                <tr *ngFor="let p of past()">
                   <td data-label="Clinic">{{ p.clinicName }}</td>
                   <td data-label="Date">{{ p.dateLabel }}</td>
                   <td data-label="Doctor">{{ p.doctorName }}</td>
                   <td data-label="Status">
-                    <span class="badge-completed">Completed</span>
+                    <span class="badge-completed">{{ p.status }}</span>
                   </td>
                 </tr>
               </tbody>

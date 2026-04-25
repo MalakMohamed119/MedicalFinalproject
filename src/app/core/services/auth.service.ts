@@ -31,8 +31,10 @@ export class AuthService {
 
   getRole(): string | null {
     if (typeof window === 'undefined') return null;
-    const role = localStorage.getItem('role');
-    console.log('Current User Role:', role);
-    return role;
+    return localStorage.getItem('role');
+  }
+
+  getCurrentUser(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/Clinic/Authentication/CurrentUser`);
   }
 }

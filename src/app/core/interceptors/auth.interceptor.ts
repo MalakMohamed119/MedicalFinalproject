@@ -14,7 +14,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
   
   let token = null;
   if (isPlatformBrowser(platformId)) {
-    token = localStorage.getItem('auth_token') || localStorage.getItem('token');
+    token = localStorage.getItem('token');
   }
 
   console.log('Interceptor seeing request to:', req.url);

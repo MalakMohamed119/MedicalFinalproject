@@ -101,4 +101,3 @@ password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])
     }
   }
 }
-

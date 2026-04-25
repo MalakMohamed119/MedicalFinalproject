@@ -2,10 +2,16 @@
   <!-- Page Header -->
   <header class="page-header">
     <h1>Manage Doctors</h1>
-    <a routerLink="/admin/add-doctor" class="add-btn" routerLinkActive="active">
-      <i class="bi bi-plus-circle"></i>
-      Add Doctor
-    </a>
+    <div class="header-actions">
+      <a routerLink="/admin-dashboard" class="back-btn">
+        <i class="bi bi-arrow-left"></i>
+        Back to Dashboard
+      </a>
+      <a routerLink="/admin/add-doctor" class="add-btn" routerLinkActive="active">
+        <i class="bi bi-plus-circle"></i>
+        Add Doctor
+      </a>
+    </div>
   </header>
 
   <!-- Search -->
@@ -72,10 +78,6 @@
           <td>
             <button class="toggle-btn" (click)="toggleDoctorStatus(doctor)" [disabled]="loading()">
               {{ doctor.isActive ? 'Deactivate' : 'Activate' }}
-            </button>
-            <button class="delete-btn" (click)="deleteDoctor(doctor)" [disabled]="loading()">
-              <i class="bi bi-trash"></i>
-              Delete
             </button>
           </td>
         </tr>

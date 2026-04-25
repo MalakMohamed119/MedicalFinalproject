@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $teal: #008080;
 $teal-soft: rgba(0, 128, 128, 0.09);
 $teal-border: rgba(0, 128, 128, 0.14);
@@ -392,5 +394,76 @@ $radius: 18px;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+  }
+}
+
+// Loading and Error States
+.loading-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: $surface;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid rgba(0, 128, 128, 0.06);
+  margin-bottom: 2rem;
+
+  .spinner {
+    font-size: 2rem;
+    color: $teal;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: $muted;
+    font-size: 1rem;
+  }
+}
+
+.error-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: $surface;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid rgba(255, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  .error-content {
+    i {
+      font-size: 3rem;
+      color: #dc3545;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      color: $text;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      color: $muted;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-retry {
+      background: $teal;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: color.adjust($teal, $lightness: -10%);
+      }
+
+      i {
+        margin-right: 0.5rem;
+      }
+    }
   }
 }

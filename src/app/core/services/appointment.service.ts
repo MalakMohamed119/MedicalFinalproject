@@ -12,15 +12,49 @@ export class AppointmentService {
 
   constructor(private http: HttpClient) {}
 
-
-  bookAppointment(appointmentData: any): Observable<AppointmentResponse> {
-    return this.http.post<AppointmentResponse>(`${this.apiUrl}/appointments/book`, appointmentData);
+  // Book appointment
+  bookAppointment(timeSlotId: number): Observable<AppointmentResponse> {
+    return this.http.post<AppointmentResponse>(`${this.apiUrl}/appointments/book`, { timeSlotId }, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    });
   }
 
-  getMyAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/appointments/my-appointments`);
+  // Cancel appointment (Patient only)
+  cancelAppointment(appointmentId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/appointments/${appointmentId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    });
   }
 
-  // Add more booking flow methods as needed
+  // Update appointment status (Doctor only)
+  updateAppointmentStatus(appointmentId: number, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/appointments/updatestatus`, { appointmentId, status }, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    });
+  }
+
+  // Get clinic appointments (Doctor only)
+  getClinicAppointments(clinicId: number): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/appointments/ShowClinicAppointments?clinicId=${clinicId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    });
+  }
+
+  // Get patient appointments (Patient only, token-based)
+  getPatientAppointments(): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[]>(`${this.apiUrl}/appointments/ShowPatientAppointments`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
+      }
+    });
+  }
 }
 
