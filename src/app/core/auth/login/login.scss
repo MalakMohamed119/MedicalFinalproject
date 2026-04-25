@@ -1,5 +1,5 @@
-$primary-color: #0d6e7bbb; 
-$gradient: linear-gradient(135deg, #049ebd 0%, #0c7d94 50%, #09647a 100%);
+$primary-color: #0d6e7b;
+$gradient: linear-gradient(135deg, #049ebd 0%, #0d6e7b 100%);
 $bg-light: #f8fafc;
 $text-gray: #64748b;
 
@@ -21,8 +21,8 @@ $text-gray: #64748b;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: $bg-light;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+  font-family: inherit;
   padding: 20px;
 
   .logo-wrapper {
@@ -50,7 +50,7 @@ $text-gray: #64748b;
     }
 
     h1 {
-      color: #087080; 
+      color: #0d6e7b; 
       margin: 0;
       font-weight: 700;
     }
@@ -69,6 +69,7 @@ $text-gray: #64748b;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     width: 100%;
     max-width: 450px;
+    border: 1px solid rgba(12, 125, 148, 0.1);
 
     h3 {
       font-size: 22px;

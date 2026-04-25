@@ -1,12 +1,17 @@
-<div class="not-found-container" style="height: 100vh;">
-    <div class="error-container">
-        <div class="content ">
-            <h1 class="error-code">404</h1>
-            <h2 class="error-message">Page Not Found</h2>
-            <p class="error-description">Sorry, the page you're looking for doesn't exist or has been moved.</p>
-            <button class="logButton">Back to Homepage</button>
-        </div>
-        
-     
+<div class="not-found-page" role="main">
+  <div class="not-found-card" aria-labelledby="not-found-title">
+    <div class="not-found-hero" aria-hidden="true">
+      <i class="fa-solid fa-stethoscope not-found-hero__icon"></i>
     </div>
+    <p class="not-found-eyebrow">MedGuid</p>
+    <h1 class="not-found-code" id="not-found-title">404</h1>
+    <h2 class="not-found-heading">This page is off the map</h2>
+    <p class="not-found-text">
+      The page you are looking for may have been moved, renamed, or is temporarily unavailable.
+    </p>
+    <a routerLink="/" class="not-found-cta" aria-label="Back to the application start">
+      <i class="fa-solid fa-house-chimney-medical" aria-hidden="true"></i>
+      <span>Back to home</span>
+    </a>
+  </div>
 </div>

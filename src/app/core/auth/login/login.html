@@ -23,7 +23,10 @@
 
       <!-- Email -->
       <div class="input-group">
-        <label>Email</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+          Email
+        </label>
         <input
           type="email"
           formControlName="email"
@@ -43,7 +46,10 @@
 
       <!-- Password -->
       <div class="input-group">
-        <label>Password</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          Password
+        </label>
         <div class="password-field">
           <input
             [type]="showPassword ? 'text' : 'password'"

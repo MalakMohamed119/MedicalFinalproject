@@ -1,7 +1,7 @@
 <app-navbar></app-navbar>
 <div class="dashboard-container">
   <!-- Loading State -->
-  <div class="loading-state" *ngIf="loading">
+  <div class="loading-state" *ngIf="loading()">
     <div class="spinner">
       <i class="fas fa-spinner fa-spin"></i>
     </div>
@@ -9,11 +9,11 @@
   </div>
 
   <!-- Error State -->
-  <div class="error-state" *ngIf="error && !loading">
+  <div class="error-state" *ngIf="error() && !loading()">
     <div class="error-content">
       <i class="fas fa-exclamation-circle"></i>
       <h2>Oops! Something went wrong</h2>
-      <p>{{ error }}</p>
+      <p>{{ error() }}</p>
       <button class="btn btn-retry" (click)="retryLoad()">
         <i class="fas fa-redo"></i> Try Again
       </button>
@@ -21,7 +21,7 @@
   </div>
 
   <!-- Dashboard Content -->
-  <div class="dashboard-content" *ngIf="!loading && dashboardData">
+  <div class="dashboard-content" *ngIf="!loading() && dashboardData()">
     <!-- Header -->
     <div class="dashboard-header">
       <div class="header-content">
@@ -42,7 +42,7 @@
         </div>
         <div class="stat-content">
           <h3>Total Appointments</h3>
-          <div class="stat-value">{{ dashboardData.totalAppointments }}</div>
+          <div class="stat-value">{{ dashboardData()?.totalAppointments }}</div>
           <p class="stat-label">All appointments</p>
         </div>
       </div>
@@ -54,7 +54,7 @@
         </div>
         <div class="stat-content">
           <h3>Confirmed</h3>
-          <div class="stat-value">{{ dashboardData.confirmedAppointments }}</div>
+          <div class="stat-value">{{ dashboardData()?.confirmedAppointments }}</div>
           <p class="stat-label">Confirmed bookings</p>
         </div>
       </div>
@@ -66,7 +66,7 @@
         </div>
         <div class="stat-content">
           <h3>Cancelled</h3>
-          <div class="stat-value">{{ dashboardData.cancelledAppointments }}</div>
+          <div class="stat-value">{{ dashboardData()?.cancelledAppointments }}</div>
           <p class="stat-label">Cancelled appointments</p>
         </div>
       </div>
@@ -78,7 +78,7 @@
         </div>
         <div class="stat-content">
           <h3>Available Slots</h3>
-          <div class="stat-value">{{ dashboardData.availableTimeSlots }}</div>
+          <div class="stat-value">{{ dashboardData()?.availableTimeSlots }}</div>
           <p class="stat-label">Open time slots</p>
         </div>
       </div>
@@ -99,7 +99,7 @@
           </span>
         </a>
 
-        <a routerLink="/doctor/timeslot-management" class="action-card">
+        <a routerLink="/doctor/manage-slots" class="action-card">
           <div class="action-icon">
             <i class="fas fa-clock"></i>
           </div>

@@ -14,6 +14,8 @@ import { AuthService } from '../../services/auth.service';
 export class Register {
   registerForm: FormGroup;
   isLoading: boolean = false;
+  errorMessage: string = '';
+  successMessage: string = '';
   passwordMismatch: boolean = false;
   showPassword = false;
   showConfirmPassword = false;
@@ -54,22 +56,31 @@ password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])
     }
 
     this.isLoading = true;
-    
+    this.errorMessage = '';
+
     const userData = {
       displayName: this.registerForm.get('name')?.value,
       email: this.registerForm.get('email')?.value.toLowerCase(),
       password: this.registerForm.get('password')?.value,
-      phoneNumber: this.registerForm.get('phone')?.value
+      phoneNumber: this.registerForm.get('phone')?.value,
+      role: 'patient'
     };
 
     this._authService.register(userData).subscribe({
       next: (response: any) => {
         console.log('Registration successful', response);
+        this.errorMessage = '';
         this.registerForm.reset();
         this._router.navigate(['/login']);
       },
       error: (error: any) => {
         console.error('Registration error', error);
+        const detail = error.error?.detail;
+        const msg = detail || error.error?.message || error.error?.title || 
+                Object.values(error.error?.errors || {}).flat().join(' ') ||
+                'Registration failed. Please try again.';
+        this.errorMessage = msg;
+        this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;

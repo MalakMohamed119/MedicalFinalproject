@@ -36,7 +36,11 @@ export class AddDoctorComponent {
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: ['', [Validators.required, Validators.pattern(/^01[0-9]{9}$/)]],
     specialty: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [
+      Validators.required,
+      Validators.minLength(8),
+      Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
+    ]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
 
@@ -77,7 +81,15 @@ export class AddDoctorComponent {
       },
       error: (err: any) => {
         console.log('Create doctor error:', err);
-        this.errorMessage.set(err.error?.message || err.message || 'Failed to create doctor');
+        const backendErrors = err.error?.errors;
+        if (backendErrors && typeof backendErrors === 'object') {
+          const messages = Object.values(backendErrors).flat().join(' ');
+          this.errorMessage.set(messages);
+        } else {
+          this.errorMessage.set(
+            err.error?.message || err.error?.title || err.message || 'Failed to create doctor'
+          );
+        }
         this.isLoading.set(false);
         console.error(err);
       }

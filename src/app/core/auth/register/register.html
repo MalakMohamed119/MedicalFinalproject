@@ -23,7 +23,10 @@
 
       <!-- Name -->
       <div class="input-group">
-        <label>Full Name</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-user" aria-hidden="true"></i>
+          Full Name
+        </label>
         <input
           type="text"
           formControlName="name"
@@ -46,7 +49,10 @@
 
       <!-- Email -->
       <div class="input-group">
-        <label>Email</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+          Email
+        </label>
         <input
           type="email"
           formControlName="email"
@@ -66,7 +72,10 @@
 
       <!-- Phone -->
       <div class="input-group">
-        <label>Phone Number</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-phone" aria-hidden="true"></i>
+          Phone Number
+        </label>
         <input
           type="tel"
           formControlName="phone"
@@ -86,7 +95,10 @@
 
       <!-- Password -->
       <div class="input-group">
-        <label>Password</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          Password
+        </label>
         <div class="password-field">
           <input
             [type]="showPassword ? 'text' : 'password'"
@@ -116,7 +128,10 @@
 
       <!-- Confirm Password -->
       <div class="input-group">
-        <label>Confirm Password</label>
+        <label class="ch-label-with-icon">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          Confirm Password
+        </label>
         <div class="password-field">
           <input
             [type]="showConfirmPassword ? 'text' : 'password'"
@@ -142,6 +157,11 @@
             Passwords do not match
           </span>
         </div>
+      </div>
+
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
       </div>
 
       <button

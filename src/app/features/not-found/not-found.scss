@@ -1,61 +1,103 @@
+$primary: #0d6e7b;
+$accent: #049ebd;
+$ink: #0f172a;
+$muted: #64748b;
 
-.not-found-container {
-    height: 100vh; 
-    color:#32587a; 
-    display: flex;
-    justify-content: center; 
-    align-items: center; 
-    text-align: center;
-    overflow: hidden; 
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: radial-gradient(1000px 500px at 0% 0%, rgba(4, 158, 189, 0.12), transparent 50%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
-
-.error-container {
-    width: 100%;
-    max-width: 800px;
-    padding: 20px;
-    position: relative;
+.not-found-card {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(12, 125, 148, 0.12);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+  padding: 2.5rem 1.75rem 2.25rem;
 }
 
-.content {
-    position: relative;
-    z-index: 10;
+.not-found-hero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-.error-code {
-    font-size: 12rem; 
-    font-weight: 700;
-    margin-bottom: 10px;
+.not-found-hero__icon {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: $primary;
+  background: linear-gradient(145deg, #e5f3f5, #d5ecf0);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(4, 158, 189, 0.15);
 }
 
-.error-message {
-    font-size: 3rem; 
-    font-weight: 600;
-    margin-bottom: 25px;
+.not-found-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: $accent;
+  margin: 0 0 0.35rem;
 }
 
-.error-description {
-    font-size: 1.2rem;
-    font-weight: 300;
-    margin-bottom: 40px;
-    line-height: 1.5;
+.not-found-code {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  margin: 0 0 0.5rem;
+  color: $primary;
+  letter-spacing: -0.04em;
 }
 
-.logButton {
-    padding: 12px;
-    margin-top: 25px;
-    border: 1px solid #275B7D;
-    background-color: #275B7D !important;
-    color: white;
-    
-    border-radius: 6px;
-    font-size: 18px;
-    transition: 0.3s;
-  }
-  
-  .logButton:hover {
-    background-color: white;
-    color: #8cb3cc;
-  }
-  
+.not-found-heading {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: $ink;
+  letter-spacing: -0.02em;
+}
 
+.not-found-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: $muted;
+  margin: 0 0 1.5rem;
+}
+
+.not-found-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff;
+  background: linear-gradient(135deg, $accent 0%, $primary 100%);
+  box-shadow: 0 4px 18px rgba(4, 158, 189, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.not-found-cta:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(4, 158, 189, 0.35);
+}
+
+.not-found-cta i {
+  font-size: 1rem;
+}

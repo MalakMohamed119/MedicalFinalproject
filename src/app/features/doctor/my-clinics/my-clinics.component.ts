@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, inject, signal, HostListener } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { Footer } from '../../../shared/components/footer/footer';
@@ -13,16 +13,19 @@ import { ClinicService } from '../../../core/services/clinic.service';
   templateUrl: './my-clinics.component.html',
   styleUrls: ['./my-clinics.component.scss']
 })
-export class MyClinics implements OnInit {
+export class MyClinics implements OnInit, OnDestroy {
   private clinicService = inject(ClinicService);
   private fb = inject(FormBuilder);
+  private document = inject(DOCUMENT);
 
-  clinics: ClinicResponse[] = [];
-  loading = false;
-  showAddForm = false;
-  editingClinic: ClinicResponse | null = null;
-  error: string | null = null;
-  success: string | null = null;
+  readonly clinics = signal<ClinicResponse[]>([]);
+  readonly loading = signal(false);
+  readonly showAddForm = signal(false);
+  readonly editingClinic = signal<ClinicResponse | null>(null);
+  readonly error = signal<string | null>(null);
+  readonly success = signal<string | null>(null);
+  /** Clinic shown in the view-details popup (replaces `alert`) */
+  readonly viewingClinic = signal<ClinicResponse | null>(null);
 
   clinicForm: FormGroup = this.fb.group({
     clinicName: ['', [Validators.required]],
@@ -34,106 +37,104 @@ export class MyClinics implements OnInit {
     this.loadMyClinics();
   }
 
+  ngOnDestroy(): void {
+    this.document.body.classList.remove('clinic-modal-open');
+  }
+
   loadMyClinics(): void {
-    this.loading = true;
-    this.error = null;
-    console.log('Loading my clinics...');
-    
+    this.loading.set(true);
+    this.error.set(null);
     this.clinicService.getMyClinics().subscribe({
       next: (data) => {
-        console.log('Clinics loaded:', data);
-        this.clinics = data;
-        this.loading = false;
+        this.clinics.set(data);
+        this.loading.set(false);
       },
       error: (err) => {
         console.error('Error loading clinics:', err);
-        this.error = 'Failed to load clinics. Please try again.';
-        this.loading = false;
+        this.error.set('Failed to load clinics. Please try again.');
+        this.loading.set(false);
       }
     });
   }
 
   showAddClinicForm(): void {
-    this.showAddForm = true;
-    this.editingClinic = null;
+    this.showAddForm.set(true);
+    this.editingClinic.set(null);
     this.clinicForm.reset();
-    this.error = null;
-    this.success = null;
+    this.error.set(null);
+    this.success.set(null);
   }
 
   editClinic(clinic: ClinicResponse): void {
-    this.showAddForm = true;
-    this.editingClinic = clinic;
+    this.showAddForm.set(true);
+    this.editingClinic.set(clinic);
     this.clinicForm.patchValue({
       clinicName: clinic.clinicName,
       clinicAddress: clinic.clinicAddress,
       description: clinic.description
     });
-    this.error = null;
-    this.success = null;
+    this.error.set(null);
+    this.success.set(null);
   }
 
   viewClinic(clinic: ClinicResponse): void {
-    alert(`
-Clinic Details:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Name: ${clinic.clinicName}
-Address: ${clinic.clinicAddress}
-Description: ${clinic.description || 'N/A'}
-Doctor: ${clinic.doctorName}
-ID: ${clinic.id}
-    `);
+    this.viewingClinic.set(clinic);
+    this.document.body.classList.add('clinic-modal-open');
+  }
+
+  closeViewClinic(): void {
+    this.viewingClinic.set(null);
+    this.document.body.classList.remove('clinic-modal-open');
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.viewingClinic()) {
+      this.closeViewClinic();
+    }
   }
 
   cancelEdit(): void {
-    this.showAddForm = false;
-    this.editingClinic = null;
+    this.showAddForm.set(false);
+    this.editingClinic.set(null);
     this.clinicForm.reset();
-    this.error = null;
-    this.success = null;
+    this.error.set(null);
+    this.success.set(null);
   }
 
   saveClinic(): void {
     if (this.clinicForm.invalid) {
-      this.error = 'Please fill in all required fields';
+      this.error.set('Please fill in all required fields');
       return;
     }
-
-    this.loading = true;
-    this.error = null;
-    this.success = null;
+    this.loading.set(true);
+    this.error.set(null);
+    this.success.set(null);
     const formData = this.clinicForm.value;
+    const editing = this.editingClinic();
 
-    if (this.editingClinic) {
-      // Update existing clinic
-      console.log('Updating clinic:', this.editingClinic.id, formData);
-      this.clinicService.updateClinic(this.editingClinic.id, formData).subscribe({
+    if (editing) {
+      this.clinicService.updateClinic(editing.id, formData).subscribe({
         next: () => {
-          this.success = 'Clinic updated successfully!';
-          console.log('Clinic updated');
+          this.success.set('Clinic updated successfully!');
           this.loadMyClinics();
           this.cancelEdit();
         },
         error: (err) => {
-          console.error('Error updating clinic:', err);
-          this.error = 'Failed to update clinic. Please try again.';
-          this.loading = false;
+          this.error.set('Failed to update clinic. Please try again.');
+          this.loading.set(false);
         }
       });
     } else {
-      // Create new clinic
-      console.log('Creating new clinic:', formData);
       this.clinicService.createClinic(formData).subscribe({
         next: () => {
-          this.success = 'Clinic created successfully!';
-          console.log('Clinic created');
+          this.success.set('Clinic created successfully!');
           this.loadMyClinics();
           this.cancelEdit();
         },
         error: (err) => {
-          console.error('Error creating clinic:', err);
-          this.error = 'Failed to create clinic. Please try again.';
-          this.loading = false;
+          this.error.set('Failed to create clinic. Please try again.');
+          this.loading.set(false);
         }
       });
     }
@@ -141,25 +142,22 @@ ID: ${clinic.id}
 
   deleteClinic(clinic: ClinicResponse): void {
     if (confirm(`Are you sure you want to delete "${clinic.clinicName}"?`)) {
-      this.loading = true;
-      console.log('Deleting clinic:', clinic.id);
+      this.loading.set(true);
       this.clinicService.deleteClinic(clinic.id).subscribe({
         next: () => {
-          this.success = 'Clinic deleted successfully!';
-          console.log('Clinic deleted');
+          this.success.set('Clinic deleted successfully!');
           this.loadMyClinics();
         },
         error: (err) => {
-          console.error('Error deleting clinic:', err);
-          this.error = 'Failed to delete clinic. Please try again.';
-          this.loading = false;
+          this.error.set('Failed to delete clinic. Please try again.');
+          this.loading.set(false);
         }
       });
     }
   }
 
   clearMessages(): void {
-    this.error = null;
-    this.success = null;
+    this.error.set(null);
+    this.success.set(null);
   }
 }

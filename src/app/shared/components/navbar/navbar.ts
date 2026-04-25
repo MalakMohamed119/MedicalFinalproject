@@ -1,29 +1,26 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss',
-  providers: [AuthService]
+  styleUrl: './navbar.scss'
 })
-export class Navbar {
-  userRole: string = 'carehome';
-  private authService = inject(AuthService);
-  private router = inject(Router);
+export class Navbar implements OnInit {
+  userRole: string | null = null;
 
-  onLogout(): void {
-    console.log('Logout clicked');
-    try {
-      this.authService.logout();
-      console.log('Logout successful');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  get brandLink(): string {
+    if (this.userRole === 'Admin') return '/admin-dashboard';
+    if (this.userRole === 'Doctor') return '/doctor/dashboard';
+    if (this.userRole) return '/home-for-patient';
+    return '/login';
+  }
+
+  ngOnInit(): void {
+    if (typeof localStorage === 'undefined') return;
+    this.userRole = localStorage.getItem('role');
   }
 }

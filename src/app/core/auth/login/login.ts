@@ -44,8 +44,8 @@ export class Login {
 
     const { email, password } = this.loginForm.value;
     const credentials = { 
-      Email: email, 
-      Password: password 
+      email: email, 
+      password: password 
     };
 
     console.log('Login attempt with:', email);

@@ -86,13 +86,16 @@
                 formControlName="password"
                 [type]="showPassword ? 'text' : 'password'"
                 class="form-control"
-                placeholder="Enter password (min 6 chars)">
+                placeholder="Enter password (min 8 chars)">
               <button type="button" class="toggle-password" (click)="togglePassword()" tabindex="-1">
                 <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
+            <div class="error-text">
+              Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character (!@#$%^&*)
+            </div>
             <div class="error-text" *ngIf="f['password']?.invalid && f['password']?.touched">
-              Password must be at least 6 characters
+              Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character (!@#$%^&*)
             </div>
           </div>
 

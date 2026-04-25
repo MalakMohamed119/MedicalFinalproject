@@ -1,36 +1,86 @@
-<nav class="relief-navbar">
+<nav class="relief-navbar" role="navigation" aria-label="Main">
   <div class="nav-container">
-    
-    <a class="nav-brand" routerLink="/care-home">
+    <a class="nav-brand" [routerLink]="brandLink" aria-label="MedGuid home">
       <div class="logo-wrapper">
-        <img src="/assets/logo.png" alt=" Logo">
+        <img src="/assets/logo.png" alt="MedGuid logo" width="50" height="50" />
       </div>
       <span>MedGuid</span>
     </a>
 
+    <div class="nav-primary">
+      <ng-container *ngIf="userRole; else signedOut">
+        <ng-container [ngSwitch]="userRole">
+          <ng-container *ngSwitchCase="'Admin'">
+            <a routerLink="/admin-dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Admin dashboard">
+              <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+              <span class="nav-pill__text">Admin</span>
+            </a>
+            <a routerLink="/admin/manage-doctors" routerLinkActive="active-link" class="nav-pill" title="Doctors">
+              <i class="fa-solid fa-user-doctor" aria-hidden="true"></i>
+              <span class="nav-pill__text">Doctors</span>
+            </a>
+            <a routerLink="/admin/add-doctor" routerLinkActive="active-link" class="nav-pill" title="Add doctor">
+              <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+              <span class="nav-pill__text">Add doctor</span>
+            </a>
+          </ng-container>
+          <ng-container *ngSwitchCase="'Doctor'">
+            <a routerLink="/doctor/dashboard" routerLinkActive="active-link" class="nav-pill" title="Dashboard">
+              <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
+              <span class="nav-pill__text">Dashboard</span>
+            </a>
+            <a routerLink="/doctor/my-clinics" routerLinkActive="active-link" class="nav-pill" title="My clinics">
+              <i class="fa-solid fa-hospital" aria-hidden="true"></i>
+              <span class="nav-pill__text">Clinics</span>
+            </a>
+            <a routerLink="/doctor/manage-slots" routerLinkActive="active-link" class="nav-pill" title="Time slots">
+              <i class="fa-solid fa-clock" aria-hidden="true"></i>
+              <span class="nav-pill__text">Slots</span>
+            </a>
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile">
+              <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              <span class="nav-pill__text">Profile</span>
+            </a>
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+            <a routerLink="/home-for-patient" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Home">
+              <i class="fa-solid fa-house-medical" aria-hidden="true"></i>
+              <span class="nav-pill__text">Home</span>
+            </a>
+            <a routerLink="/clinic-details" routerLinkActive="active-link" class="nav-pill" title="Clinics">
+              <i class="fa-solid fa-hospital-user" aria-hidden="true"></i>
+              <span class="nav-pill__text">Clinics</span>
+            </a>
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile">
+              <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              <span class="nav-pill__text">Profile</span>
+            </a>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+      <ng-template #signedOut>
+        <a routerLink="/login" class="nav-pill" title="Sign in">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+          <span class="nav-pill__text">Sign in</span>
+        </a>
+        <a routerLink="/register" class="nav-pill" title="Create account">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          <span class="nav-pill__text">Register</span>
+        </a>
+      </ng-template>
+    </div>
+
     <div class="nav-actions">
-   
-      <a routerLink="/care-home/history" routerLinkActive="active-btn" class="nav-item" title="History">
-        <i class="fa-solid fa-list-check"></i>
-      </a>
-
-      <a routerLink="/care-home/notifications" routerLinkActive="active-btn" class="nav-item" title="Notifications">
-        <div class="notification-box">
-          <i class="fa-solid fa-bell"></i>
-          <span class="badge"></span>
-        </div>
-      </a>
-
-      <a routerLink="/profile" routerLinkActive="active-btn" class="nav-item" title="Profile">
-        <i class="fa-solid fa-user"></i>
-      </a>
-
-      <div class="divider"></div>
-
-      <button (click)="onLogout()" class="logout-btn" title="Logout">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-      </button>
-
+      <ng-container *ngIf="userRole">
+        <a routerLink="/logout" class="nav-item" title="Sign out" aria-label="Sign out">
+          <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+        </a>
+      </ng-container>
+      <ng-container *ngIf="!userRole">
+        <a routerLink="/login" class="nav-item" title="Sign in" aria-label="Sign in">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+        </a>
+      </ng-container>
     </div>
   </div>
 </nav>

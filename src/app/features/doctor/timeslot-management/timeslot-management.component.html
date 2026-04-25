@@ -1,10 +1,153 @@
 <app-navbar></app-navbar>
-<div class="timeslots">
-  <h1>Timeslot Management</h1>
-  <div *ngFor="let appt of appointments" class="slot">
-    <p>Date: {{ appt.date }} {{ appt.startTime }} - {{ appt.endTime }}</p>
-    <p>Status: {{ appt.status }}</p>
-    <p>Patient: {{ appt.patientId }}</p>
+<div class="clinics-container">
+
+  <div class="alert alert-error" *ngIf="error()" (click)="clearMessages()">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ error() }}</span>
+    <button type="button" class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="alert alert-success" *ngIf="success()" (click)="clearMessages()">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ success() }}</span>
+    <button type="button" class="alert-close"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="header">
+    <h1>Time Slot Management</h1>
+    <button class="btn btn-primary" (click)="showAddSlotForm()">
+      <i class="fas fa-plus"></i> Add New Slot
+    </button>
+  </div>
+
+  <div class="clinic-selector" *ngIf="!showAddForm() && clinics().length > 0">
+    <label for="clinicSelect"><i class="fas fa-hospital-alt"></i> Select Clinic:</label>
+    <select id="clinicSelect" class="form-control" (change)="onClinicChange($event)">
+      <option *ngFor="let clinic of clinics()" [value]="clinic.id">
+        {{ clinic.clinicName }}
+      </option>
+    </select>
+  </div>
+
+  <div class="clinic-form" *ngIf="showAddForm()">
+    <div class="form-card">
+      <h3>{{ editingSlot() ? 'Edit Time Slot' : 'Add New Time Slot' }}</h3>
+      <form [formGroup]="slotForm" (ngSubmit)="saveSlot()">
+
+        <div class="form-group" *ngIf="!editingSlot()">
+          <label>Clinic *</label>
+          <select formControlName="clinicId" class="form-control"
+            [class.error]="slotForm.get('clinicId')?.invalid && slotForm.get('clinicId')?.touched">
+            <option value="">Select a clinic</option>
+            <option *ngFor="let clinic of clinics()" [value]="clinic.id">{{ clinic.clinicName }}</option>
+          </select>
+          <div class="error-message" *ngIf="slotForm.get('clinicId')?.invalid && slotForm.get('clinicId')?.touched">
+            Please select a clinic
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start Time *</label>
+            <input type="datetime-local" formControlName="startTime" class="form-control"
+              [class.error]="slotForm.get('startTime')?.invalid && slotForm.get('startTime')?.touched">
+            <div class="error-message" *ngIf="slotForm.get('startTime')?.invalid && slotForm.get('startTime')?.touched">
+              Start time is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>End Time *</label>
+            <input type="datetime-local" formControlName="endTime" class="form-control"
+              [class.error]="slotForm.get('endTime')?.invalid && slotForm.get('endTime')?.touched">
+            <div class="error-message" *ngIf="slotForm.get('endTime')?.invalid && slotForm.get('endTime')?.touched">
+              End time is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Capacity *</label>
+            <input type="number" formControlName="capacity" class="form-control" min="1" placeholder="e.g. 10"
+              [class.error]="slotForm.get('capacity')?.invalid && slotForm.get('capacity')?.touched">
+            <div class="error-message" *ngIf="slotForm.get('capacity')?.invalid && slotForm.get('capacity')?.touched">
+              Capacity must be at least 1
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Price (EGP) *</label>
+            <input type="number" formControlName="price" class="form-control" min="0" placeholder="e.g. 200"
+              [class.error]="slotForm.get('price')?.invalid && slotForm.get('price')?.touched">
+            <div class="error-message" *ngIf="slotForm.get('price')?.invalid && slotForm.get('price')?.touched">
+              Price cannot be negative
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-success" [disabled]="slotForm.invalid || loading()">
+            <i class="fas fa-save"></i> {{ editingSlot() ? 'Update' : 'Create' }} Slot
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="clinics-grid" *ngIf="!showAddForm()">
+    <div class="loading" *ngIf="loading()">
+      <i class="fas fa-spinner fa-spin"></i> Loading time slots...
+    </div>
+
+    <div class="no-clinics" *ngIf="!loading() && timeslots().length === 0">
+      <i class="fas fa-clock"></i>
+      <h3>No time slots found</h3>
+      <p>You haven't added any time slots for this clinic yet.</p>
+      <button class="btn btn-primary" (click)="showAddSlotForm()">
+        <i class="fas fa-plus"></i> Add Your First Slot
+      </button>
+    </div>
+
+    <div class="clinic-card" *ngFor="let slot of timeslots()">
+      <div class="clinic-header">
+        <h3><i class="fas fa-calendar-day"></i> {{ formatDate(slot.startTime) }}</h3>
+        <div class="clinic-actions">
+          <button class="btn btn-sm btn-outline-primary" (click)="editSlot(slot)">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteSlot(slot)">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="clinic-info">
+        <div class="info-item">
+          <i class="fas fa-play-circle"></i>
+          <span>{{ formatTime(slot.startTime) }} → {{ formatTime(slot.endTime) }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-users"></i>
+          <span>{{ slot.bookedCount }} / {{ slot.capacity }} booked</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-pound-sign"></i>
+          <span>{{ slot.price }} EGP</span>
+        </div>
+      </div>
+
+      <div class="clinic-footer">
+        <span class="badge" [class.badge-success]="slot.availableCount > 0"
+              [class.badge-danger]="slot.availableCount === 0">
+          {{ slot.availableCount > 0 ? slot.availableCount + ' slots available' : 'Fully Booked' }}
+        </span>
+        <small>ID: {{ slot.id }}</small>
+      </div>
+    </div>
   </div>
 </div>
 <app-footer></app-footer>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -17,36 +17,35 @@ import { ClinicService } from '../../../core/services/clinic.service';
 export class DoctorDashboard implements OnInit {
   private clinicService = inject(ClinicService);
 
-  dashboardData: DashboardResponse | null = null;
-  loading = true;
-  error: string | null = null;
+  readonly dashboardData = signal<DashboardResponse | null>(null);
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadDashboard();
   }
 
   retryLoad(): void {
-    console.log('Retrying dashboard load...');
     this.loadDashboard();
   }
 
   private loadDashboard(): void {
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
     console.log('Loading doctor dashboard...');
     
     // Safety timeout to prevent infinite loading
     const safetyTimeout = setTimeout(() => {
-      if (this.loading) {
+      if (this.loading()) {
         console.warn('Safety timeout reached - stopping loading and showing fallback data');
-        this.loading = false;
-        this.error = 'Loading took too long. Showing default data.';
-        this.dashboardData = {
+        this.loading.set(false);
+        this.error.set('Loading took too long. Showing default data.');
+        this.dashboardData.set({
           totalAppointments: 0,
           confirmedAppointments: 0,
           cancelledAppointments: 0,
           availableTimeSlots: 0
-        };
+        });
       }
     }, 15000); // 15 seconds safety timeout
     
@@ -54,21 +53,20 @@ export class DoctorDashboard implements OnInit {
       next: (data: DashboardResponse) => {
         clearTimeout(safetyTimeout); // Clear safety timeout on success
         console.log('Dashboard data loaded:', data);
-        this.dashboardData = data;
-        this.loading = false;
+        this.dashboardData.set(data);
+        this.loading.set(false);
       },
       error: (err: any) => {
         clearTimeout(safetyTimeout); // Clear safety timeout on error
         console.error('Dashboard error:', err);
-        this.error = 'Failed to load dashboard. Please try again.';
-        this.loading = false;
-        // Provide default data so the page shows something
-        this.dashboardData = {
+        this.error.set('Failed to load dashboard. Please try again.');
+        this.loading.set(false);
+        this.dashboardData.set({
           totalAppointments: 0,
           confirmedAppointments: 0,
           cancelledAppointments: 0,
           availableTimeSlots: 0
-        };
+        });
       }
     });
   }

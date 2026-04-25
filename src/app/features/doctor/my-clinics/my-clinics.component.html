@@ -1,17 +1,17 @@
 <app-navbar></app-navbar>
 <div class="clinics-container">
   <!-- Alert Messages -->
-  <div class="alert alert-error" *ngIf="error" (click)="clearMessages()">
+  <div class="alert alert-error" *ngIf="error()" (click)="clearMessages()">
     <i class="fas fa-exclamation-circle"></i>
-    <span>{{ error }}</span>
+    <span>{{ error() }}</span>
     <button type="button" class="alert-close">
       <i class="fas fa-times"></i>
     </button>
   </div>
 
-  <div class="alert alert-success" *ngIf="success" (click)="clearMessages()">
+  <div class="alert alert-success" *ngIf="success()" (click)="clearMessages()">
     <i class="fas fa-check-circle"></i>
-    <span>{{ success }}</span>
+    <span>{{ success() }}</span>
     <button type="button" class="alert-close">
       <i class="fas fa-times"></i>
     </button>
@@ -25,9 +25,9 @@
   </div>
 
   <!-- Add/Edit Form -->
-  <div class="clinic-form" *ngIf="showAddForm">
+  <div class="clinic-form" *ngIf="showAddForm()">
     <div class="form-card">
-      <h3>{{ editingClinic ? 'Edit Clinic' : 'Add New Clinic' }}</h3>
+      <h3>{{ editingClinic() ? 'Edit Clinic' : 'Add New Clinic' }}</h3>
       <form [formGroup]="clinicForm" (ngSubmit)="saveClinic()">
         <div class="form-group">
           <label for="clinicName">Clinic Name *</label>
@@ -68,8 +68,8 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-success" [disabled]="clinicForm.invalid || loading">
-            <i class="fas fa-save"></i> {{ editingClinic ? 'Update' : 'Create' }} Clinic
+          <button type="submit" class="btn btn-success" [disabled]="clinicForm.invalid || loading()">
+            <i class="fas fa-save"></i> {{ editingClinic() ? 'Update' : 'Create' }} Clinic
           </button>
           <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
             <i class="fas fa-times"></i> Cancel
@@ -80,12 +80,12 @@
   </div>
 
   <!-- Clinics List -->
-  <div class="clinics-grid" *ngIf="!showAddForm">
-    <div class="loading" *ngIf="loading">
+  <div class="clinics-grid" *ngIf="!showAddForm()">
+    <div class="loading" *ngIf="loading()">
       <i class="fas fa-spinner fa-spin"></i> Loading clinics...
     </div>
 
-    <div class="no-clinics" *ngIf="!loading && clinics.length === 0">
+    <div class="no-clinics" *ngIf="!loading() && clinics().length === 0">
       <i class="fas fa-clinic-medical"></i>
       <h3>No clinics found</h3>
       <p>You haven't added any clinics yet.</p>
@@ -94,37 +94,143 @@
       </button>
     </div>
 
-    <div class="clinic-card" *ngFor="let clinic of clinics">
-      <div class="clinic-header">
-        <h3>{{ clinic.clinicName }}</h3>
-        <div class="clinic-actions">
-          <button class="btn btn-sm btn-outline-info" (click)="viewClinic(clinic)" title="View Details">
-            <i class="fas fa-eye"></i> View
-          </button>
-          <button class="btn btn-sm btn-outline-primary" (click)="editClinic(clinic)" title="Edit Clinic">
-            <i class="fas fa-edit"></i> Edit
-          </button>
-          <button class="btn btn-sm btn-outline-danger" (click)="deleteClinic(clinic)" title="Delete Clinic">
-            <i class="fas fa-trash"></i> Delete
-          </button>
+    <article class="clinic-card" *ngFor="let clinic of clinics()">
+      <div class="clinic-card__accent" aria-hidden="true"></div>
+      <div class="clinic-card__inner">
+        <header class="clinic-header">
+          <div class="clinic-card__brand">
+            <div class="clinic-card__icon" aria-hidden="true">
+              <i class="fas fa-hospital"></i>
+            </div>
+            <div class="clinic-card__titles">
+              <h3>{{ clinic.clinicName }}</h3>
+              <p class="clinic-card__doctor" *ngIf="clinic.doctorName">
+                <i class="fas fa-user-md" aria-hidden="true"></i>
+                <span>{{ clinic.doctorName }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="clinic-actions" role="group" aria-label="Clinic actions">
+            <button type="button" class="btn btn-sm btn-outline-info" (click)="viewClinic(clinic)" title="View Details">
+              <i class="fas fa-eye"></i> View
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="editClinic(clinic)" title="Edit Clinic">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteClinic(clinic)" title="Delete Clinic">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </header>
+
+        <div class="clinic-info">
+          <div class="info-item">
+            <span class="info-item__icon-wrap" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></span>
+            <div class="info-item__text">
+              <span class="info-item__label">Address</span>
+              <span class="info-item__value">{{ clinic.clinicAddress }}</span>
+            </div>
+          </div>
+          <div class="info-item" *ngIf="clinic.phoneNumber">
+            <span class="info-item__icon-wrap" aria-hidden="true"><i class="fas fa-phone"></i></span>
+            <div class="info-item__text">
+              <span class="info-item__label">Phone</span>
+              <span class="info-item__value">{{ clinic.phoneNumber }}</span>
+            </div>
+          </div>
+          <div class="info-item info-item--description" *ngIf="clinic.description">
+            <span class="info-item__icon-wrap" aria-hidden="true"><i class="fas fa-align-left"></i></span>
+            <div class="info-item__text">
+              <span class="info-item__label">About</span>
+              <span class="info-item__value">{{ clinic.description }}</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="clinic-footer">
+          <span class="clinic-id-pill"><i class="fas fa-fingerprint" aria-hidden="true"></i> ID {{ clinic.id }}</span>
+        </footer>
+      </div>
+    </article>
+  </div>
+</div>
+
+<!-- View details: modal card (replaces browser alert) -->
+<ng-container *ngIf="viewingClinic() as c">
+  <div
+    class="clinic-view-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="clinic-view-title"
+  >
+    <div
+      class="clinic-view-overlay__backdrop"
+      (click)="closeViewClinic()"
+      role="presentation"
+      tabindex="-1"
+    ></div>
+    <div class="clinic-view-modal__card" (click)="$event.stopPropagation()">
+      <div class="clinic-view-modal__accent" aria-hidden="true"></div>
+      <button
+        type="button"
+        class="clinic-view-modal__close"
+        (click)="closeViewClinic()"
+        aria-label="Close details"
+      >
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+      <div class="clinic-view-modal__head">
+        <div class="clinic-view-modal__icon" aria-hidden="true">
+          <i class="fas fa-hospital"></i>
+        </div>
+        <div>
+          <h2 id="clinic-view-title" class="clinic-view-modal__title">{{ c.clinicName }}</h2>
+          <p class="clinic-view-modal__meta" *ngIf="c.doctorName">
+            <i class="fas fa-user-md" aria-hidden="true"></i>
+            {{ c.doctorName }}
+          </p>
         </div>
       </div>
-
-      <div class="clinic-info">
-        <div class="info-item">
-          <i class="fas fa-map-marker-alt"></i>
-          <span>{{ clinic.clinicAddress }}</span>
+      <div class="clinic-view-modal__body">
+        <div class="clinic-view-row">
+          <span class="clinic-view-row__icon"><i class="fas fa-map-marker-alt" aria-hidden="true"></i></span>
+          <div>
+            <span class="clinic-view-row__label">Address</span>
+            <p class="clinic-view-row__value">{{ c.clinicAddress }}</p>
+          </div>
         </div>
-        <div class="info-item" *ngIf="clinic.description">
-          <i class="fas fa-info-circle"></i>
-          <span>{{ clinic.description }}</span>
+        <div class="clinic-view-row" *ngIf="c.phoneNumber">
+          <span class="clinic-view-row__icon"><i class="fas fa-phone" aria-hidden="true"></i></span>
+          <div>
+            <span class="clinic-view-row__label">Phone</span>
+            <p class="clinic-view-row__value">{{ c.phoneNumber }}</p>
+          </div>
+        </div>
+        <div class="clinic-view-row">
+          <span class="clinic-view-row__icon"><i class="fas fa-align-left" aria-hidden="true"></i></span>
+          <div>
+            <span class="clinic-view-row__label">Description</span>
+            <p class="clinic-view-row__value">{{ c.description || '—' }}</p>
+          </div>
+        </div>
+        <div class="clinic-view-row">
+          <span class="clinic-view-row__icon"><i class="fas fa-fingerprint" aria-hidden="true"></i></span>
+          <div>
+            <span class="clinic-view-row__label">Identifiers</span>
+            <p class="clinic-view-row__value">
+              Clinic: {{ c.id }}
+              <span class="clinic-view-row__sub" *ngIf="c.doctorId">· Doctor: {{ c.doctorId }}</span>
+            </p>
+          </div>
         </div>
       </div>
-
-      <div class="clinic-footer">
-        <small>ID: {{ clinic.id }}</small>
+      <div class="clinic-view-modal__footer">
+        <button type="button" class="btn btn-primary" (click)="closeViewClinic()">
+          <i class="fas fa-check" aria-hidden="true"></i> Close
+        </button>
       </div>
     </div>
   </div>
-</div>
+</ng-container>
+
 <app-footer></app-footer>

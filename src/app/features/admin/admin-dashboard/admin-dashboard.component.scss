@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #0b96b1 0%, #054779 100%);
+  background: var(--ch-gradient);
   border-radius: 20px;
   padding: 2rem 2.5rem;
   margin-bottom: 2rem;
@@ -202,7 +202,7 @@
   transition: all 0.2s ease;
 
   &:hover {
-    color: #0b96b1;
+    color: var(--ch-accent);
     gap: 0.5rem;
   }
 }

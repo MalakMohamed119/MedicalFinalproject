@@ -114,6 +114,22 @@ export class ClinicService {
     return this.http.delete(`${this.apiUrl}/api/doctorclinics/DeleteClinics/${id}`);
   }
 
+  createTimeSlot(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/timeslots/createtimeslots`, data);
+  }
+
+  updateTimeSlot(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/api/timeslots/updatetimeslots/${id}`, data);
+  }
+
+  deleteTimeSlot(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/api/timeslots/deletetimeslots/${id}`);
+  }
+
+  getTimeSlotsByClinic(clinicId: number): Observable<TimeSlot[]> {
+    return this.http.get<TimeSlot[]>(`${this.apiUrl}/api/timeslots/GetTimeSlotsByClinic/${clinicId}`);
+  }
+
   createDoctor(doctorData: any): Observable<any> {
     const payload = {
       displayName: doctorData.displayName,
