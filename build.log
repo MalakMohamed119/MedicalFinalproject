@@ -1,0 +1,30 @@
+[33m❯[39m Building...
+Interceptor seeing request to: http://localhost:8082/auth/Clinic/Authentication/CurrentUser
+Interceptor - Token found: false
+[32m✔[39m Building...
+[35mBrowser bundles[39m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.js[39m             [2m | [22m[2mmain[22m            [2m | [22m  [36m2.32 MB[39m[2m | [22m
+[32mpolyfills.js[39m        [2m | [22m[2mpolyfills[22m       [2m | [22m [36m92.42 kB[39m[2m | [22m
+[32mstyles.css[39m          [2m | [22m[2mstyles[22m          [2m | [22m  [36m3.40 kB[39m[2m | [22m
+
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m  [1m2.42 MB[22m
+
+
+[35mServer bundles[39m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.server.mjs[39m     [2m | [22m[2mmain.server[22m     [2m | [22m  [36m3.13 MB[39m[2m | [22m
+[32mserver.mjs[39m          [2m | [22m[2mserver[22m          [2m | [22m  [36m1.94 MB[39m[2m | [22m
+[32mpolyfills.server.mjs[39m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m510.89 kB[39m[2m | [22m
+[32mchunk-TXMZZVXC.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m5.04 kB[39m[2m | [22m
+[32mchunk-3II4UTYF.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m2.81 kB[39m[2m | [22m
+
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mchunk-F5FD6IK3.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m40.11 kB[39m[2m | [22m
+[32mchunk-ZVD2ZG57.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m40.04 kB[39m[2m | [22m
+
+[35mPrerendered 14 static routes.[39m
+Application bundle generation complete. [17.446 seconds] - 2026-04-25T11:28:32.625Z
+
+Output location: c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\dist\care-home-app
+

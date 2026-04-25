@@ -2,6 +2,7 @@ import { Component, signal, computed, inject, effect, OnInit, ChangeDetectionStr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,7 +22,7 @@ type DoctorsData = DoctorResponse[] | PaginatedResult<DoctorResponse>;
 @Component({
   selector: 'app-manage-doctors',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, AdminFooterComponent],
   templateUrl: './manage-doctors.component.html',
   styleUrl: './manage-doctors.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

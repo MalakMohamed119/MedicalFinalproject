@@ -1,0 +1,15 @@
+<div class="toast-container" aria-live="polite" aria-atomic="true">
+  <div
+    *ngFor="let toast of toastService.toasts()"
+    class="toast"
+    [class.toast--success]="toast.type === 'success'"
+    [class.toast--error]="toast.type === 'error'"
+    role="alert">
+    <i class="fa-solid" [class.fa-circle-check]="toast.type === 'success'" [class.fa-circle-xmark]="toast.type === 'error'"></i>
+    <span class="toast__message">{{ toast.message }}</span>
+    <button type="button" class="toast__close" (click)="toastService.remove(toast.id)" aria-label="Close">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+</div>
+

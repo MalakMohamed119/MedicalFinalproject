@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Footer } from '../../../shared/components/footer/footer';
+import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
@@ -24,7 +24,7 @@ export interface PastAppointment {
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
-  imports: [CommonModule, Footer, Navbar],
+  imports: [CommonModule, PatientFooterComponent, Navbar],
   templateUrl: './patient-profile.html',
   styleUrl: './patient-profile.scss'
 })

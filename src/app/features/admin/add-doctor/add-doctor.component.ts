@@ -2,12 +2,13 @@ import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
 
 @Component({
   selector: 'app-add-doctor',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, AdminFooterComponent],
   templateUrl: './add-doctor.component.html',
   styleUrl: './add-doctor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

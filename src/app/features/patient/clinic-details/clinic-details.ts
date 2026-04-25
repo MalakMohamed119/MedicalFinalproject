@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Footer } from '../../../shared/components/footer/footer';
+import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 
 export interface ClinicServiceItem {
@@ -14,7 +14,7 @@ export interface ClinicServiceItem {
 @Component({
   selector: 'app-clinic-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, Footer, Navbar],
+  imports: [CommonModule, RouterLink, PatientFooterComponent, Navbar],
   templateUrl: './clinic-details.html',
   styleUrl: './clinic-details.scss'
 })

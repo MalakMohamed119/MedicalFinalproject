@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Navbar } from '../../../shared/components/navbar/navbar';
-import { Footer } from '../../../shared/components/footer/footer';
+import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 import { ClinicService } from '../../../core/services/clinic.service';
 
@@ -10,7 +10,7 @@ import { ClinicService } from '../../../core/services/clinic.service';
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar, Footer],
+  imports: [CommonModule, RouterLink, Navbar, DoctorFooterComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })

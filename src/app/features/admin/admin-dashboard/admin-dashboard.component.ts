@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
@@ -15,7 +16,7 @@ interface StatCard {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AdminFooterComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

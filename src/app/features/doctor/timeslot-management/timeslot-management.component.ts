@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Navbar } from '../../../shared/components/navbar/navbar';
-import { Footer } from '../../../shared/components/footer/footer';
+import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
@@ -10,7 +10,7 @@ import { ClinicResponse } from '../../../shared/models/clinic-response.interface
 @Component({
   selector: 'app-timeslot-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, Footer],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, DoctorFooterComponent],
   templateUrl: './timeslot-management.component.html',
   styleUrls: ['./timeslot-management.component.scss']
 })

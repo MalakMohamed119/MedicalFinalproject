@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -14,8 +15,6 @@ import { AuthService } from '../../services/auth.service';
 export class Register {
   registerForm: FormGroup;
   isLoading: boolean = false;
-  errorMessage: string = '';
-  successMessage: string = '';
   passwordMismatch: boolean = false;
   showPassword = false;
   showConfirmPassword = false;
@@ -23,7 +22,8 @@ export class Register {
   constructor(
     private _formBuilder: FormBuilder,
     private _authService: AuthService,
-    private _router: Router
+    private _router: Router,
+    private _toastService: ToastService
   ) {
     this.registerForm = this._formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
@@ -57,7 +57,6 @@ export class Register {
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
 
     const userData = {
       displayName: this.registerForm.get('name')?.value,
@@ -70,25 +69,27 @@ export class Register {
     this._authService.register(userData).subscribe({
       next: (response: any) => {
         console.log('Registration successful', response);
-        this.errorMessage = '';
+        this._toastService.success('Registration successful!');
         this.registerForm.reset();
         this._router.navigate(['/login']);
       },
       error: (error: any) => {
         if (error.status === 500) {
+          this._toastService.success('Registration successful!');
           this.registerForm.reset();
           this._router.navigate(['/login']);
           return;
         }
         const errors = error.error?.errors;
+        let msg: string;
         if (errors) {
-          const msg = Object.values(errors).flat().join(' ');
-          this.errorMessage = msg;
+          msg = Object.values(errors).flat().join(' ');
         } else {
-          this.errorMessage = error.error?.detail || 
-                              error.error?.title || 
-                              'Registration failed. Please try again.';
+          msg = error.error?.detail || 
+                error.error?.title || 
+                'Registration failed. Please try again.';
         }
+        this._toastService.error(msg);
         this.isLoading = false;
       },
       complete: () => {

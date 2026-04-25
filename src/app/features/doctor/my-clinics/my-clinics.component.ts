@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, inject, signal, HostListener } from '@ang
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Navbar } from '../../../shared/components/navbar/navbar';
-import { Footer } from '../../../shared/components/footer/footer';
+import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 import { ClinicService } from '../../../core/services/clinic.service';
 
 @Component({
   selector: 'app-my-clinics',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, Footer],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Navbar, DoctorFooterComponent],
   templateUrl: './my-clinics.component.html',
   styleUrls: ['./my-clinics.component.scss']
 })

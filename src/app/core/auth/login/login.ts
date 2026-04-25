@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -16,12 +17,12 @@ export class Login {
   showPassword = false;
   loginForm: FormGroup;
   isLoading = signal(false);
-  readonly errorMessage = signal('');
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -36,7 +37,6 @@ export class Login {
     }
 
     this.isLoading.set(true);
-    this.errorMessage.set('');
 
     if (typeof window !== 'undefined') {
       localStorage.clear();
@@ -65,6 +65,8 @@ export class Login {
         console.log('Extracted Role:', role);
         localStorage.setItem('role', role);
         
+        this.toastService.success('Login successful!');
+
         if (role === 'Admin') {
           this.router.navigate(['/admin-dashboard']);
         } else if (role === 'Doctor') {
@@ -79,7 +81,7 @@ export class Login {
         console.error('Server Error Detail:', err.error);
         console.error('Full error response:', err);
         const errorMessage = err.error?.detail || err.error?.message || err.error?.title || 'Invalid email or password';
-        this.errorMessage.set(errorMessage);
+        this.toastService.error(errorMessage);
         this.isLoading.set(false);
       }
     });

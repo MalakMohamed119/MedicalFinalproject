@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { Footer } from '../../shared/components/footer/footer';
+import { PatientFooterComponent } from '../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,7 @@ type ClinicCard = ClinicResponse & {
 @Component({
   selector: 'app-home-for-patient',
   standalone: true,
-  imports: [CommonModule, FormsModule, Footer, Navbar],
+  imports: [CommonModule, FormsModule, PatientFooterComponent, Navbar],
   templateUrl: './home-for-patient.html',
   styleUrl: './home-for-patient.scss'
 })
