@@ -91,11 +91,11 @@
                 <i [class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
               </button>
             </div>
-            <div class="error-text">
+            <div class="hint-text">
               Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character (!@#$%^&*)
             </div>
             <div class="error-text" *ngIf="f['password']?.invalid && f['password']?.touched">
-              Password must be at least 8 characters with 1 uppercase, 1 number, and 1 special character (!@#$%^&*)
+              Password does not meet the requirements above.
             </div>
           </div>
 

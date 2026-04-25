@@ -3,7 +3,7 @@
   <div class="welcome-header">
     <div class="welcome-content">
       <h1>Welcome, Admin! 👋</h1>
-      <p>Manage Doctors accounts and clinics from here.</p>
+      <p>Manage doctors, clinics, and appointments from your central dashboard.</p>
     </div>
     <div class="welcome-actions">
       <button type="button" class="logout-btn" (click)="logout()" title="Logout">
@@ -16,104 +16,95 @@
     </div>
   </div>
 
-  <div *ngIf="error() as loadError" class="dashboard-error">{{ loadError }}</div>
+  <!-- Error State -->
+  <div *ngIf="error() as loadError" class="dashboard-error">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>{{ loadError }}</span>
+    <button class="retry-btn" (click)="loadDashboard()">Retry</button>
+  </div>
 
-  <!-- Statistics Cards -->
-  <div class="stats-grid">
-    <div class="stat-card verifications">
-      <div class="stat-icon">
-        <i class="fa-solid fa-user-check"></i>
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading()" class="stats-grid">
+    <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
+      <div class="skeleton-icon"></div>
+      <div class="skeleton-info">
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line long"></div>
       </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ loading() ? '—' : stats()[0]?.value }}</span>
-        <span class="stat-label">{{ stats()[0]?.label }}</span>
-      </div>
-      <a routerLink="/admin/manage-doctors" class="stat-link">
-        View All <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
-
-    <div class="stat-card applications">
-      <div class="stat-icon">
-        <i class="fa-solid fa-file-signature"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ loading() ? '—' : stats()[1]?.value }}</span>
-        <span class="stat-label">{{ stats()[1]?.label }}</span>
-      </div>
-      <a routerLink="/admin/manage-doctors" class="stat-link">
-        View All <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
-
-    <div class="stat-card offers">
-      <div class="stat-icon">
-        <i class="fa-solid fa-briefcase"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ loading() ? '—' : stats()[2]?.value }}</span>
-        <span class="stat-label">{{ stats()[2]?.label }}</span>
-      </div>
-      <a routerLink="/admin/manage-doctors" class="stat-link">
-        View All <i class="fa-solid fa-arrow-right"></i>
-      </a>
-    </div>
-
-    <div class="stat-card users">
-      <div class="stat-icon">
-        <i class="fa-solid fa-users"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ loading() ? '—' : stats()[3]?.value }}</span>
-        <span class="stat-label">{{ stats()[3]?.label }}</span>
-      </div>
-      <a routerLink="/admin/manage-doctors" class="stat-link">
-        View All <i class="fa-solid fa-arrow-right"></i>
-      </a>
     </div>
   </div>
 
-  <!-- Navigation Cards -->
+  <!-- Statistics Cards -->
+  <div *ngIf="!loading()" class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="fa-solid fa-calendar-days"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats()[0]?.value ?? 0 }}</span>
+        <span class="stat-label">{{ stats()[0]?.label }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card confirmed">
+      <div class="stat-icon">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats()[1]?.value ?? 0 }}</span>
+        <span class="stat-label">{{ stats()[1]?.label }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card cancelled">
+      <div class="stat-icon">
+        <i class="fa-solid fa-circle-xmark"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats()[2]?.value ?? 0 }}</span>
+        <span class="stat-label">{{ stats()[2]?.label }}</span>
+      </div>
+    </div>
+
+    <div class="stat-card slots">
+      <div class="stat-icon">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-number">{{ stats()[3]?.value ?? 0 }}</span>
+        <span class="stat-label">{{ stats()[3]?.label }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
   <h2 class="section-title">Quick Actions</h2>
   <div class="admin-links">
     <a routerLink="/admin/manage-doctors" class="admin-card">
-      <div class="card-icon verifications">
-        <i class="fa-solid fa-user-shield"></i>
+      <div class="card-icon doctors">
+        <i class="fa-solid fa-user-doctor"></i>
       </div>
       <div class="card-content">
-        <h2>Doctors</h2>
-        <p>Manage doctors and clinics</p>
+        <h2>Manage Doctors</h2>
+        <p>View, activate, or remove doctor accounts</p>
+      </div>
+      <div class="card-arrow">
+        <i class="fa-solid fa-chevron-right"></i>
       </div>
     </a>
 
-    <a routerLink="/admin/manage-doctors" class="admin-card">
-      <div class="card-icon applications">
-        <i class="fa-solid fa-clipboard-list"></i>
+    <a routerLink="/admin/add-doctor" class="admin-card">
+      <div class="card-icon add-doctor">
+        <i class="fa-solid fa-user-plus"></i>
       </div>
       <div class="card-content">
-        <h2>Appointments</h2>
-        <p>Review appointments</p>
+        <h2>Add Doctor</h2>
+        <p>Register a new doctor to the system</p>
       </div>
-    </a>
-
-    <a routerLink="/admin/manage-doctors" class="admin-card">
-      <div class="card-icon offers">
-        <i class="fa-solid fa-handshake"></i>
-      </div>
-      <div class="card-content">
-        <h2>Offers</h2>
-        <p>Manage offers</p>
-      </div>
-    </a>
-
-    <a routerLink="/admin/manage-doctors" class="admin-card">
-      <div class="card-icon users">
-        <i class="fa-solid fa-users"></i>
-      </div>
-      <div class="card-content">
-        <h2>Users</h2>
-        <p>Browse users directory</p>
+      <div class="card-arrow">
+        <i class="fa-solid fa-chevron-right"></i>
       </div>
     </a>
   </div>
 </div>
+

@@ -2,8 +2,8 @@
 // src/app/features/admin/add-doctor/add-doctor.component.scss
 
 // Modern Design System Variables
-$primary: #3b82f6;
-$primary-dark: #1d4ed8;
+$primary: #1f9eb1;
+$primary-dark: #0d6e7b;
 $secondary: #64748b;
 $success: #10b981;
 $warning: #f59e0b;
@@ -315,6 +315,14 @@ select.form-control {
   display: block;
   font-weight: 500;
   animation: fadeIn 0.3s ease-out;
+}
+
+.hint-text {
+  color: $gray-500;
+  font-size: 0.8125rem;
+  margin-top: 0.5rem;
+  display: block;
+  font-weight: 500;
 }
 
 @keyframes fadeIn {

@@ -28,7 +28,8 @@ export class Register {
     this.registerForm = this._formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       email: ['', [Validators.required, Validators.email]],
-password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],      rePassword: ['', [Validators.required]],
+      password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]],
+      rePassword: ['', [Validators.required]],
       phone: ['', [Validators.required, Validators.pattern(/^01[0125][0-9]{8}$/)]]
     });
   }
@@ -63,7 +64,7 @@ password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])
       email: this.registerForm.get('email')?.value.toLowerCase(),
       password: this.registerForm.get('password')?.value,
       phoneNumber: this.registerForm.get('phone')?.value,
-      role: 'patient'
+      role: 'Patient'
     };
 
     this._authService.register(userData).subscribe({
@@ -74,12 +75,20 @@ password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])
         this._router.navigate(['/login']);
       },
       error: (error: any) => {
-        console.error('Registration error', error);
-        const detail = error.error?.detail;
-        const msg = detail || error.error?.message || error.error?.title || 
-                Object.values(error.error?.errors || {}).flat().join(' ') ||
-                'Registration failed. Please try again.';
-        this.errorMessage = msg;
+        if (error.status === 500) {
+          this.registerForm.reset();
+          this._router.navigate(['/login']);
+          return;
+        }
+        const errors = error.error?.errors;
+        if (errors) {
+          const msg = Object.values(errors).flat().join(' ');
+          this.errorMessage = msg;
+        } else {
+          this.errorMessage = error.error?.detail || 
+                              error.error?.title || 
+                              'Registration failed. Please try again.';
+        }
         this.isLoading = false;
       },
       complete: () => {
@@ -101,3 +110,4 @@ password: ['', [Validators.required, Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])
     }
   }
 }
+

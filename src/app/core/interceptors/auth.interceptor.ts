@@ -25,7 +25,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
 
   let modifiedReq = req;
 
-  if (token && req.url.startsWith(environment.apiUrl) && !req.url.includes('/auth/Clinic/Authentication/')) {
+  if (token && req.url.startsWith(environment.apiUrl) && !req.url.includes('/auth/Clinic/Authentication/Login') && !req.url.includes('/auth/Clinic/Authentication/Register')) {
     modifiedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

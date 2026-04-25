@@ -16,7 +16,7 @@ export class Login {
   showPassword = false;
   loginForm: FormGroup;
   isLoading = signal(false);
-  errorMessage = signal('');
+  readonly errorMessage = signal('');
 
   constructor(
     private formBuilder: FormBuilder,
@@ -93,3 +93,4 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 }
+

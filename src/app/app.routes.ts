@@ -62,11 +62,7 @@ export const routes: Routes = [
     redirectTo: '/admin-dashboard',
     pathMatch: 'full'
   },
-  {
-    path: 'system-dashboard',
-    redirectTo: '/admin-dashboard',
-    pathMatch: 'full'
-  },
+
   { 
     path: 'admin/manage-doctors', 
     component: ManageDoctors,
