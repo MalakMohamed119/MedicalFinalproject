@@ -1,22 +1,27 @@
 import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 
-interface StatCard {
+interface NavItem {
   label: string;
-  value: number;
-  color: string;
   icon: string;
+  route: string;
+}
+
+interface DashboardStats {
+  appointments: number;
+  confirmed: number;
+  cancelled: number;
+  slots: number;
 }
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, AdminFooterComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -26,9 +31,23 @@ export class AdminDashboardComponent implements OnInit {
   private clinicService = inject(ClinicService);
   private router = inject(Router);
 
-  readonly stats = signal<StatCard[]>([]);
+  readonly stats = signal<DashboardStats>({
+    appointments: 0,
+    confirmed: 0,
+    cancelled: 0,
+    slots: 0
+  });
   readonly loading = signal(true);
   readonly error = signal('');
+
+  readonly mainNavItems: NavItem[] = [
+    { label: 'Dashboard', icon: 'fa-gauge-high', route: '' }
+  ];
+
+  readonly manageNavItems: NavItem[] = [
+    { label: 'Manage Doctors', icon: 'fa-user-doctor', route: '' },
+    { label: 'Add Doctor', icon: 'fa-user-plus', route: '' }
+  ];
 
   ngOnInit(): void {
     const role = this.authService.getRole();
@@ -45,32 +64,12 @@ export class AdminDashboardComponent implements OnInit {
 
     this.clinicService.getAdminDashboard().subscribe({
       next: (data: DashboardResponse) => {
-        this.stats.set([
-          {
-            label: 'Total Appointments',
-            value: data.totalAppointments || 0,
-            color: '#2563eb',
-            icon: 'fa-calendar-days'
-          },
-          {
-            label: 'Confirmed Appointments',
-            value: data.confirmedAppointments || 0,
-            color: '#16a34a',
-            icon: 'fa-circle-check'
-          },
-          {
-            label: 'Cancelled Appointments',
-            value: data.cancelledAppointments || 0,
-            color: '#dc2626',
-            icon: 'fa-circle-xmark'
-          },
-          {
-            label: 'Available Time Slots',
-            value: data.availableTimeSlots || 0,
-            color: '#7c3aed',
-            icon: 'fa-clock'
-          }
-        ]);
+        this.stats.set({
+          appointments: data.totalAppointments || 0,
+          confirmed: data.confirmedAppointments || 0,
+          cancelled: data.cancelledAppointments || 0,
+          slots: data.availableTimeSlots || 0
+        });
         this.loading.set(false);
       },
       error: (err: any) => {
@@ -93,3 +92,4 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+

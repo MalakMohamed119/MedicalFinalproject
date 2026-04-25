@@ -1,112 +1,172 @@
-<div class="admin-page">
-  <!-- Welcome Header -->
-  <div class="welcome-header">
-    <div class="welcome-content">
-      <h1>Welcome, Admin! 👋</h1>
-      <p>Manage doctors, clinics, and appointments from your central dashboard.</p>
-    </div>
-    <div class="welcome-actions">
-      <button type="button" class="logout-btn" (click)="logout()" title="Logout">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-        <span>Logout</span>
-      </button>
-      <div class="welcome-icon">
+<div class="admin-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
-    </div>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="error() as loadError" class="dashboard-error">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-    <span>{{ loadError }}</span>
-    <button class="retry-btn" (click)="loadDashboard()">Retry</button>
-  </div>
-
-  <!-- Loading Skeleton -->
-  <div *ngIf="loading()" class="stats-grid">
-    <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
-      <div class="skeleton-icon"></div>
-      <div class="skeleton-info">
-        <div class="skeleton-line short"></div>
-        <div class="skeleton-line long"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Statistics Cards -->
-  <div *ngIf="!loading()" class="stats-grid">
-    <div class="stat-card total">
-      <div class="stat-icon">
-        <i class="fa-solid fa-calendar-days"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ stats()[0]?.value ?? 0 }}</span>
-        <span class="stat-label">{{ stats()[0]?.label }}</span>
+      <div>
+        <div class="logo-text">MediCare Admin</div>
+        <div class="logo-sub">Control Panel</div>
       </div>
     </div>
 
-    <div class="stat-card confirmed">
-      <div class="stat-icon">
-        <i class="fa-solid fa-circle-check"></i>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div
+        *ngFor="let item of mainNavItems"
+        class="nav-item"
+      >
+        <i class="fa-solid {{ item.icon }}"></i>
+        <span>{{ item.label }}</span>
       </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ stats()[1]?.value ?? 0 }}</span>
-        <span class="stat-label">{{ stats()[1]?.label }}</span>
+
+      <div class="nav-section-label">Manage</div>
+      <div
+        *ngFor="let item of manageNavItems"
+        class="nav-item"
+      >
+        <i class="fa-solid {{ item.icon }}"></i>
+        <span>{{ item.label }}</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-avatar">AD</div>
+      <div class="user-info">
+        <span class="user-name">Admin</span>
+        <span class="user-role">Super Admin</span>
+      </div>
+      <button class="logout-side-btn" (click)="logout()" title="Logout">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Welcome Header -->
+    <div class="welcome-header">
+      <div class="welcome-content">
+        <div class="welcome-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          Admin Panel
+        </div>
+        <h1>Welcome back, Admin 👋</h1>
+        <p>Manage doctors, clinics, and appointments from here.</p>
+      </div>
+      <div class="welcome-actions">
+        <button type="button" class="logout-btn" (click)="logout()" title="Logout">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+      <div class="header-decoration">
+        <div class="deco-circle c1"></div>
+        <div class="deco-circle c2"></div>
+        <div class="deco-circle c3"></div>
       </div>
     </div>
 
-    <div class="stat-card cancelled">
-      <div class="stat-icon">
-        <i class="fa-solid fa-circle-xmark"></i>
+    <div class="content">
+
+      <div *ngIf="error() as loadError" class="dashboard-error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ loadError }}
+        <button class="retry-btn" (click)="loadDashboard()">Retry</button>
       </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ stats()[2]?.value ?? 0 }}</span>
-        <span class="stat-label">{{ stats()[2]?.label }}</span>
+
+      <!-- Loading Skeleton -->
+      <ng-container *ngIf="loading()">
+        <p class="section-label">Overview</p>
+        <div class="stats-grid">
+          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
+            <div class="stat-card-top">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-tag"></div>
+            </div>
+            <div class="skeleton-number"></div>
+            <div class="skeleton-label"></div>
+            <div class="skeleton-footer"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Statistics -->
+      <ng-container *ngIf="!loading()">
+        <p class="section-label">Overview</p>
+        <div class="stats-grid">
+          <a routerLink="/admin/manage-doctors" class="stat-card appointments">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+              <span class="stat-tag">Total</span>
+            </div>
+            <span class="stat-number">{{ stats().appointments }}</span>
+            <span class="stat-label">Total Appointments</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-doctors" class="stat-card confirmed">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+              <span class="stat-tag">Active</span>
+            </div>
+            <span class="stat-number">{{ stats().confirmed }}</span>
+            <span class="stat-label">Confirmed Appointments</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-doctors" class="stat-card cancelled">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+              <span class="stat-tag">Inactive</span>
+            </div>
+            <span class="stat-number">{{ stats().cancelled }}</span>
+            <span class="stat-label">Cancelled Appointments</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-doctors" class="stat-card slots">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+              <span class="stat-tag">Available</span>
+            </div>
+            <span class="stat-number">{{ stats().slots }}</span>
+            <span class="stat-label">Available Time Slots</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+        </div>
+      </ng-container>
+
+      <!-- Quick Actions -->
+      <p class="section-label">Quick Actions</p>
+      <div class="admin-links">
+        <a routerLink="/admin/manage-doctors" class="admin-card">
+          <div class="card-icon doctors">
+            <i class="fa-solid fa-user-doctor"></i>
+          </div>
+          <div class="card-content">
+            <h2>Manage Doctors</h2>
+            <p>View, activate, or remove doctor accounts</p>
+          </div>
+          <i class="fa-solid fa-chevron-right card-arrow"></i>
+        </a>
+
+        <a routerLink="/admin/add-doctor" class="admin-card">
+          <div class="card-icon add-doctor">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div class="card-content">
+            <h2>Add Doctor</h2>
+            <p>Register a new doctor to the system</p>
+          </div>
+          <i class="fa-solid fa-chevron-right card-arrow"></i>
+        </a>
       </div>
+
     </div>
-
-    <div class="stat-card slots">
-      <div class="stat-icon">
-        <i class="fa-solid fa-clock"></i>
-      </div>
-      <div class="stat-info">
-        <span class="stat-number">{{ stats()[3]?.value ?? 0 }}</span>
-        <span class="stat-label">{{ stats()[3]?.label }}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Quick Actions -->
-  <h2 class="section-title">Quick Actions</h2>
-  <div class="admin-links">
-    <a routerLink="/admin/manage-doctors" class="admin-card">
-      <div class="card-icon doctors">
-        <i class="fa-solid fa-user-doctor"></i>
-      </div>
-      <div class="card-content">
-        <h2>Manage Doctors</h2>
-        <p>View, activate, or remove doctor accounts</p>
-      </div>
-      <div class="card-arrow">
-        <i class="fa-solid fa-chevron-right"></i>
-      </div>
-    </a>
-
-    <a routerLink="/admin/add-doctor" class="admin-card">
-      <div class="card-icon add-doctor">
-        <i class="fa-solid fa-user-plus"></i>
-      </div>
-      <div class="card-content">
-        <h2>Add Doctor</h2>
-        <p>Register a new doctor to the system</p>
-      </div>
-      <div class="card-arrow">
-        <i class="fa-solid fa-chevron-right"></i>
-      </div>
-    </a>
   </div>
 </div>
-
-<app-admin-footer></app-admin-footer>
 

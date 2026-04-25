@@ -1,16 +1,18 @@
-# Toast Notification System — COMPLETE
+# Admin Dashboard Redesign - TODO
 
-## Files Created
-- [x] `src/app/core/services/toast.service.ts` — reactive toast queue service
-- [x] `src/app/shared/components/toast/toast.component.ts` — standalone toast UI component
-- [x] `src/app/shared/components/toast/toast.component.html` — toast container + item markup
-- [x] `src/app/shared/components/toast/toast.component.scss` — slide-in / slide-out styling
+## Steps
+- [x] Step 1: Update `admin-dashboard.component.ts` - restructure stats to keyed object, add sidebar nav items
+- [x] Step 2: Update `admin-dashboard.component.html` - full redesign with sidebar + main layout matching reference
+- [x] Step 3: Update `admin-dashboard.component.scss` - complete rewrite with reference design styles
+- [x] Step 4: Verify responsive behavior and test
 
-## Files Modified
-- [x] `src/app/app.ts` — imported `ToastComponent`
-- [x] `src/app/app.html` — added `<app-toast>` to root layout
-- [x] `src/app/core/auth/register/register.ts` — replaced inline error banner with toast calls
-- [x] `src/app/core/auth/register/register.html` — removed `.alert.alert-danger` block
-- [x] `src/app/core/auth/login/login.ts` — replaced inline error banner with toast calls
-- [x] `src/app/core/auth/login/login.html` — removed `.error-message` API error block
+---
+
+# Doctor Dashboard Enhancement - TODO
+
+## Steps
+- [x] Step 1: Update `dashboard.component.ts` - add NavItem arrays, keyed stats, remove footer/navbar imports
+- [x] Step 2: Update `dashboard.component.html` - sidebar + main shell layout matching admin dashboard
+- [x] Step 3: Update `dashboard.component.scss` - complete rewrite with matching shell styles
+- [x] Step 4: Build verification — compiled successfully
 

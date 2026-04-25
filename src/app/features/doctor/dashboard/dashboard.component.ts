@@ -1,25 +1,51 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { Navbar } from '../../../shared/components/navbar/navbar';
-import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
+import { RouterLink, Router } from '@angular/router';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { AuthService } from '../../../core/services/auth.service';
 
+interface NavItem {
+  label: string;
+  icon: string;
+}
+
+interface DashboardStats {
+  appointments: number;
+  confirmed: number;
+  cancelled: number;
+  slots: number;
+}
 
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, Navbar, DoctorFooterComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DoctorDashboard implements OnInit {
   private clinicService = inject(ClinicService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  readonly dashboardData = signal<DashboardResponse | null>(null);
+  readonly stats = signal<DashboardStats>({
+    appointments: 0,
+    confirmed: 0,
+    cancelled: 0,
+    slots: 0
+  });
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
+  readonly mainNavItems: NavItem[] = [
+    { label: 'Dashboard', icon: 'fa-gauge-high' }
+  ];
+
+  readonly manageNavItems: NavItem[] = [
+    { label: 'My Clinics', icon: 'fa-hospital-alt' },
+    { label: 'Time Slots', icon: 'fa-clock' }
+  ];
 
   ngOnInit(): void {
     this.loadDashboard();
@@ -29,47 +55,52 @@ export class DoctorDashboard implements OnInit {
     this.loadDashboard();
   }
 
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
   private loadDashboard(): void {
     this.loading.set(true);
     this.error.set(null);
-    console.log('Loading doctor dashboard...');
-    
-    // Safety timeout to prevent infinite loading
+
     const safetyTimeout = setTimeout(() => {
       if (this.loading()) {
-        console.warn('Safety timeout reached - stopping loading and showing fallback data');
         this.loading.set(false);
         this.error.set('Loading took too long. Showing default data.');
-        this.dashboardData.set({
-          totalAppointments: 0,
-          confirmedAppointments: 0,
-          cancelledAppointments: 0,
-          availableTimeSlots: 0
+        this.stats.set({
+          appointments: 0,
+          confirmed: 0,
+          cancelled: 0,
+          slots: 0
         });
       }
-    }, 15000); // 15 seconds safety timeout
-    
+    }, 15000);
+
     this.clinicService.getDoctorDashboard().subscribe({
       next: (data: DashboardResponse) => {
-        clearTimeout(safetyTimeout); // Clear safety timeout on success
-        console.log('Dashboard data loaded:', data);
-        this.dashboardData.set(data);
+        clearTimeout(safetyTimeout);
+        this.stats.set({
+          appointments: data.totalAppointments || 0,
+          confirmed: data.confirmedAppointments || 0,
+          cancelled: data.cancelledAppointments || 0,
+          slots: data.availableTimeSlots || 0
+        });
         this.loading.set(false);
       },
       error: (err: any) => {
-        clearTimeout(safetyTimeout); // Clear safety timeout on error
+        clearTimeout(safetyTimeout);
         console.error('Dashboard error:', err);
         this.error.set('Failed to load dashboard. Please try again.');
         this.loading.set(false);
-        this.dashboardData.set({
-          totalAppointments: 0,
-          confirmedAppointments: 0,
-          cancelledAppointments: 0,
-          availableTimeSlots: 0
+        this.stats.set({
+          appointments: 0,
+          confirmed: 0,
+          cancelled: 0,
+          slots: 0
         });
       }
     });
   }
 }
-
 
