@@ -66,6 +66,10 @@
           </div>
         </div>
 
+        <div class="error-message" *ngIf="slotForm.hasError('timeRange') && (slotForm.get('startTime')?.touched || slotForm.get('endTime')?.touched)">
+          End time must be after start time.
+        </div>
+
         <div class="form-row">
           <div class="form-group">
             <label>Capacity *</label>

@@ -310,7 +310,7 @@
 // ── Stats Grid ────────────────────────────────────────────────
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1rem;
   margin-bottom: 2.5rem;
 }
@@ -340,6 +340,7 @@
   &.confirmed::before  { background: linear-gradient(90deg, #22c55e, #16a34a); }
   &.cancelled::before  { background: linear-gradient(90deg, #ef4444, #dc2626); }
   &.slots::before      { background: linear-gradient(90deg, #a855f7, #7c3aed); }
+  &.doctors::before    { background: linear-gradient(90deg, #0d6e7b, #049ebd); }
 
   &:hover {
     transform: translateY(-3px);
@@ -368,6 +369,7 @@
   .confirmed &  { background: #dcfce7; color: #16a34a; }
   .cancelled &  { background: #fee2e2; color: #dc2626; }
   .slots &      { background: #f3e8ff; color: #7c3aed; }
+  .doctors &    { background: #dcfce7; color: #0d6e7b; }
 }
 
 .stat-tag {
@@ -380,6 +382,7 @@
   .confirmed &  { background: #dcfce7; color: #166534; }
   .cancelled &  { background: #fee2e2; color: #991b1b; }
   .slots &      { background: #f3e8ff; color: #6b21a8; }
+  .doctors &    { background: #dcfce7; color: #0f766e; }
 }
 
 .stat-number {
@@ -542,6 +545,10 @@
 }
 
 // ── Responsive ────────────────────────────────────────────────
+@media (max-width: 1400px) {
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 1200px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }

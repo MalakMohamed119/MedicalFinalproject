@@ -1,6 +1,6 @@
 import { Component, signal, computed, inject, effect, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
@@ -30,6 +30,7 @@ type DoctorsData = DoctorResponse[] | PaginatedResult<DoctorResponse>;
 export class ManageDoctorsComponent implements OnInit {
   private authService = inject(AuthService);
   private clinicService = inject(ClinicService);
+  private fb = inject(FormBuilder);
 
   readonly pageSize = 10;
   readonly searchControl = new FormControl('');
@@ -38,6 +39,23 @@ export class ManageDoctorsComponent implements OnInit {
   readonly totalCount = signal(0);
   readonly loading = signal(false);
   readonly error = signal('');
+
+  readonly editingDoctor = signal<DoctorResponse | null>(null);
+  readonly showEditModal = signal(false);
+  readonly showPasswordModal = signal(false);
+  readonly editLoading = signal(false);
+
+  editForm: FormGroup = this.fb.group({
+    displayName: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    phoneNumber: ['', Validators.required],
+    specialty: ['', Validators.required],
+    isActive: [true]
+  });
+
+  passwordForm: FormGroup = this.fb.group({
+    newPassword: ['', [Validators.required, Validators.minLength(6)]]
+  });
 
   readonly paginatedDoctors = computed(() => {
     const rawData = this.doctors();
@@ -205,6 +223,69 @@ export class ManageDoctorsComponent implements OnInit {
       error: (err: any) => {
         this.error.set('Failed to delete doctor');
         console.error(err);
+      }
+    });
+  }
+
+  openEditModal(doctor: DoctorResponse): void {
+    this.editingDoctor.set(doctor);
+    this.editForm.patchValue({
+      displayName: doctor.displayName,
+      email: doctor.email,
+      phoneNumber: doctor.phoneNumber,
+      specialty: doctor.specialty,
+      isActive: doctor.isActive
+    });
+    this.showEditModal.set(true);
+    this.error.set('');
+  }
+
+  closeModals(): void {
+    this.showEditModal.set(false);
+    this.showPasswordModal.set(false);
+    this.editingDoctor.set(null);
+  }
+
+  saveEdit(): void {
+    if (this.editForm.invalid) return;
+    const doctor = this.editingDoctor();
+    if (!doctor) return;
+    this.editLoading.set(true);
+    this.clinicService.updateDoctor(doctor.id, this.editForm.value).subscribe({
+      next: (updated) => {
+        this.doctors.update(docs => this.updateDoctorsData(docs, list =>
+          list.map(d => d.id === doctor.id ? { ...d, ...updated } : d)
+        ));
+        this.closeModals();
+        this.editLoading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to update doctor.');
+        this.editLoading.set(false);
+      }
+    });
+  }
+
+  openPasswordModal(doctor: DoctorResponse): void {
+    this.editingDoctor.set(doctor);
+    this.passwordForm.reset();
+    this.showPasswordModal.set(true);
+    this.error.set('');
+  }
+
+  savePassword(): void {
+    if (this.passwordForm.invalid) return;
+    const doctor = this.editingDoctor();
+    if (!doctor) return;
+    this.editLoading.set(true);
+    this.clinicService.updateDoctorPassword(doctor.id, this.passwordForm.value.newPassword!).subscribe({
+      next: () => {
+        this.closeModals();
+        this.editLoading.set(false);
+      },
+      error: () => {
+        this.error.set('Failed to update password.');
+        this.editLoading.set(false);
       }
     });
   }

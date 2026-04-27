@@ -47,7 +47,20 @@ export class DoctorDashboard implements OnInit {
     { label: 'Time Slots', icon: 'fa-clock' }
   ];
 
+  readonly doctorName = signal<string>('Doctor');
+
   ngOnInit(): void {
+    this.authService.getCurrentUser().subscribe({
+      next: (user: any) => {
+        if (user?.displayName) {
+          this.doctorName.set(user.displayName);
+        }
+      },
+      error: () => {
+        // Silently fall back to default "Doctor"
+      }
+    });
+
     this.loadDashboard();
   }
 

@@ -1,19 +1,19 @@
 [33m❯[39m Building...
 Interceptor seeing request to: http://localhost:8082/auth/Clinic/Authentication/CurrentUser
 ERROR ReferenceError: localStorage is not defined
-    at e.getPatientAppointments (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:106:11394)
-    at e.loadData (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:106:14399)
-    at e.ngOnInit (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:106:13951)
-    at D2 (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:27946)
-    at gR (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:28114)
-    at sw (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:27832)
-    at Tf (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:27558)
-    at g4 (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:59191)
-    at xb (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:60278)
-    at hS (file:///c:/Users/LAPTOP/OneDrive/Desktop/f/MedicalFinalproject/.angular/prerender-root/afdf1b46-6d0f-4add-9e58-e2c942d76c61/main.server.mjs:5:60107)
+    at _AppointmentService.getPatientAppointments (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\src\app\core\services\appointment.service.ts:55:36)
+    at _PatientProfile.loadData (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\src\app\features\patient\patient-profile\patient-profile.ts:72:29)
+    at _PatientProfile.ngOnInit (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\src\app\features\patient\patient-profile\patient-profile.ts:49:10)
+    at callHookInternal (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:555:10)
+    at callHook (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:570:7)
+    at callHooks (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:544:9)
+    at executeInitAndCheckHooks (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:513:5)
+    at refreshView (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:5516:11)
+    at detectChangesInView (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:5644:5)
+    at detectChangesInViewIfAttached (c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\.angular\prerender-root\6c5a3c53-978e-4601-9137-52e695075b16\node_modules\@angular\core\fesm2022\_debug_node-chunk.mjs:5627:3)
 Interceptor - Token found: false
-Error loading user: ui {
-  headers: e {
+Error loading user: HttpErrorResponse {
+  headers: _HttpHeaders {
     headers: Map(5) {
       'content-type' => [Array],
       'date' => [Array],
@@ -48,29 +48,29 @@ Error loading user: ui {
   }
 }
 [32m✔[39m Building...
-[35mBrowser bundles[39m      
-[1mInitial chunk files[22m  [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
-[32mmain-LTIQGLPP.js[39m     [2m | [22m[2mmain[22m            [2m | [22m[36m652.96 kB[39m[2m | [22m              [36m139.81 kB[39m
-[32mpolyfills-6ISPNSXF.js[39m[2m | [22m[2mpolyfills[22m       [2m | [22m [36m35.68 kB[39m[2m | [22m               [36m11.57 kB[39m
-[32mstyles-577DC3B4.css[39m  [2m | [22m[2mstyles[22m          [2m | [22m [36m15.19 kB[39m[2m | [22m                [36m1.50 kB[39m
+[35mBrowser bundles[39m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.js[39m             [2m | [22m[2mmain[22m            [2m | [22m  [36m2.39 MB[39m[2m | [22m
+[32mpolyfills.js[39m        [2m | [22m[2mpolyfills[22m       [2m | [22m [36m92.42 kB[39m[2m | [22m
+[32mstyles.css[39m          [2m | [22m[2mstyles[22m          [2m | [22m  [36m3.40 kB[39m[2m | [22m
 
-[1m [22m                    [2m | [22m[1mInitial total[22m   [2m | [22m[1m703.82 kB[22m[2m | [22m              [1m152.88 kB[22m
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m  [1m2.48 MB[22m
 
 
-[35mServer bundles[39m       
-[1mInitial chunk files[22m  [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
-[32mmain.server.mjs[39m      [2m | [22m[2mmain.server[22m     [2m | [22m  [36m1.08 MB[39m[2m | [22m                       
-[32mserver.mjs[39m           [2m | [22m[2mserver[22m          [2m | [22m[36m806.34 kB[39m[2m | [22m                       
-[32mpolyfills.server.mjs[39m [2m | [22m[2mpolyfills.server[22m[2m | [22m[36m266.35 kB[39m[2m | [22m                       
-[32mchunk-X2SEQXRR.mjs[39m   [2m | [22m[2m-[22m               [2m | [22m  [36m2.41 kB[39m[2m | [22m                       
-[32mchunk-L2MVFUKD.mjs[39m   [2m | [22m[2m-[22m               [2m | [22m  [36m1.32 kB[39m[2m | [22m                       
+[35mServer bundles[39m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.server.mjs[39m     [2m | [22m[2mmain.server[22m     [2m | [22m  [36m3.19 MB[39m[2m | [22m
+[32mserver.mjs[39m          [2m | [22m[2mserver[22m          [2m | [22m  [36m1.94 MB[39m[2m | [22m
+[32mpolyfills.server.mjs[39m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m510.89 kB[39m[2m | [22m
+[32mchunk-TXMZZVXC.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m5.04 kB[39m[2m | [22m
+[32mchunk-3II4UTYF.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m2.81 kB[39m[2m | [22m
 
-[1mLazy chunk files[22m     [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
-[32mchunk-RHDGF2TI.mjs[39m   [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.14 kB[39m[2m | [22m                       
-[32mchunk-TNO4MGIL.mjs[39m   [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.07 kB[39m[2m | [22m                       
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mchunk-F5FD6IK3.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m40.11 kB[39m[2m | [22m
+[32mchunk-ZVD2ZG57.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m40.04 kB[39m[2m | [22m
 
 [35mPrerendered 14 static routes.[39m
-Application bundle generation complete. [14.396 seconds] - 2026-04-25T18:25:20.899Z
+Application bundle generation complete. [40.651 seconds] - 2026-04-27T20:53:21.516Z
 
 Output location: c:\Users\LAPTOP\OneDrive\Desktop\f\MedicalFinalproject\dist\care-home-app
 

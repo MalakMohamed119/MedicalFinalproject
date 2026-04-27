@@ -37,6 +37,7 @@ export class AdminDashboardComponent implements OnInit {
     cancelled: 0,
     slots: 0
   });
+  readonly totalDoctors = signal<number>(0);
   readonly loading = signal(true);
   readonly error = signal('');
 
@@ -56,6 +57,14 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
     this.loadDashboard();
+
+    this.clinicService.getAllDoctors(0, 1000, '').subscribe({
+      next: (data: any) => {
+        const count = Array.isArray(data) ? data.length : (data?.totalCount ?? data?.items?.length ?? data?.data?.length ?? 0);
+        this.totalDoctors.set(count);
+      },
+      error: () => this.totalDoctors.set(0)
+    });
   }
 
   loadDashboard(): void {

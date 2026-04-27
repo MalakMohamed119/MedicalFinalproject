@@ -1,11 +1,25 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
+
+function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
+  const start = group.get('startTime')?.value;
+  const end = group.get('endTime')?.value;
+
+  if (start && end) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    if (endDate.getTime() <= startDate.getTime()) {
+      return { timeRange: true };
+    }
+  }
+  return null;
+}
 
 @Component({
   selector: 'app-timeslot-management',
@@ -33,7 +47,7 @@ export class TimeslotManagement implements OnInit {
     endTime: ['', Validators.required],
     capacity: ['', [Validators.required, Validators.min(1)]],
     price: ['', [Validators.required, Validators.min(0)]]
-  });
+  }, { validators: timeRangeValidator });
 
   ngOnInit(): void {
     this.loadMyClinics();

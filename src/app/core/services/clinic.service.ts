@@ -148,4 +148,22 @@ export class ClinicService {
       })
     );
   }
+
+  updateDoctor(id: string, data: any): Observable<DoctorResponse> {
+    return this.http.put<DoctorResponse>(`${this.apiUrl}/api/doctors/UpdateDoctor/${id}`, data).pipe(
+      catchError(error => {
+        console.error('Update doctor error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  updateDoctorPassword(id: string, newPassword: string): Observable<boolean> {
+    return this.http.put<boolean>(`${this.apiUrl}/api/doctors/UpdateDoctorPassword/${id}`, { newPassword }).pipe(
+      catchError(error => {
+        console.error('Update doctor password error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }

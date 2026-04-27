@@ -82,7 +82,7 @@
       <ng-container *ngIf="loading()">
         <p class="section-label">Overview</p>
         <div class="stats-grid">
-          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
+          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4,5]">
             <div class="stat-card-top">
               <div class="skeleton-icon"></div>
               <div class="skeleton-tag"></div>
@@ -135,6 +135,16 @@
             </div>
             <span class="stat-number">{{ stats().slots }}</span>
             <span class="stat-label">Available Time Slots</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-doctors" class="stat-card doctors">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+              <span class="stat-tag">Registered</span>
+            </div>
+            <span class="stat-number">{{ totalDoctors() }}</span>
+            <span class="stat-label">Total Doctors</span>
             <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
           </a>
         </div>
