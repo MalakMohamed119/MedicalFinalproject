@@ -1,25 +1,39 @@
 <app-navbar></app-navbar>
 
+<header class="hero-section">
+  <div class="hero-background"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-badge">
+      <i class="bi bi-shield-plus" aria-hidden="true"></i>
+      Trusted care network
+    </span>
+    <h1 class="light-text">Medical Health Platform</h1>
+    <p class="hero-subtitle">
+      Discover trusted clinics and book appointments with ease. A calm, clear path to your next visit.
+    </p>
+    <div class="search-card">
+      <section class="search-panel" aria-labelledby="search-heading">
+        <div class="search-panel__intro">
+          <h2 id="search-heading">Find a clinic</h2>
+          <p>Search by name, doctor, or area — results update as you type.</p>
+        </div>
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon" aria-hidden="true"></i>
+          <input
+            type="search"
+            placeholder="Clinic, doctor, or location…"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            autocomplete="off" />
+        </div>
+      </section>
+    </div>
+  </div>
+</header>
+
 <section class="dashboard-wrapper">
   <div class="container">
-    <header class="welcome-hero">
-      <div class="hero-content">
-        <span class="hero-badge">
-          <i class="bi bi-shield-plus" aria-hidden="true"></i>
-          Trusted care network
-        </span>
-        <h1>MedGuid Health Platform</h1>
-        <p class="hero-subtitle">
-          Discover trusted clinics and book appointments with ease. A calm, clear path to your next visit.
-        </p>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="hero-orbit">
-          <i class="bi bi-heart-pulse hero-orbit__icon"></i>
-        </div>
-      </div>
-    </header>
-
     <div class="stats-row">
       <article class="stat-card">
         <div class="stat-card__icon stat-card__icon--blue">
@@ -50,22 +64,7 @@
       </article>
     </div>
 
-    <section class="search-panel" aria-labelledby="search-heading">
-      <div class="search-panel__intro">
-        <h2 id="search-heading">Find a clinic</h2>
-        <p>Search by name, doctor, or area — results update as you type.</p>
-      </div>
-      <div class="search-input-wrapper">
-        <i class="bi bi-search search-icon" aria-hidden="true"></i>
-        <input
-          type="search"
-          placeholder="Clinic, doctor, or location…"
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()"
-          autocomplete="off" />
-      </div>
-    </section>
-
+    
     <div class="section-heading">
       <h2>Available near you</h2>
       <span class="section-heading__meta">{{ filteredClinics.length }} listings</span>
