@@ -35,6 +35,10 @@ export const routes: Routes = [
     component: ClinicDetails
   },
   {
+    path: 'clinic-details/:id',
+    component: ClinicDetails
+  },
+  {
     path: 'profile',
     component: PatientProfile
   },

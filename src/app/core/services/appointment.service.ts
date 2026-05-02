@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AppointmentResponse } from '../../shared/models/appointment-response.interface';
 
@@ -14,11 +15,40 @@ export class AppointmentService {
 
   // Book appointment
   bookAppointment(timeSlotId: number): Observable<AppointmentResponse> {
-    return this.http.post<AppointmentResponse>(`${this.apiUrl}/appointments/book`, { timeSlotId }, {
+    console.log('🔄 Booking appointment with timeSlotId:', timeSlotId);
+    
+    return this.http.post<AppointmentResponse>(`${environment.apiUrl}/appointments/book`, { timeSlotId }, {
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`
       }
-    });
+    }).pipe(
+      catchError(error => {
+        console.error('❌ Appointment booking error:', error);
+        
+        // Extract error message from various possible response formats
+        let errorMessage = 'Booking failed';
+        
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (error.error.detail) {
+            errorMessage = error.error.detail;
+          } else if (error.error.error) {
+            errorMessage = error.error.error;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.status) {
+          errorMessage = `Booking failed: HTTP ${error.status}`;
+        }
+        
+        console.log('📊 Extracted error message:', errorMessage);
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
   // Cancel appointment (Patient only)

@@ -12,6 +12,560 @@ $radius-lg: 20px;
 $radius-md: 16px;
 $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
+// Loading State
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  font-size: 2.5rem;
+  color: $teal;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Error State
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+  color: #dc3545;
+  margin-bottom: 1.5rem;
+}
+
+.error-state h2 {
+  margin: 0 0 1rem;
+  color: $text;
+  font-size: 1.5rem;
+}
+
+.error-state p {
+  margin: 0 0 2rem;
+  color: $text-muted;
+  font-size: 1rem;
+}
+
+.retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: $teal;
+  color: $white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: $teal-dark;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: $text-muted;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h2 {
+  margin: 0 0 1rem;
+  color: $text;
+  font-size: 1.5rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: $text-muted;
+  font-size: 1rem;
+}
+
+// Clinics Header
+.clinics-header {
+  margin-bottom: 2rem;
+}
+
+.clinics-header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: $text;
+}
+
+.clinics-count {
+  margin: 0;
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+// Clinics Grid
+.clinics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.clinic-card {
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  border: 1px solid rgba(0, 128, 128, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.clinic-card__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 128, 128, 0.05);
+}
+
+.clinic-card__icon {
+  width: 48px;
+  height: 48px;
+  background: $teal-soft;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $teal;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.clinic-card__titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.clinic-card__name {
+  margin: 0 0 0.25rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $text;
+  line-height: 1.3;
+}
+
+.clinic-card__doctor {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.clinic-card__body {
+  padding: 1.5rem;
+}
+
+.clinic-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-item__text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: $text;
+  line-height: 1.5;
+}
+
+.clinic-card__actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.clinic-card__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: $teal;
+  color: $white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+
+  &:hover {
+    background: $teal-dark;
+  }
+}
+
+// Clinic Details View Styles
+.clinic-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 128, 128, 0.03);
+  border-radius: $radius-md;
+  border: 1px solid rgba(0, 128, 128, 0.08);
+}
+
+.info-block__label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-block__text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: $text;
+  line-height: 1.5;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: $teal;
+  color: $white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: $teal-dark;
+  }
+}
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  background: transparent;
+  color: $teal;
+  border: 2px solid $teal;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $teal;
+    color: $white;
+  }
+}
+
+// Booking Modal Styles
+.booking-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.booking-modal {
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 128, 128, 0.1);
+
+  h3 {
+    margin: 0;
+    color: $text;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  color: $text-muted;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 128, 128, 0.1);
+    color: $text;
+  }
+}
+
+.booking-modal__body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.selected-clinic-info {
+  background: rgba(0, 128, 128, 0.05);
+  padding: 1rem;
+  border-radius: $radius-md;
+  margin-bottom: 1.5rem;
+
+  h4 {
+    margin: 0 0 0.5rem;
+    color: $teal;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: $text-muted;
+    font-size: 0.875rem;
+  }
+}
+
+.time-slots-section h5 {
+  margin: 0 0 1rem;
+  color: $text;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.no-slots {
+  text-align: center;
+  padding: 2rem;
+  color: $text-muted;
+
+  i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+}
+
+.time-slots-grid {
+  display: grid;
+  gap: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.time-slot-card {
+  border: 2px solid rgba(0, 128, 128, 0.1);
+  border-radius: $radius-md;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $teal;
+    background: rgba(0, 128, 128, 0.03);
+  }
+
+  &.selected {
+    border-color: $teal;
+    background: rgba(0, 128, 128, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 128, 128, 0.2);
+  }
+}
+
+.time-slot__datetime {
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 0.5rem;
+}
+
+.time-slot__details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.time-slot__duration {
+  color: $text-muted;
+  font-size: 0.875rem;
+}
+
+.time-slot__price {
+  color: $teal;
+  font-weight: 600;
+}
+
+.time-slot__availability {
+  text-align: right;
+}
+
+.available-count {
+  font-size: 0.75rem;
+  color: $text-muted;
+  background: rgba(0, 128, 128, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+.booking-modal__footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(0, 128, 128, 0.1);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: $teal;
+  color: $white;
+  border: none;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: $teal-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: $text-muted;
+  border: 2px solid rgba(0, 128, 128, 0.2);
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 128, 128, 0.05);
+    color: $teal;
+    border-color: $teal;
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
 .bi::before {
   font-family: 'bootstrap-icons' !important;
   font-style: normal;

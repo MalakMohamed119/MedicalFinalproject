@@ -2,98 +2,308 @@
 
 <section class="clinic-details-page">
   <div class="page-container">
-    <a routerLink="/home-for-patient" class="back-link">
-      <i class="bi bi-arrow-left" aria-hidden="true"></i>
-      <span>Back to Home</span>
-    </a>
+    <!-- List View -->
+    <div *ngIf="viewMode === 'list'">
+      <a routerLink="/home-for-patient" class="back-link">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        <span>Back to Home</span>
+      </a>
 
-    <header class="clinic-header">
-      <div class="clinic-header__main">
-        <div class="clinic-header__titles">
-          <h1>{{ clinicName }}</h1>
-          <p class="clinic-header__doctor">
-            <i class="bi bi-person-badge" aria-hidden="true"></i>
-            {{ doctorName }}
-          </p>
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-spinner">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         </div>
-        <span class="verified-badge">
-          <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
-          Verified
-        </span>
+        <p>Loading clinics...</p>
       </div>
-    </header>
 
-    <div class="clinic-layout">
-      <main class="clinic-main">
-        <section class="services-panel" aria-labelledby="services-heading">
-          <div class="services-panel__head">
-            <h2 id="services-heading">Available Services</h2>
-            <p class="services-panel__hint">Choose a service to continue booking.</p>
+      <!-- Error State -->
+      <div *ngIf="error" class="error-state">
+        <div class="error-icon">
+          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        </div>
+        <h2>Oops! Something went wrong</h2>
+        <p>{{ error }}</p>
+        <button type="button" class="retry-btn" (click)="loadClinics()">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          Try Again
+        </button>
+      </div>
+
+      <!-- Clinics List -->
+      <div *ngIf="!loading && !error">
+        <header class="clinics-header">
+          <h1>Available Clinics</h1>
+          <p class="clinics-count">{{ clinics.length }} clinic{{ clinics.length !== 1 ? 's' : '' }} found</p>
+        </header>
+
+        <!-- Empty State -->
+        <div *ngIf="clinics.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-hospital" aria-hidden="true"></i>
           </div>
+          <h2>No clinics available</h2>
+          <p>There are no clinics available at the moment. Please check back later.</p>
+        </div>
 
-          <ul class="services-list">
-            <li class="service-row" *ngFor="let s of services">
-              <div class="service-row__body">
-                <div class="service-row__name-block">
-                  <span class="service-row__icon" aria-hidden="true">
-                    <i class="bi bi-heart-pulse"></i>
+        <!-- Clinics Grid -->
+        <div *ngIf="clinics.length > 0" class="clinics-grid">
+          <article class="clinic-card" *ngFor="let clinic of clinics" (click)="selectClinic(clinic)">
+            <div class="clinic-card__header">
+              <div class="clinic-card__icon">
+                <i class="bi bi-hospital" aria-hidden="true"></i>
+              </div>
+              <div class="clinic-card__titles">
+                <h3 class="clinic-card__name">{{ clinic.clinicName }}</h3>
+                <p class="clinic-card__doctor">
+                  <i class="bi bi-person-badge" aria-hidden="true"></i>
+                  {{ clinic.doctorName }}
+                </p>
+              </div>
+              <span class="verified-badge">
+                <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+                Verified
+              </span>
+            </div>
+
+            <div class="clinic-card__body">
+              <div class="clinic-card__info">
+                <div class="info-item">
+                  <span class="info-item__label">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    Address
                   </span>
-                  <div>
-                    <h3 class="service-row__name">{{ s.name }}</h3>
-                    <p class="service-row__duration">
-                      <i class="bi bi-clock" aria-hidden="true"></i>
-                      {{ s.durationMins }} mins
-                    </p>
-                  </div>
+                  <p class="info-item__text">{{ clinic.clinicAddress }}</p>
                 </div>
-                <div class="service-row__meta">
-                  <div class="service-row__price">
-                    <i class="bi bi-tag" aria-hidden="true"></i>
-                    <span class="service-row__price-value">{{ s.priceEgp | number }}</span>
-                    <span class="service-row__price-currency">EGP</span>
-                  </div>
-                  <button type="button" class="service-row__cta" (click)="selectService(s)">
-                    Book
-                    <i class="bi bi-arrow-right-short" aria-hidden="true"></i>
-                  </button>
+
+                <div class="info-item" *ngIf="clinic.phoneNumber">
+                  <span class="info-item__label">
+                    <i class="bi bi-telephone" aria-hidden="true"></i>
+                    Phone
+                  </span>
+                  <p class="info-item__text">{{ clinic.phoneNumber }}</p>
+                </div>
+
+                <div class="info-item" *ngIf="clinic.description">
+                  <span class="info-item__label">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    About
+                  </span>
+                  <p class="info-item__text">{{ clinic.description }}</p>
                 </div>
               </div>
-            </li>
-          </ul>
-        </section>
-      </main>
 
-      <aside class="clinic-sidebar" aria-label="Clinic information">
-        <div class="sidebar-card">
-          <h3 class="sidebar-card__title">
-            <i class="bi bi-info-circle" aria-hidden="true"></i>
-            Clinic info
-          </h3>
-
-          <div class="sidebar-block">
-            <span class="sidebar-block__label">
-              <i class="bi bi-geo-alt" aria-hidden="true"></i>
-              Address
-            </span>
-            <p class="sidebar-block__text">{{ address }}</p>
-          </div>
-
-          <div class="sidebar-block">
-            <span class="sidebar-block__label">
-              <i class="bi bi-clock-history" aria-hidden="true"></i>
-              Opening hours
-            </span>
-            <p class="sidebar-block__text sidebar-block__text--pre">{{ openingHours }}</p>
-          </div>
-
-          <div class="map-placeholder" role="img" aria-label="Map preview placeholder">
-            <i class="bi bi-map" aria-hidden="true"></i>
-            <span>Map preview</span>
-          </div>
+              <div class="clinic-card__actions">
+                <button type="button" class="clinic-card__cta" (click)="openBookingModal(clinic); $event.stopPropagation()">
+                  Book an Appointment
+                  <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+          </article>
         </div>
-      </aside>
+      </div>
+    </div>
+
+    <!-- Individual Clinic Details View -->
+    <div *ngIf="viewMode === 'details' && selectedClinic">
+      <a (click)="backToList()" class="back-link" style="cursor: pointer;">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        <span>Back to Clinics</span>
+      </a>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-spinner">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+        </div>
+        <p>Loading clinic details...</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-state">
+        <div class="error-icon">
+          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        </div>
+        <h2>Oops! Something went wrong</h2>
+        <p>{{ error }}</p>
+        <button type="button" class="retry-btn" (click)="loadClinicById(selectedClinic!.id)">
+          <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+          Try Again
+        </button>
+      </div>
+
+      <!-- Clinic Details -->
+      <div *ngIf="!loading && !error && selectedClinic">
+        <header class="clinic-header">
+          <div class="clinic-header__main">
+            <div class="clinic-header__titles">
+              <h1>{{ selectedClinic.clinicName }}</h1>
+              <p class="clinic-header__doctor">
+                <i class="bi bi-person-badge" aria-hidden="true"></i>
+                {{ selectedClinic.doctorName }}
+              </p>
+            </div>
+            <span class="verified-badge">
+              <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+              Verified
+            </span>
+          </div>
+        </header>
+
+        <div class="clinic-layout">
+          <main class="clinic-main">
+            <section class="services-panel" aria-labelledby="services-heading">
+              <div class="services-panel__head">
+                <h2 id="services-heading">About This Clinic</h2>
+                <p class="services-panel__hint">Learn more about this clinic and its services.</p>
+              </div>
+
+              <div class="clinic-info-section">
+                <div class="info-block">
+                  <span class="info-block__label">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    Address
+                  </span>
+                  <p class="info-block__text">{{ selectedClinic.clinicAddress }}</p>
+                </div>
+
+                <div class="info-block" *ngIf="selectedClinic.phoneNumber">
+                  <span class="info-block__label">
+                    <i class="bi bi-telephone" aria-hidden="true"></i>
+                    Phone Number
+                  </span>
+                  <p class="info-block__text">{{ selectedClinic.phoneNumber }}</p>
+                </div>
+
+                <div class="info-block" *ngIf="selectedClinic.description">
+                  <span class="info-block__label">
+                    <i class="bi bi-info-circle" aria-hidden="true"></i>
+                    Description
+                  </span>
+                  <p class="info-block__text">{{ selectedClinic.description }}</p>
+                </div>
+
+                <div class="info-block">
+                  <span class="info-block__label">
+                    <i class="bi bi-person" aria-hidden="true"></i>
+                    Doctor ID
+                  </span>
+                  <p class="info-block__text">{{ selectedClinic.doctorId }}</p>
+                </div>
+              </div>
+
+              <div class="action-buttons">
+                <button type="button" class="primary-btn">
+                  <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                  Book Appointment
+                </button>
+                <button type="button" class="secondary-btn">
+                  <i class="bi bi-telephone" aria-hidden="true"></i>
+                  Contact Clinic
+                </button>
+              </div>
+            </section>
+          </main>
+
+          <aside class="clinic-sidebar" aria-label="Clinic information">
+            <div class="sidebar-card">
+              <h3 class="sidebar-card__title">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                Quick Info
+              </h3>
+
+              <div class="sidebar-block">
+                <span class="sidebar-block__label">
+                  <i class="bi bi-hospital" aria-hidden="true"></i>
+                  Clinic
+                </span>
+                <p class="sidebar-block__text">{{ selectedClinic.clinicName }}</p>
+              </div>
+
+              <div class="sidebar-block">
+                <span class="sidebar-block__label">
+                  <i class="bi bi-person-badge" aria-hidden="true"></i>
+                  Doctor
+                </span>
+                <p class="sidebar-block__text">{{ selectedClinic.doctorName }}</p>
+              </div>
+
+              <div class="map-placeholder" role="img" aria-label="Map preview placeholder">
+                <i class="bi bi-map" aria-hidden="true"></i>
+                <span>Map preview</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
+<!-- Booking Modal -->
+<div *ngIf="showTimeSlotsModal" class="booking-modal-overlay" (click)="closeBookingModal()">
+  <div class="booking-modal" (click)="$event.stopPropagation()">
+    <div class="booking-modal__header">
+      <h3>Book an Appointment</h3>
+      <button type="button" class="modal-close-btn" (click)="closeBookingModal()">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="booking-modal__body">
+      <div class="selected-clinic-info" *ngIf="selectedClinic">
+        <h4>{{ selectedClinic.clinicName }}</h4>
+        <p>{{ selectedClinic.doctorName }} • {{ selectedClinic.clinicAddress }}</p>
+      </div>
+
+      <div class="time-slots-section">
+        <h5>Select a Time Slot</h5>
+        
+        <div *ngIf="availableTimeSlots.length === 0" class="no-slots">
+          <i class="bi bi-calendar-x" aria-hidden="true"></i>
+          <p>No available time slots for this clinic</p>
+        </div>
+
+        <div class="time-slots-grid">
+          <div 
+            *ngFor="let slot of availableTimeSlots" 
+            class="time-slot-card"
+            [class.selected]="selectedTimeSlot?.id === slot.id"
+            (click)="selectTimeSlot(slot)">
+            <div class="time-slot__datetime">
+              {{ formatDateTime(slot.date, slot.startTime) }}
+            </div>
+            <div class="time-slot__details">
+              <span class="time-slot__duration">{{ slot.startTime }} - {{ slot.endTime }}</span>
+              <span class="time-slot__price">{{ slot.price }} EGP</span>
+            </div>
+            <div class="time-slot__availability">
+              <span class="available-count">{{ slot.availableCount }} available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-modal__footer">
+      <button type="button" class="btn-secondary" (click)="closeBookingModal()">
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="btn-primary" 
+        (click)="bookAppointment()"
+        [disabled]="!selectedTimeSlot || bookingLoading">
+        <span *ngIf="!bookingLoading">Book Appointment</span>
+        <span *ngIf="bookingLoading">
+          <i class="bi bi-arrow-clockwise spinning" aria-hidden="true"></i>
+          Booking...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-toast></app-toast>
 <app-patient-footer></app-patient-footer>
