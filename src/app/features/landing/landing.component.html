@@ -1,0 +1,79 @@
+<section class="landing-page">
+  <header class="landing-hero">
+    <nav class="landing-nav" aria-label="Landing navigation">
+      <a class="brand" routerLink="/">
+        <img src="assets/logo.png" alt="MedGuid logo" />
+        <span>MedGuid</span>
+      </a>
+
+      <div class="nav-actions">
+        <a routerLink="/login" class="nav-link">Sign in</a>
+        <a routerLink="/register" class="nav-cta">Create account</a>
+      </div>
+    </nav>
+
+    <div class="hero-content">
+      <span class="hero-badge">
+        <i class="fa-solid fa-heart-pulse" aria-hidden="true"></i>
+        Medical health platform
+      </span>
+      <h1>MedGuid</h1>
+      <p>
+        A modern care platform for patients, doctors, and administrators to discover clinics,
+        manage appointments, and keep medical workflows clear.
+      </p>
+
+      <div class="hero-actions">
+        <a routerLink="/register" class="primary-action">
+          Get started
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </a>
+        <a routerLink="/login" class="secondary-action">I already have an account</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats-strip" aria-label="Platform highlights">
+      <article *ngFor="let stat of stats" class="stat-item">
+        <strong>{{ stat.value }}</strong>
+        <span>{{ stat.label }}</span>
+      </article>
+    </section>
+
+    <section class="section-block services-section">
+      <div class="section-heading">
+        <span class="eyebrow">What MedGuid does</span>
+        <h2>One place for booking, clinic work, and admin oversight.</h2>
+      </div>
+
+      <div class="services-grid">
+        <article *ngFor="let service of services" class="service-card">
+          <div class="service-icon">
+            <i class="fa-solid {{ service.icon }}" aria-hidden="true"></i>
+          </div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.text }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block flow-section">
+      <div class="flow-copy">
+        <span class="eyebrow">Patient journey</span>
+        <h2>From search to appointment in a clean, simple flow.</h2>
+        <p>
+          MedGuid keeps the patient experience direct while giving doctors and admins the tools
+          they need behind the scenes.
+        </p>
+      </div>
+
+      <ol class="flow-list">
+        <li *ngFor="let step of steps; let i = index">
+          <span>{{ i + 1 }}</span>
+          <p>{{ step }}</p>
+        </li>
+      </ol>
+    </section>
+  </main>
+</section>

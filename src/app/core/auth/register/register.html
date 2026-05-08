@@ -1,172 +1,196 @@
-<div class="login-container">
-  <div class="logo-wrapper">
-    <div class="logo-box">
-      <img src="assets/logo.png" alt="Care Home Logo">
-    </div>
-    <p class="subtitle">Care Management Platform</p>
-  </div>
+<section class="auth-shell">
+  <a routerLink="/" class="auth-brand" aria-label="Back to MedGuid landing page">
+    <img src="assets/logo.png" alt="MedGuid logo" />
+    <span>MedGuid</span>
+  </a>
 
-  <div class="login-card">
-    <h3>Create Account</h3>
-    <p #typedElement></p>
+  <div class="auth-layout">
+    <aside class="auth-visual" aria-label="Create MedGuid account">
+      <div class="visual-content">
+        <span class="visual-kicker">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          Join MedGuid
+        </span>
+        <h1>Start with a patient account built for easy booking.</h1>
+        <p>
+          Create your profile, discover clinics, reserve available time slots, and keep your
+          appointments organized from one calm workspace.
+        </p>
 
-    <div class="tab-container">
-      <button routerLink="/login" class="tab-btn">Login</button>
-      <button routerLink="/register" class="tab-btn active">Register</button>
-    </div>
+        <ul class="visual-list">
+          <li>
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Verified clinic browsing
+          </li>
+          <li>
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Appointment history in your profile
+          </li>
+          <li>
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+            Secure sign in for future visits
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-    <form
-      [formGroup]="registerForm"
-      (ngSubmit)="handleRegister()"
-      class="login-form"
-    >
-
-      <!-- Name -->
-      <div class="input-group">
-        <label class="ch-label-with-icon">
-          <i class="fa-solid fa-user" aria-hidden="true"></i>
-          Full Name
-        </label>
-        <input
-          type="text"
-          formControlName="name"
-          placeholder="Enter your full name"
-          [class.is-invalid]="formControls['name'].touched && formControls['name'].invalid"
-        />
-
-        <div class="error-message" *ngIf="formControls['name'].touched">
-          <span *ngIf="formControls['name'].errors?.['required']">
-            Name is required
-          </span>
-          <span *ngIf="formControls['name'].errors?.['minlength']">
-            Name must be at least 3 characters
-          </span>
-          <span *ngIf="formControls['name'].errors?.['maxlength']">
-            Name must be less than 30 characters
-          </span>
-        </div>
+    <div class="auth-card">
+      <div class="card-header">
+        <span class="card-eyebrow">Patient registration</span>
+        <h2>Create account</h2>
+        <p>Use your real contact details so clinics can identify your booking correctly.</p>
       </div>
 
-      <!-- Email -->
-      <div class="input-group">
-        <label class="ch-label-with-icon">
-          <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-          Email
-        </label>
-        <input
-          type="email"
-          formControlName="email"
-          placeholder="your@email.com"
-          [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
-        />
-
-        <div class="error-message" *ngIf="formControls['email'].touched">
-          <span *ngIf="formControls['email'].errors?.['required']">
-            Email is required
-          </span>
-          <span *ngIf="formControls['email'].errors?.['email']">
-            Please enter a valid email
-          </span>
-        </div>
+      <div class="tab-container" role="tablist" aria-label="Authentication pages">
+        <a routerLink="/login" class="tab-btn">Login</a>
+        <a routerLink="/register" class="tab-btn active">Register</a>
       </div>
 
-      <!-- Phone -->
-      <div class="input-group">
-        <label class="ch-label-with-icon">
-          <i class="fa-solid fa-phone" aria-hidden="true"></i>
-          Phone Number
-        </label>
-        <input
-          type="tel"
-          formControlName="phone"
-          placeholder="01xxxxxxxxx"
-          [class.is-invalid]="formControls['phone'].touched && formControls['phone'].invalid"
-        />
-
-        <div class="error-message" *ngIf="formControls['phone'].touched">
-          <span *ngIf="formControls['phone'].errors?.['required']">
-            Phone number is required
-          </span>
-          <span *ngIf="formControls['phone'].errors?.['pattern']">
-            Please enter a valid Egyptian phone number
-          </span>
-        </div>
-      </div>
-
-      <!-- Password -->
-      <div class="input-group">
-        <label class="ch-label-with-icon">
-          <i class="fa-solid fa-lock" aria-hidden="true"></i>
-          Password
-        </label>
-        <div class="password-field">
+      <form [formGroup]="registerForm" (ngSubmit)="handleRegister()" class="auth-form">
+        <div class="input-group">
+          <label class="ch-label-with-icon" for="name">
+            <i class="fa-solid fa-user" aria-hidden="true"></i>
+            Full name
+          </label>
           <input
-            [type]="showPassword ? 'text' : 'password'"
-            formControlName="password"
-            placeholder="Create a password"
-            (input)="checkPasswordMatch()"
-            [class.is-invalid]="formControls['password'].touched && formControls['password'].invalid"
+            id="name"
+            type="text"
+            formControlName="name"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            [class.is-invalid]="formControls['name'].touched && formControls['name'].invalid"
           />
-          <button
-            type="button"
-            class="toggle-password"
-            (click)="togglePasswordVisibility('password')"
-            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
-          >
-            <i class="bi" [class.bi-eye-fill]="!showPassword" [class.bi-eye-slash-fill]="showPassword"></i>
-          </button>
-        </div>
-        <div class="error-message" *ngIf="formControls['password'].touched">
-          <span *ngIf="formControls['password'].errors?.['required']">
-            Password is required
-          </span>
-          <span *ngIf="formControls['password'].errors?.['pattern']">
-            Password must contain at least 8 characters, one uppercase, one lowercase, one number and one special character
-          </span>
-        </div>
-      </div>
 
-      <!-- Confirm Password -->
-      <div class="input-group">
-        <label class="ch-label-with-icon">
-          <i class="fa-solid fa-lock" aria-hidden="true"></i>
-          Confirm Password
-        </label>
-        <div class="password-field">
+          <div class="error-message" *ngIf="formControls['name'].touched">
+            <span *ngIf="formControls['name'].errors?.['required']">Name is required</span>
+            <span *ngIf="formControls['name'].errors?.['minlength']">
+              Name must be at least 3 characters
+            </span>
+            <span *ngIf="formControls['name'].errors?.['maxlength']">
+              Name must be less than 30 characters
+            </span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="ch-label-with-icon" for="email">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            Email
+          </label>
           <input
-            [type]="showConfirmPassword ? 'text' : 'password'"
-            formControlName="rePassword"
-            placeholder="Confirm your password"
-            (input)="checkPasswordMatch()"
-            [class.is-invalid]="formControls['rePassword'].touched && passwordMismatch"
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="name@example.com"
+            autocomplete="email"
+            [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
           />
-          <button
-            type="button"
-            class="toggle-password"
-            (click)="togglePasswordVisibility('confirm')"
-            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
-          >
-            <i class="bi" [class.bi-eye-fill]="!showConfirmPassword" [class.bi-eye-slash-fill]="showConfirmPassword"></i>
-          </button>
-        </div>
-        <div class="error-message" *ngIf="formControls['rePassword'].touched">
-          <span *ngIf="formControls['rePassword'].errors?.['required']">
-            Please confirm your password
-          </span>
-          <span *ngIf="passwordMismatch">
-            Passwords do not match
-          </span>
-        </div>
-      </div>
 
-      <button
-        type="submit"
-        class="sign-in-btn"
-        [disabled]="isLoading"
-      >
-        {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-      </button>
+          <div class="error-message" *ngIf="formControls['email'].touched">
+            <span *ngIf="formControls['email'].errors?.['required']">Email is required</span>
+            <span *ngIf="formControls['email'].errors?.['email']">Please enter a valid email</span>
+          </div>
+        </div>
 
-    </form>
+        <div class="input-group">
+          <label class="ch-label-with-icon" for="phone">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            Phone number
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            formControlName="phone"
+            placeholder="01xxxxxxxxx"
+            autocomplete="tel"
+            [class.is-invalid]="formControls['phone'].touched && formControls['phone'].invalid"
+          />
+
+          <div class="error-message" *ngIf="formControls['phone'].touched">
+            <span *ngIf="formControls['phone'].errors?.['required']">Phone number is required</span>
+            <span *ngIf="formControls['phone'].errors?.['pattern']">
+              Please enter a valid Egyptian phone number
+            </span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="ch-label-with-icon" for="password">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            Password
+          </label>
+          <div class="password-field">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Create a strong password"
+              autocomplete="new-password"
+              (input)="checkPasswordMatch()"
+              [class.is-invalid]="formControls['password'].touched && formControls['password'].invalid"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility('password')"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+            </button>
+          </div>
+
+          <div class="error-message" *ngIf="formControls['password'].touched">
+            <span *ngIf="formControls['password'].errors?.['required']">Password is required</span>
+            <span *ngIf="formControls['password'].errors?.['pattern']">
+              Use 8+ characters with uppercase, lowercase, number, and special character
+            </span>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="ch-label-with-icon" for="rePassword">
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            Confirm password
+          </label>
+          <div class="password-field">
+            <input
+              id="rePassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              formControlName="rePassword"
+              placeholder="Confirm your password"
+              autocomplete="new-password"
+              (input)="checkPasswordMatch()"
+              [class.is-invalid]="formControls['rePassword'].touched && formControls['rePassword'].invalid"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility('confirm')"
+              [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showConfirmPassword" [class.fa-eye-slash]="showConfirmPassword"></i>
+            </button>
+          </div>
+
+          <div class="error-message" *ngIf="formControls['rePassword'].touched">
+            <span *ngIf="formControls['rePassword'].errors?.['required']">
+              Please confirm your password
+            </span>
+            <span *ngIf="passwordMismatch">Passwords do not match</span>
+          </div>
+        </div>
+
+        <button type="submit" class="sign-in-btn" [disabled]="isLoading">
+          <span>{{ isLoading ? 'Creating account...' : 'Create account' }}</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true" *ngIf="!isLoading"></i>
+          <i class="fa-solid fa-spinner fa-spin" aria-hidden="true" *ngIf="isLoading"></i>
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
   </div>
-</div>
+</section>
