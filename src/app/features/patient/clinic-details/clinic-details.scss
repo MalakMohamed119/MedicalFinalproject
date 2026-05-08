@@ -1082,3 +1082,54 @@ input[type="search"] {
     min-width: 120px;
   }
 }
+
+/* UI refresh overrides */
+.clinic-details-page {
+  background:
+    radial-gradient(850px 360px at 0% 0%, rgba(4, 158, 189, 0.08), transparent 58%),
+    linear-gradient(180deg, #ffffff 0%, #f4f8fa 52%, #ffffff 100%);
+}
+
+.page-container {
+  max-width: 1200px;
+}
+
+.search-card,
+.clinic-card,
+.clinic-header,
+.services-panel,
+.sidebar-card,
+.booking-modal,
+.empty-state,
+.error-state,
+.loading-state {
+  border-radius: 10px;
+  border: 1px solid rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.clinic-card:hover {
+  border-color: rgba(4, 158, 189, 0.3);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.1), 0 22px 46px rgba(15, 23, 42, 0.13);
+}
+
+.search-input-wrapper {
+  border-width: 1px;
+
+  &:focus-within {
+    transform: none;
+  }
+}
+
+.clinic-card__icon,
+.clinic-card__cta,
+.primary-btn,
+.secondary-btn,
+.btn-primary,
+.btn-secondary,
+.time-slot-card,
+.info-block,
+.sidebar-block,
+.map-placeholder {
+  border-radius: 10px;
+}

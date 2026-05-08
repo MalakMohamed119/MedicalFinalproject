@@ -773,3 +773,49 @@
     padding: 1rem;
   }
 }
+
+/* UI refresh overrides */
+.hero-section {
+  min-height: 76vh;
+  margin-bottom: 0;
+}
+
+.hero-overlay {
+  background:
+    linear-gradient(90deg, rgba(3, 26, 32, 0.78), rgba(3, 26, 32, 0.5) 55%, rgba(3, 26, 32, 0.24));
+}
+
+.dashboard-wrapper {
+  background:
+    radial-gradient(850px 360px at 0% 0%, rgba(4, 158, 189, 0.08), transparent 58%),
+    linear-gradient(180deg, #ffffff 0%, #f4f8fa 52%, #ffffff 100%);
+}
+
+.container {
+  max-width: 1200px;
+}
+
+.stat-card,
+.clinic-card,
+.empty-state,
+.error-state,
+.loading-state {
+  border-radius: 10px;
+  border-color: rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.clinic-card:hover,
+.stat-card:hover {
+  border-color: rgba(4, 158, 189, 0.3);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.1), 0 22px 46px rgba(15, 23, 42, 0.13);
+}
+
+.clinic-card__avatar,
+.stat-card__icon,
+.cta-button,
+.availability-pill,
+.clinic-card__rating,
+.clinic-card__specialty {
+  border-radius: 10px;
+}

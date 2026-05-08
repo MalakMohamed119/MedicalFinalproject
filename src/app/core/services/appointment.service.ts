@@ -26,6 +26,14 @@ export class AppointmentService {
 
   constructor(private http: HttpClient) {}
 
+  private getToken(): string {
+    if (typeof localStorage === 'undefined') {
+      return '';
+    }
+
+    return localStorage.getItem('token') || '';
+  }
+
 
 
   // Book appointment
@@ -48,7 +56,7 @@ export class AppointmentService {
 
         'Content-Type': 'application/json',
 
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        'Authorization': `Bearer ${this.getToken()}`
 
       }
 
@@ -134,7 +142,7 @@ export class AppointmentService {
 
       headers: {
 
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        'Authorization': `Bearer ${this.getToken()}`
 
       }
 
@@ -152,7 +160,7 @@ export class AppointmentService {
 
       headers: {
 
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        'Authorization': `Bearer ${this.getToken()}`
 
       }
 
@@ -170,7 +178,7 @@ export class AppointmentService {
 
       headers: {
 
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+        'Authorization': `Bearer ${this.getToken()}`
 
       }
 
@@ -183,7 +191,7 @@ export class AppointmentService {
   // Get patient appointments (Patient only, token-based)
   getPatientAppointments(): Observable<AppointmentResponse[]> {
     const url = `${environment.timeSlotsApiUrl}/appointments/ShowPatientAppointments`;
-    const token = localStorage.getItem('token') || '';
+    const token = this.getToken();
     
     console.log('🔄 Calling patient appointments API:', url);
     console.log('🔑 Token present:', !!token);

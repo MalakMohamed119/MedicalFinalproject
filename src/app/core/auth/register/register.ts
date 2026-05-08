@@ -68,7 +68,6 @@ export class Register {
 
     this._authService.register(userData).subscribe({
       next: (response: any) => {
-        console.log('Registration successful', response);
         this._toastService.success('Registration successful!');
         this.registerForm.reset();
         this._router.navigate(['/login']);
