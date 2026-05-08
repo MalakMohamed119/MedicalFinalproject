@@ -4,6 +4,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { HomeForPatient } from './features/patient/home-for-patient';
 import { ClinicDetails } from './features/patient/clinic-details/clinic-details';
 import { PatientProfile } from './features/patient/patient-profile/patient-profile';
+import { MyAppointments } from './features/patient/my-appointments/my-appointments.component';
 import { DoctorDashboard } from './features/doctor/dashboard/dashboard.component';
 import { MyClinics } from './features/doctor/my-clinics/my-clinics.component';
 import { TimeslotManagement } from './features/doctor/timeslot-management/timeslot-management.component';
@@ -41,6 +42,11 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: PatientProfile
+  },
+  {
+    path: 'my-appointments',
+    component: MyAppointments,
+    canActivate: [authGuard]
   },
   { 
     path: 'doctor/dashboard', 

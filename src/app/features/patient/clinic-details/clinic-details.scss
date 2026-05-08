@@ -50,6 +50,89 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin-bottom: 1.5rem;
 }
 
+// Search Section
+.search-card {
+  background: $white;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(0, 128, 128, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+.search-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.search-panel__intro {
+  text-align: center;
+  margin-bottom: 1.5rem;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $text;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    color: $text-muted;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $white;
+  border: 2px solid $teal;
+  border-radius: $radius-md;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    border-color: $teal-dark;
+    box-shadow: 0 0 0 4px rgba(0, 128, 128, 0.15);
+    transform: scale(1.02);
+  }
+}
+
+.search-icon {
+  color: $teal;
+  font-size: 1.1rem;
+  margin-right: 0.75rem;
+  transition: color 0.3s ease;
+}
+
+input[type="search"] {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: $text;
+  background: transparent;
+  
+  &::placeholder {
+    color: $text-muted;
+    font-style: italic;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
 .error-state h2 {
   margin: 0 0 1rem;
   color: $text;

@@ -134,6 +134,11 @@ export class TimeslotManagement implements OnInit {
     const formValue = this.slotForm.value;
     const editing = this.editingSlot();
 
+    // Try different payload formats that backend might expect
+    const startDate = new Date(formValue.startTime);
+    const endDate = new Date(formValue.endTime);
+    
+    // Use ISO format that backend expects
     const payload = {
       clinicId: Number(formValue.clinicId),
       startTime: new Date(formValue.startTime).toISOString(),
@@ -141,6 +146,8 @@ export class TimeslotManagement implements OnInit {
       capacity: Number(formValue.capacity),
       price: Number(formValue.price)
     };
+    
+    console.log('Creating time slot with payload:', payload);
 
     if (editing) {
       const updatePayload = {
@@ -161,14 +168,38 @@ export class TimeslotManagement implements OnInit {
         }
       });
     } else {
+      console.log('Creating time slot with payload:', JSON.stringify(payload, null, 2));
+      
       this.clinicService.createTimeSlot(payload).subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('Time slot creation successful:', response);
           this.success.set('Time slot created successfully!');
           this.loadTimeslots(this.selectedClinicId()!);
           this.cancelEdit();
         },
         error: (err) => {
-          this.error.set(err.error?.message || 'Failed to create time slot.');
+          console.error('Time slot creation error:', err);
+          console.error('Error status:', err.status);
+          console.error('Error response body:', JSON.stringify(err.error, null, 2));
+          
+          // Extract the actual error message
+          let errorMessage = 'Failed to create time slot.';
+          if (err.error?.errors?.TimeSlot && Array.isArray(err.error.errors.TimeSlot)) {
+            errorMessage = err.error.errors.TimeSlot.join(', ');
+          } else if (err.error?.message) {
+            errorMessage = err.error.message;
+          } else if (err.error?.error) {
+            errorMessage = err.error.error;
+          } else if (err.error?.title) {
+            errorMessage = err.error.title;
+          } else if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (err.message) {
+            errorMessage = err.message;
+          }
+          
+          console.log('Error message to display:', errorMessage);
+          this.error.set(errorMessage);
           this.loading.set(false);
         }
       });

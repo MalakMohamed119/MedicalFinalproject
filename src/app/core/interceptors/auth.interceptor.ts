@@ -17,20 +17,36 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
     token = localStorage.getItem('token');
   }
 
-  console.log('Interceptor seeing request to:', req.url);
-  console.log('Interceptor - Token found:', !!token);
+  console.log('🔍 Interceptor seeing request to:', req.url);
+  console.log('🔍 Interceptor - Token found:', !!token);
+  console.log('🔍 Interceptor - apiUrl:', environment.apiUrl);
+  console.log('🔍 Interceptor - timeSlotsApiUrl:', environment.timeSlotsApiUrl);
+  console.log('🔍 Interceptor - Request URL:', req.url);
+  console.log('🔍 Interceptor - Starts with apiUrl?', req.url.startsWith(environment.apiUrl));
+  console.log('🔍 Interceptor - Starts with timeSlotsApiUrl?', req.url.startsWith(environment.timeSlotsApiUrl));
+  console.log('🔍 Interceptor - URL starts with timeSlotsApiUrl:', req.url.startsWith(environment.timeSlotsApiUrl));
   if (token) {
-    console.log('Interceptor - Token preview:', token.substring(0, 50) + '...');
+    console.log('🔍 Interceptor - Token preview:', token.substring(0, 50) + '...');
   }
 
   let modifiedReq = req;
 
-  if (token && req.url.startsWith(environment.apiUrl) && !req.url.includes('/auth/Clinic/Authentication/Login') && !req.url.includes('/auth/Clinic/Authentication/Register')) {
+  const shouldAttachToken = token && 
+    (req.url.startsWith(environment.apiUrl) || req.url.startsWith(environment.timeSlotsApiUrl)) && 
+    !req.url.includes('/auth/Clinic/Authentication/Login') && 
+    !req.url.includes('/auth/Clinic/Authentication/Register');
+
+  console.log('🔍 Interceptor - Should attach token:', shouldAttachToken);
+
+  if (shouldAttachToken) {
     modifiedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('🔍 Interceptor - Token attached to request');
+  } else {
+    console.log('🔍 Interceptor - Token NOT attached to request');
   }
 
   return next(modifiedReq).pipe(
@@ -45,4 +61,3 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
     })
   );
 }
-

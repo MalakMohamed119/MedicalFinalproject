@@ -184,9 +184,7 @@ export class ClinicService {
 
 
   getAvailableSlots(clinicId: number): Observable<TimeSlot[]> {
-
-    return this.http.get<TimeSlot[]>(`${this.apiUrl}/api/timeslots/getavailabletimeslots/${clinicId}`);
-
+    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/timeslots/getavailabletimeslots/${clinicId}`);
   }
 
 
@@ -232,33 +230,29 @@ export class ClinicService {
 
 
   createTimeSlot(data: any): Observable<any> {
-
-    return this.http.post(`${this.apiUrl}/api/timeslots/createtimeslots`, data);
+    const url = `${environment.timeSlotsApiUrl}/timeslots/createtimeslots`;
+    console.log('ClinicService: Creating time slot with URL:', url);
+    console.log('ClinicService: Request data:', JSON.stringify(data, null, 2));
+    return this.http.post(url, data);
 
   }
 
 
 
   updateTimeSlot(id: number, data: any): Observable<any> {
-
-    return this.http.put(`${this.apiUrl}/api/timeslots/updatetimeslots/${id}`, data);
-
+    return this.http.put(`${environment.timeSlotsApiUrl}/timeslots/updatetimeslots/${id}`, data);
   }
 
 
 
   deleteTimeSlot(id: number): Observable<any> {
-
-    return this.http.delete(`${this.apiUrl}/api/timeslots/deletetimeslots/${id}`);
-
+    return this.http.delete(`${environment.timeSlotsApiUrl}/timeslots/deletetimeslots/${id}`);
   }
 
 
 
   getTimeSlotsByClinic(clinicId: number): Observable<TimeSlot[]> {
-
-    return this.http.get<TimeSlot[]>(`${this.apiUrl}/api/timeslots/GetTimeSlotsByClinic/${clinicId}`);
-
+    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/timeslots/GetTimeSlotsByClinic/${clinicId}`);
   }
 
 
