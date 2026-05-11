@@ -1,0 +1,111 @@
+<!-- Navigation Arrow -->
+<div class="nav-arrow" (click)="navigateToHome()" title="Go to Home">
+  <i class="fa-solid fa-arrow-left"></i>
+</div>
+
+<section class="chatbot-page">
+  <div class="chat-wrapper">
+
+    <!-- Left Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-top">
+        <!-- New Chat Button -->
+        <button class="sidebar-btn new-chat-btn" (click)="startNewChat()">
+          <i class="fa-regular fa-pen-to-square"></i>
+          <span>New chat</span>
+        </button>
+
+        <!-- Search Chats -->
+        <button class="sidebar-btn" (click)="searchChats()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search chats</span>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="sidebar-divider"></div>
+
+      <!-- Recent Chats -->
+      <div class="recent-chats">
+        <h3 class="recent-label">Recents</h3>
+        <div class="chat-list">
+          <div *ngIf="messages.length === 0" class="empty-chat-list">
+            <p>No recent chats</p>
+          </div>
+          <div
+            *ngFor="let message of messages.slice().reverse().slice(0, 8); trackBy: trackByMessage"
+            class="chat-item"
+            (click)="loadChat(message)"
+          >
+            <span>{{ message.text | slice:0:32 }}{{ message.text.length > 32 ? '...' : '' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="chat-container">
+
+      <!-- Chat Messages -->
+      <div class="chat-messages" #scrollContainer [class.has-messages]="messages.length > 0">
+
+        <!-- Welcome Message -->
+        <div *ngIf="messages.length === 0" class="welcome-message">
+          <h2>What's on your mind today?</h2>
+        </div>
+
+        <!-- Messages -->
+        <div *ngFor="let message of messages; trackBy: trackByMessage" class="message-wrapper">
+          <div class="message" [class.user-message]="message.sender === 'user'" [class.bot-message]="message.sender === 'bot'">
+            <div *ngIf="message.sender === 'bot'" class="message-avatar bot-avatar">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <div class="message-text">{{ message.text }}</div>
+              <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div *ngIf="isTyping" class="typing-indicator">
+          <div class="typing-avatar">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="typing-content">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <span class="typing-text">Medical Assistant is typing...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-container">
+        <div class="input-box">
+          <input
+            type="text"
+            class="chat-input"
+            placeholder="Ask anything"
+            [(ngModel)]="userInput"
+            (keydown)="onEnterKey($event)"
+            [disabled]="isTyping"
+          >
+
+          <button
+            class="send-button"
+            (click)="sendMessage()"
+            [disabled]="!userInput.trim() || isTyping"
+            title="Send message"
+          >
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

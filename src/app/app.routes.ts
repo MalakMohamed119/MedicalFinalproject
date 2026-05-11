@@ -17,6 +17,7 @@ import { Login } from './core/auth/login/login';
 import { Register } from './core/auth/register/register';
 import { LogoutComponent } from './core/auth/logout/logout.component';
 import { AddDoctorComponent } from './features/admin/add-doctor/add-doctor.component';
+import { ChatbotComponent } from './features/patient/chatbot/chatbot.component';
 
 
 export const routes: Routes = [
@@ -48,6 +49,11 @@ export const routes: Routes = [
   {
     path: 'my-appointments',
     component: MyAppointments,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'chatbot',
+    component: ChatbotComponent,
     canActivate: [authGuard]
   },
   { 

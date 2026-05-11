@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClinicResponse } from '../../shared/models/clinic-response.interface';
 import { ClinicService } from '../../core/services/clinic.service';
+import { Router } from '@angular/router';
 
 type ClinicCard = ClinicResponse & {
   rating: number;
@@ -22,6 +23,7 @@ type ClinicCard = ClinicResponse & {
 })
 export class HomeForPatient implements OnInit {
   private clinicService = inject(ClinicService);
+  private router = inject(Router);
   readonly starNumbers: number[] = [1, 2, 3, 4, 5];
 
   clinics: ClinicCard[] = [];
@@ -34,6 +36,7 @@ export class HomeForPatient implements OnInit {
   };
   isLoading = false;
   error: string | null = null;
+  showTooltip = false;
 
   ngOnInit(): void {
     this.loadClinics();
@@ -94,5 +97,11 @@ this.clinicService.getAllClinics({}).subscribe({
 
 trackByClinic(index: number, clinic: ClinicCard): number {
     return clinic.id;
+  }
+
+  onGlowingCircleClick(): void {
+    console.log('Glowing circle clicked!');
+    // Navigate to chatbot page
+    this.router.navigate(['/chatbot']);
   }
 }

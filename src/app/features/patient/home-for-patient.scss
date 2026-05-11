@@ -1,5 +1,174 @@
 /* Patient home — calm healthcare UI */
 
+/* Glowing Circle Button */
+.glowing-circle {
+  position: fixed;
+  top: 50%;
+  right: 2rem;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  z-index: 1000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.glowing-circle-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(13, 110, 123, 0.3);
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.glowing-circle-inner i {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.glow-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(13, 110, 123, 0.4) 0%, rgba(13, 110, 123, 0.1) 40%, transparent 70%);
+  animation: glow-pulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+.glowing-circle:hover .glowing-circle-inner {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(13, 110, 123, 0.4);
+  background: linear-gradient(135deg, #049ebd 0%, #0d6e7b 100%);
+}
+
+.glowing-circle:hover .glow-effect {
+  animation: glow-pulse-hover 1s ease-in-out infinite;
+  width: 100px;
+  height: 100px;
+}
+
+.glowing-circle:active .glowing-circle-inner {
+  transform: scale(0.95);
+}
+
+/* Tooltip Styling */
+.tooltip {
+  position: absolute;
+  top: -55px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #1a2e2e;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  z-index: 1001;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(13, 110, 123, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.tooltip.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-5px);
+}
+
+.tooltip-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes glow-pulse-hover {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .glowing-circle {
+    width: 50px;
+    height: 50px;
+    right: 1rem;
+  }
+  
+  .glowing-circle-inner i {
+    font-size: 1.2rem;
+  }
+  
+  .glow-effect {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .glowing-circle:hover .glow-effect {
+    width: 85px;
+    height: 85px;
+  }
+}
+
+@media (max-width: 480px) {
+  .glowing-circle {
+    width: 45px;
+    height: 45px;
+    right: 0.75rem;
+  }
+  
+  .glowing-circle-inner i {
+    font-size: 1rem;
+  }
+  
+  .glow-effect {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .glowing-circle:hover .glow-effect {
+    width: 75px;
+    height: 75px;
+  }
+}
+
 .bi::before {
   font-family: 'bootstrap-icons' !important;
   font-style: normal;

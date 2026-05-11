@@ -1,5 +1,18 @@
 <app-navbar></app-navbar>
 
+<!-- Glowing Circle Button -->
+<div class="glowing-circle" (click)="onGlowingCircleClick()" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false">
+  <div class="glowing-circle-inner">
+    <i class="fa-solid fa-robot"></i>
+  </div>
+  <div class="glow-effect"></div>
+  <!-- Tooltip -->
+  <div class="tooltip" *ngIf="showTooltip" [class.show]="showTooltip">
+    <span>Ask me</span>
+    <div class="tooltip-arrow"></div>
+  </div>
+</div>
+
 <header class="hero-section">
   <div class="hero-background"></div>
   <div class="hero-overlay"></div>
