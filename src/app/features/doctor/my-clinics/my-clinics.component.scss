@@ -385,7 +385,7 @@ textarea.form-control {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   border: 2px dashed var(--ch-border);
 
-  i {
+  > i {
     font-size: 4rem;
     color: var(--ch-ink-faint, #94a3b8);
     margin-bottom: 1rem;
@@ -402,6 +402,19 @@ textarea.form-control {
     color: var(--ch-ink-muted);
     margin: 0 0 2rem 0;
     font-size: 1.05rem;
+  }
+
+  .btn {
+    width: auto;
+    min-height: 40px;
+    padding: 0.55rem 1.15rem;
+    font-size: 0.85rem;
+
+    i {
+      margin: 0;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
   }
 }
 
@@ -936,6 +949,11 @@ textarea.form-control {
 .header {
   margin-bottom: 1.5rem;
   background: rgba(255, 255, 255, 0.92);
+
+  .btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
 }
 
 .clinic-card {
