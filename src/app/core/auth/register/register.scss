@@ -23,12 +23,12 @@
   font-weight: 800;
 
   img {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    object-fit: cover;
-    background: #ffffff;
-    box-shadow: var(--ch-shadow);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
   }
 }
 
@@ -41,7 +41,7 @@
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgba(var(--ch-brand-rgb), 0.12);
+  border: none;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
 }
 
@@ -54,14 +54,6 @@
   color: #ffffff;
   background:
     linear-gradient(145deg, #05323a 0%, #0d6e7b 58%, #049ebd 100%);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 8px;
-  }
 }
 
 .visual-content {
@@ -181,7 +173,8 @@
 
 .input-group {
   &:first-child,
-  &:last-of-type {
+  &:last-of-type,
+  &:has(#password) {
     grid-column: 1 / -1;
   }
 

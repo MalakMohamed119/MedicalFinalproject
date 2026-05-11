@@ -1,166 +1,143 @@
-<div class="admin-shell">
+<app-navbar></app-navbar>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">
-        <i class="fa-solid fa-user-doctor"></i>
+<section class="doctor-dashboard" aria-labelledby="doctor-dash-title">
+  <div class="doctor-dashboard__backdrop" aria-hidden="true"></div>
+
+  <div class="doctor-dashboard__inner">
+    <header class="doctor-dash-hero">
+      <div class="doctor-dash-hero__text">
+        <p class="doctor-dash-hero__eyebrow">Doctor workspace</p>
+        <h1 id="doctor-dash-title" class="doctor-dash-hero__title">
+          Welcome back, {{ doctorName() }}
+        </h1>
+        <p class="doctor-dash-hero__lede">
+          Track visits, clinics, and availability from one place. Use the shortcuts below or the bar at the top.
+        </p>
       </div>
-      <div>
-        <div class="logo-text">MediCare Doctor</div>
-        <div class="logo-sub">Control Panel</div>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Main</div>
-      <div *ngFor="let item of mainNavItems" class="nav-item">
-        <i class="fa-solid {{ item.icon }}"></i>
-        <span>{{ item.label }}</span>
-      </div>
-
-      <div class="nav-section-label">Manage</div>
-      <div *ngFor="let item of manageNavItems" class="nav-item">
-        <i class="fa-solid {{ item.icon }}"></i>
-        <span>{{ item.label }}</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-avatar">DR</div>
-      <div class="user-info">
-        <span class="user-name">Doctor</span>
-        <span class="user-role">Medical Staff</span>
-      </div>
-      <button class="logout-side-btn" (click)="logout()" title="Logout">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-      </button>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <div class="main">
-
-    <!-- Welcome Header -->
-    <div class="welcome-header">
-      <div class="welcome-content">
-        <div class="welcome-badge">
-          <i class="fa-solid fa-user-doctor"></i>
-          Doctor Panel
+      <div class="doctor-dash-hero__meta">
+        <div class="doctor-dash-hero__pill">
+          <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+          MedGuid
         </div>
-        <h1>Welcome back, {{ doctorName() }} 👋</h1>
-        <p>View your appointments, clinics, and schedule overview.</p>
+        <p class="doctor-dash-hero__hint">Last opened overview</p>
       </div>
-      <div class="welcome-actions">
-        <button type="button" class="logout-btn" (click)="logout()" title="Logout">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-          <span>Logout</span>
-        </button>
-      </div>
-      <div class="header-decoration">
-        <div class="deco-circle c1"></div>
-        <div class="deco-circle c2"></div>
-        <div class="deco-circle c3"></div>
-      </div>
-    </div>
+    </header>
 
-    <div class="content">
-
-      <div *ngIf="error() as loadError" class="dashboard-error">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        {{ loadError }}
-        <button class="retry-btn" (click)="retryLoad()">Retry</button>
+    <main class="doctor-dash-main">
+      <div *ngIf="error() as loadError" class="doctor-dash-error" role="alert">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        <span>{{ loadError }}</span>
+        <button type="button" class="doctor-dash-error__retry" (click)="retryLoad()">Retry</button>
       </div>
 
-      <!-- Loading Skeleton -->
       <ng-container *ngIf="loading()">
-        <p class="section-label">Overview</p>
-        <div class="stats-grid">
-          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
-            <div class="stat-card-top">
-              <div class="skeleton-icon"></div>
-              <div class="skeleton-tag"></div>
+        <p class="doctor-dash-section-label">Overview</p>
+        <div class="doctor-dash-stats">
+          <div class="doctor-stat-card doctor-stat-card--skeleton" *ngFor="let _ of [1,2,3,4]">
+            <div class="doctor-stat-card__top">
+              <div class="sk sk-icon"></div>
+              <div class="sk sk-tag"></div>
             </div>
-            <div class="skeleton-number"></div>
-            <div class="skeleton-label"></div>
-            <div class="skeleton-footer"></div>
+            <div class="sk sk-num"></div>
+            <div class="sk sk-label"></div>
+            <div class="sk sk-foot"></div>
           </div>
         </div>
       </ng-container>
 
-      <!-- Statistics -->
       <ng-container *ngIf="!loading()">
-        <p class="section-label">Overview</p>
-        <div class="stats-grid">
-          <a routerLink="/doctor/appointments" class="stat-card appointments">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
-              <span class="stat-tag">Total</span>
+        <p class="doctor-dash-section-label">Overview</p>
+        <div class="doctor-dash-stats">
+          <a routerLink="/doctor/appointments" class="doctor-stat-card doctor-stat-card--total">
+            <div class="doctor-stat-card__top">
+              <div class="doctor-stat-card__icon"><i class="fa-solid fa-calendar-days" aria-hidden="true"></i></div>
+              <span class="doctor-stat-card__tag">All</span>
             </div>
-            <span class="stat-number">{{ stats().appointments }}</span>
-            <span class="stat-label">Total Appointments</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+            <span class="doctor-stat-card__number">{{ stats().appointments }}</span>
+            <span class="doctor-stat-card__label">Total appointments</span>
+            <span class="doctor-stat-card__cta">Open appointments <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
 
-          <a routerLink="/doctor/my-clinics" class="stat-card confirmed">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
-              <span class="stat-tag">Active</span>
+          <a routerLink="/doctor/appointments" class="doctor-stat-card doctor-stat-card--confirmed">
+            <div class="doctor-stat-card__top">
+              <div class="doctor-stat-card__icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+              <span class="doctor-stat-card__tag">Confirmed</span>
             </div>
-            <span class="stat-number">{{ stats().confirmed }}</span>
-            <span class="stat-label">Confirmed Appointments</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+            <span class="doctor-stat-card__number">{{ stats().confirmed }}</span>
+            <span class="doctor-stat-card__label">Confirmed visits</span>
+            <span class="doctor-stat-card__cta">Review schedule <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
 
-          <a routerLink="/doctor/my-clinics" class="stat-card cancelled">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
-              <span class="stat-tag">Inactive</span>
+          <a routerLink="/doctor/appointments" class="doctor-stat-card doctor-stat-card--cancelled">
+            <div class="doctor-stat-card__top">
+              <div class="doctor-stat-card__icon"><i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i></div>
+              <span class="doctor-stat-card__tag">Cancelled</span>
             </div>
-            <span class="stat-number">{{ stats().cancelled }}</span>
-            <span class="stat-label">Cancelled Appointments</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+            <span class="doctor-stat-card__number">{{ stats().cancelled }}</span>
+            <span class="doctor-stat-card__label">Cancelled visits</span>
+            <span class="doctor-stat-card__cta">View history <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
 
-          <a routerLink="/doctor/manage-slots" class="stat-card slots">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-              <span class="stat-tag">Available</span>
+          <a routerLink="/doctor/manage-slots" class="doctor-stat-card doctor-stat-card--slots">
+            <div class="doctor-stat-card__top">
+              <div class="doctor-stat-card__icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></div>
+              <span class="doctor-stat-card__tag">Open</span>
             </div>
-            <span class="stat-number">{{ stats().slots }}</span>
-            <span class="stat-label">Available Time Slots</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+            <span class="doctor-stat-card__number">{{ stats().slots }}</span>
+            <span class="doctor-stat-card__label">Available time slots</span>
+            <span class="doctor-stat-card__cta">Manage slots <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </div>
       </ng-container>
 
-      <!-- Quick Actions -->
-      <p class="section-label">Quick Actions</p>
-      <div class="admin-links">
-        <a routerLink="/doctor/my-clinics" class="admin-card">
-          <div class="card-icon clinics">
-            <i class="fa-solid fa-hospital-alt"></i>
+      <p class="doctor-dash-section-label">Shortcuts</p>
+      <div class="doctor-dash-shortcuts">
+        <a routerLink="/doctor/appointments" class="doctor-shortcut">
+          <div class="doctor-shortcut__icon doctor-shortcut__icon--teal">
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
           </div>
-          <div class="card-content">
-            <h2>My Clinics</h2>
-            <p>View and manage your clinics</p>
+          <div class="doctor-shortcut__body">
+            <h2 class="doctor-shortcut__title">Appointments</h2>
+            <p class="doctor-shortcut__text">See patient bookings and statuses</p>
           </div>
-          <i class="fa-solid fa-chevron-right card-arrow"></i>
+          <i class="fa-solid fa-chevron-right doctor-shortcut__arrow" aria-hidden="true"></i>
         </a>
 
-        <a routerLink="/doctor/manage-slots" class="admin-card">
-          <div class="card-icon slots">
-            <i class="fa-solid fa-clock"></i>
+        <a routerLink="/doctor/my-clinics" class="doctor-shortcut">
+          <div class="doctor-shortcut__icon doctor-shortcut__icon--cyan">
+            <i class="fa-solid fa-hospital" aria-hidden="true"></i>
           </div>
-          <div class="card-content">
-            <h2>Time Slots</h2>
-            <p>Manage your availability schedule</p>
+          <div class="doctor-shortcut__body">
+            <h2 class="doctor-shortcut__title">My clinics</h2>
+            <p class="doctor-shortcut__text">Clinics you work with and their details</p>
           </div>
-          <i class="fa-solid fa-chevron-right card-arrow"></i>
+          <i class="fa-solid fa-chevron-right doctor-shortcut__arrow" aria-hidden="true"></i>
+        </a>
+
+        <a routerLink="/doctor/manage-slots" class="doctor-shortcut">
+          <div class="doctor-shortcut__icon doctor-shortcut__icon--violet">
+            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+          </div>
+          <div class="doctor-shortcut__body">
+            <h2 class="doctor-shortcut__title">Time slots</h2>
+            <p class="doctor-shortcut__text">Set when patients can book you</p>
+          </div>
+          <i class="fa-solid fa-chevron-right doctor-shortcut__arrow" aria-hidden="true"></i>
+        </a>
+
+        <a routerLink="/profile" class="doctor-shortcut">
+          <div class="doctor-shortcut__icon doctor-shortcut__icon--slate">
+            <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+          </div>
+          <div class="doctor-shortcut__body">
+            <h2 class="doctor-shortcut__title">Profile</h2>
+            <p class="doctor-shortcut__text">Your account and appointment history</p>
+          </div>
+          <i class="fa-solid fa-chevron-right doctor-shortcut__arrow" aria-hidden="true"></i>
         </a>
       </div>
-
-    </div>
+    </main>
   </div>
-</div>
+</section>
 
+<app-doctor-footer></app-doctor-footer>

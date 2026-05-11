@@ -1,9 +1,7 @@
 <nav class="relief-navbar" role="navigation" aria-label="Main">
   <div class="nav-container">
     <a class="nav-brand" [routerLink]="brandLink" aria-label="MedGuid home">
-      <div class="logo-wrapper">
-        <img src="/assets/logo.png" alt="MedGuid logo" width="50" height="50" />
-      </div>
+      <img src="/assets/logo.png" alt="MedGuid logo" width="48" height="48" />
       <span>MedGuid</span>
     </a>
 
@@ -25,9 +23,13 @@
             </a>
           </ng-container>
           <ng-container *ngSwitchCase="'Doctor'">
-            <a routerLink="/doctor/dashboard" routerLinkActive="active-link" class="nav-pill" title="Dashboard">
+            <a routerLink="/doctor/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Dashboard">
               <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
               <span class="nav-pill__text">Dashboard</span>
+            </a>
+            <a routerLink="/doctor/appointments" routerLinkActive="active-link" class="nav-pill" title="Appointments">
+              <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+              <span class="nav-pill__text">Appointments</span>
             </a>
             <a routerLink="/doctor/my-clinics" routerLinkActive="active-link" class="nav-pill" title="My clinics">
               <i class="fa-solid fa-hospital" aria-hidden="true"></i>

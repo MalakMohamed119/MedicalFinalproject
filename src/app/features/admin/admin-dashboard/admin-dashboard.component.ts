@@ -1,6 +1,6 @@
 import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
@@ -21,7 +21,7 @@ interface DashboardStats {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -42,12 +42,12 @@ export class AdminDashboardComponent implements OnInit {
   readonly error = signal('');
 
   readonly mainNavItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'fa-gauge-high', route: '' }
+    { label: 'Dashboard', icon: 'fa-gauge-high', route: '/admin-dashboard' }
   ];
 
   readonly manageNavItems: NavItem[] = [
-    { label: 'Manage Doctors', icon: 'fa-user-doctor', route: '' },
-    { label: 'Add Doctor', icon: 'fa-user-plus', route: '' }
+    { label: 'Manage Doctors', icon: 'fa-user-doctor', route: '/admin/manage-doctors' },
+    { label: 'Add Doctor', icon: 'fa-user-plus', route: '/admin/add-doctor' }
   ];
 
   ngOnInit(): void {

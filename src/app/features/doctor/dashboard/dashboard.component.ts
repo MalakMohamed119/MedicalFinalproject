@@ -1,14 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { AuthService } from '../../../core/services/auth.service';
-
-interface NavItem {
-  label: string;
-  icon: string;
-}
+import { Navbar } from '../../../shared/components/navbar/navbar';
+import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 
 interface DashboardStats {
   appointments: number;
@@ -20,14 +17,13 @@ interface DashboardStats {
 @Component({
   selector: 'app-doctor-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, Navbar, DoctorFooterComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DoctorDashboard implements OnInit {
   private clinicService = inject(ClinicService);
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   readonly stats = signal<DashboardStats>({
     appointments: 0,
@@ -38,26 +34,17 @@ export class DoctorDashboard implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
-  readonly mainNavItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'fa-gauge-high' }
-  ];
-
-  readonly manageNavItems: NavItem[] = [
-    { label: 'My Clinics', icon: 'fa-hospital-alt' },
-    { label: 'Time Slots', icon: 'fa-clock' }
-  ];
-
   readonly doctorName = signal<string>('Doctor');
 
   ngOnInit(): void {
     this.authService.getCurrentUser().subscribe({
-      next: (user: any) => {
+      next: (user: { displayName?: string }) => {
         if (user?.displayName) {
           this.doctorName.set(user.displayName);
         }
       },
       error: () => {
-        // Silently fall back to default "Doctor"
+        // keep default
       }
     });
 
@@ -66,11 +53,6 @@ export class DoctorDashboard implements OnInit {
 
   retryLoad(): void {
     this.loadDashboard();
-  }
-
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   private loadDashboard(): void {
@@ -101,7 +83,7 @@ export class DoctorDashboard implements OnInit {
         });
         this.loading.set(false);
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         clearTimeout(safetyTimeout);
         console.error('Dashboard error:', err);
         this.error.set('Failed to load dashboard. Please try again.');
@@ -116,4 +98,3 @@ export class DoctorDashboard implements OnInit {
     });
   }
 }
-

@@ -12,24 +12,29 @@
       </div>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-label="Admin sidebar">
       <div class="nav-section-label">Main</div>
-      <div
+      <a
         *ngFor="let item of mainNavItems"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
       >
         <i class="fa-solid {{ item.icon }}"></i>
         <span>{{ item.label }}</span>
-      </div>
+      </a>
 
       <div class="nav-section-label">Manage</div>
-      <div
+      <a
         *ngFor="let item of manageNavItems"
+        [routerLink]="item.route"
+        routerLinkActive="active"
         class="nav-item"
       >
         <i class="fa-solid {{ item.icon }}"></i>
         <span>{{ item.label }}</span>
-      </div>
+      </a>
     </nav>
 
     <div class="sidebar-footer">

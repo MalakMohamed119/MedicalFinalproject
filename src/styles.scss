@@ -330,8 +330,9 @@ body .clinics-container .clinic-actions {
 }
 
 body .clinics-container .clinic-actions .btn-sm {
-  min-height: 36px;
-  padding: 0.55rem 0.8rem;
+  min-height: 32px;
+  padding: 0.32rem 0.7rem;
+  font-size: 0.75rem;
 }
 
 /* Patient pages */
@@ -439,4 +440,111 @@ body .patient-profile-page .profile-summary__avatar {
   body .patient-profile-page {
     padding-inline: 1rem;
   }
+}
+
+/*
+ * Doctor workspace — high-contrast buttons & tabs
+ * (Component SCSS can lose to earlier global `.btn` / `body .clinics-container` rules.)
+ */
+body .doctor-appointments-page .tab-navigation {
+  padding: 0.45rem !important;
+  background: linear-gradient(180deg, #e2e8f0 0%, #f8fafc 100%) !important;
+  border: 2px solid rgba(var(--ch-brand-rgb), 0.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 6px 24px rgba(13, 110, 123, 0.12) !important;
+}
+
+body .doctor-appointments-page .tab-btn {
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.78rem !important;
+  letter-spacing: 0.04em !important;
+}
+
+body .doctor-appointments-page .tab-btn.active {
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 55%, #06b6d4 100%) !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 8px 26px rgba(var(--ch-accent-rgb), 0.45) !important;
+}
+
+body .doctor-appointments-page .tab-btn.active i {
+  color: #ffffff !important;
+}
+
+body .doctor-appointments-page .appointment-actions .btn,
+body .doctor-appointments-page .error-state .retry-btn {
+  border-radius: 14px !important;
+  min-height: 48px !important;
+  padding: 0.65rem 1.35rem !important;
+  font-weight: 800 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.03em !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 0 rgba(15, 23, 42, 0.12),
+    0 14px 32px rgba(15, 23, 42, 0.18) !important;
+}
+
+body .doctor-appointments-page .appointment-actions .btn:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 1px 0 rgba(15, 23, 42, 0.1),
+    0 8px 20px rgba(15, 23, 42, 0.14) !important;
+}
+
+body .doctor-appointments-page .appointment-actions .btn.btn-success {
+  background: linear-gradient(180deg, #4ade80 0%, #059669 55%, #047857 100%) !important;
+  color: #ffffff !important;
+}
+
+body .doctor-appointments-page .appointment-actions .btn.btn-primary {
+  background: linear-gradient(180deg, #22d3ee 0%, #0d6e7b 60%, #05323a 100%) !important;
+  color: #ffffff !important;
+}
+
+body .doctor-appointments-page .appointment-actions .btn.btn-danger {
+  background: linear-gradient(180deg, #fb7185 0%, #dc2626 50%, #991b1b 100%) !important;
+  color: #ffffff !important;
+}
+
+body .clinics-container .btn.btn-primary,
+body .clinics-container .btn.btn-success,
+body .clinics-container .btn.btn-secondary {
+  min-height: 36px !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  font-size: 0.8125rem !important;
+  padding: 0.4rem 1.1rem !important;
+  letter-spacing: 0.02em !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 0 rgba(15, 23, 42, 0.08),
+    0 8px 20px rgba(var(--ch-accent-rgb), 0.22) !important;
+}
+
+body .clinics-container .btn.btn-outline-primary,
+body .clinics-container .btn.btn-outline-danger,
+body .clinics-container .btn.btn-outline-info {
+  min-height: 34px !important;
+  border-radius: 9px !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  padding: 0.35rem 0.85rem !important;
+  border-width: 1px !important;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06) !important;
+}
+
+body .clinics-container .clinic-actions .btn-sm {
+  min-height: 32px !important;
+  padding: 0.32rem 0.7rem !important;
+  border-radius: 9px !important;
+  font-weight: 700 !important;
+  font-size: 0.75rem !important;
 }

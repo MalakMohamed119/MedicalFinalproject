@@ -69,6 +69,11 @@
   padding: 8px 8px 5px;
 }
 
+a.nav-item {
+  text-decoration: none;
+  color: inherit;
+}
+
 .nav-item {
   display: flex;
   align-items: center;
@@ -79,6 +84,7 @@
   font-weight: 500;
   color: #64748b;
   margin-bottom: 2px;
+  cursor: pointer;
 
   i {
     font-size: 0.875rem;
@@ -589,7 +595,8 @@
   border: 1px solid transparent;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover,
+  &.active {
     color: #0d6e7b;
     background: rgba(4, 158, 189, 0.08);
     border-color: rgba(4, 158, 189, 0.16);

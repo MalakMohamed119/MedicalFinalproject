@@ -282,4 +282,8 @@ export class MyAppointments implements OnInit {
       default: return 'status-default';
     }
   }
+
+  isCancelling(appointmentId: number): boolean {
+    return this.cancellingAppointmentId === appointmentId;
+  }
 }

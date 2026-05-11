@@ -1,264 +1,205 @@
 <app-navbar></app-navbar>
 
 <section class="my-appointments-page">
-  <div class="page-container">
-    
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="loading-spinner">
-        <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+  <div class="my-appts-backdrop" aria-hidden="true"></div>
+
+  <div class="page-inner">
+    <header class="my-appts-hero">
+      <p class="my-appts-hero__eyebrow">Your schedule</p>
+      <h1 class="my-appts-hero__title">My appointments</h1>
+      <p class="my-appts-hero__lede">
+        View upcoming visits, past history, and cancel when plans change.
+      </p>
+    </header>
+
+    <div *ngIf="loading" class="state-card state-card--loading">
+      <div class="state-card__icon" aria-hidden="true">
+        <i class="fa-solid fa-spinner fa-spin"></i>
       </div>
-      <p>Loading appointments...</p>
+      <p class="state-card__title">Loading appointments…</p>
+      <p class="state-card__text">Fetching your latest bookings.</p>
     </div>
 
-    <!-- Error State -->
-    <div *ngIf="error" class="error-state">
-      <div class="error-icon">
-        <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
+    <div *ngIf="error && !loading" class="state-card state-card--error">
+      <div class="state-card__icon" aria-hidden="true">
+        <i class="bi bi-exclamation-triangle-fill"></i>
       </div>
-      <h2>Oops! Something went wrong</h2>
-      <p>{{ error }}</p>
-      <button type="button" class="retry-btn" (click)="loadPatientAppointments()">
+      <h2 class="state-card__title">Something went wrong</h2>
+      <p class="state-card__text">{{ error }}</p>
+      <button type="button" class="state-card__btn" (click)="loadPatientAppointments()">
         <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
-        Try Again
+        Try again
       </button>
     </div>
 
-    <!-- Tab Navigation -->
-    <div *ngIf="!loading && !error && appointments.length > 0" class="tab-navigation">
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'upcoming'"
-        (click)="setTab('upcoming')"
-      >
-        <i class="fa-solid fa-calendar-check"></i>
-        Upcoming ({{ upcomingAppointments.length }})
-      </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'past'"
-        (click)="setTab('past')"
-      >
-        <i class="fa-solid fa-calendar-xmark"></i>
-        Past ({{ pastAppointments.length }})
-      </button>
-    </div>
-
-    <!-- Appointments List -->
-    <div *ngIf="!loading && !error">
-      <!-- Empty State -->
-      <div *ngIf="appointments.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
+    <div *ngIf="!loading && !error" class="my-appts-shell">
+      <div *ngIf="appointments.length === 0" class="state-card state-card--empty">
+        <div class="state-card__icon" aria-hidden="true">
+          <i class="fa-solid fa-calendar-days"></i>
         </div>
-        <h2>No appointments found</h2>
-        <p>You don't have any scheduled appointments.</p>
-        <a routerLink="/clinic-details" class="btn btn-primary">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          Book an Appointment
+        <h2 class="state-card__title">No appointments yet</h2>
+        <p class="state-card__text">When you book a clinic visit, it will appear here.</p>
+        <a routerLink="/home-for-patient" class="state-card__btn state-card__btn--link">
+          <i class="fa-solid fa-hospital-user" aria-hidden="true"></i>
+          Browse clinics
         </a>
       </div>
 
-      <!-- Upcoming Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'upcoming' && upcomingAppointments.length > 0">
-        
-        
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of upcomingAppointments" class="appointment-card">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
+      <ng-container *ngIf="appointments.length > 0">
+        <div class="my-appts-toolbar">
+          <div class="my-appts-toolbar__intro">
+            <span class="my-appts-toolbar__count">{{ appointments.length }} total</span>
+            <span class="my-appts-toolbar__hint">Switch between upcoming and past</span>
+          </div>
+          <div class="my-appts-tabs" role="tablist" aria-label="Appointment filters">
+            <button
+              type="button"
+              class="my-appts-tabs__btn"
+              role="tab"
+              [attr.aria-selected]="activeTab === 'upcoming'"
+              [class.my-appts-tabs__btn--active]="activeTab === 'upcoming'"
+              (click)="setTab('upcoming')">
+              <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+              Upcoming
+              <span class="my-appts-tabs__badge">{{ upcomingAppointments.length }}</span>
+            </button>
+            <button
+              type="button"
+              class="my-appts-tabs__btn"
+              role="tab"
+              [attr.aria-selected]="activeTab === 'past'"
+              [class.my-appts-tabs__btn--active]="activeTab === 'past'"
+              (click)="setTab('past')">
+              <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+              Past
+              <span class="my-appts-tabs__badge">{{ pastAppointments.length }}</span>
+            </button>
+          </div>
+        </div>
+
+        <section *ngIf="activeTab === 'upcoming' && upcomingAppointments.length > 0" class="my-appts-grid" aria-label="Upcoming appointments">
+          <article *ngFor="let appointment of upcomingAppointments" class="appt-card appt-card--upcoming">
+            <div class="appt-card__top">
+              <div class="appt-card__clinic">
+                <span class="appt-card__clinic-icon" aria-hidden="true">
+                  <i class="fa-solid fa-hospital"></i>
+                </span>
                 <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
+                  <h2 class="appt-card__title">{{ appointment.clinicName || 'Clinic' }}</h2>
+                  <p class="appt-card__meta">Clinic ID {{ appointment.clinicId }}</p>
                 </div>
               </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
+              <span class="appt-badge" [ngClass]="getStatusClass(appointment.status)">
                 {{ appointment.status }}
               </span>
             </div>
 
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
+            <dl class="appt-card__details">
+              <div class="appt-card__row">
+                <dt><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Date</dt>
+                <dd>{{ formatDate(appointment.date) }}</dd>
               </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
+              <div class="appt-card__row">
+                <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Time</dt>
+                <dd>
+                  {{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}
+                </dd>
               </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientId || 'Patient' }}
-                  </p>
-                </div>
+              <div class="appt-card__row" *ngIf="appointment.patientName">
+                <dt><i class="fa-solid fa-user" aria-hidden="true"></i> Patient</dt>
+                <dd>{{ appointment.patientName }}</dd>
               </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
+              <div class="appt-card__row" *ngIf="appointment.priceAtBooking">
+                <dt><i class="fa-solid fa-tag" aria-hidden="true"></i> Price</dt>
+                <dd>{{ appointment.priceAtBooking }} EGP</dd>
               </div>
-            </div>
+            </dl>
 
-            <!-- ACTIONS -->
-            <div class="appointment-actions">
-              <!-- ONLY SHOW CANCEL BUTTON -->
+            <div class="appt-card__actions" *ngIf="appointment.status === 'Pending' || appointment.status === 'Confirmed'">
               <button
-                *ngIf="
-                  appointment.status === 'Pending' ||
-                  appointment.status === 'Confirmed'
-                "
                 type="button"
-                class="btn btn-danger"
-                (click)="cancelAppointment(appointment.id)"
-              >
-                <i class="fa-solid fa-xmark"></i>
-                Cancel
+                class="appt-card__cancel"
+                [disabled]="isCancelling(appointment.id)"
+                (click)="cancelAppointment(appointment.id)">
+                <i
+                  class="fa-solid"
+                  [class.fa-spinner]="isCancelling(appointment.id)"
+                  [class.fa-spin]="isCancelling(appointment.id)"
+                  [class.fa-xmark]="!isCancelling(appointment.id)"
+                  aria-hidden="true"></i>
+                {{ isCancelling(appointment.id) ? 'Cancelling…' : 'Cancel booking' }}
               </button>
             </div>
-          </div>
-        </div>
-      </section>
+          </article>
+        </section>
 
-      <!-- Past Appointments Section -->
-      <section class="appointments-section past-section" *ngIf="activeTab === 'past' && pastAppointments.length > 0">
-        
-        
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of pastAppointments" class="appointment-card past-appointment">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
+        <section *ngIf="activeTab === 'past' && pastAppointments.length > 0" class="my-appts-grid" aria-label="Past appointments">
+          <article *ngFor="let appointment of pastAppointments" class="appt-card appt-card--past">
+            <div class="appt-card__top">
+              <div class="appt-card__clinic">
+                <span class="appt-card__clinic-icon appt-card__clinic-icon--muted" aria-hidden="true">
+                  <i class="fa-solid fa-hospital"></i>
+                </span>
                 <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
+                  <h2 class="appt-card__title">{{ appointment.clinicName || 'Clinic' }}</h2>
+                  <p class="appt-card__meta">Clinic ID {{ appointment.clinicId }}</p>
                 </div>
               </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
+              <span class="appt-badge" [ngClass]="getStatusClass(appointment.status)">
                 {{ appointment.status }}
               </span>
             </div>
 
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
+            <dl class="appt-card__details">
+              <div class="appt-card__row">
+                <dt><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Date</dt>
+                <dd>{{ formatDate(appointment.date) }}</dd>
               </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
+              <div class="appt-card__row">
+                <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Time</dt>
+                <dd>
+                  {{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}
+                </dd>
               </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientId || 'Patient' }}
-                  </p>
-                </div>
+              <div class="appt-card__row" *ngIf="appointment.patientName">
+                <dt><i class="fa-solid fa-user" aria-hidden="true"></i> Patient</dt>
+                <dd>{{ appointment.patientName }}</dd>
               </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
+              <div class="appt-card__row" *ngIf="appointment.priceAtBooking">
+                <dt><i class="fa-solid fa-tag" aria-hidden="true"></i> Price</dt>
+                <dd>{{ appointment.priceAtBooking }} EGP</dd>
               </div>
-            </div>
+            </dl>
 
-            <!-- ACTIONS - No actions for past appointments -->
-            <div class="appointment-actions">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                disabled
-              >
-                <i class="fa-solid fa-check"></i>
+            <div class="appt-card__footer appt-card__footer--past">
+              <span class="appt-card__footer-label">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                 {{ appointment.status }}
-              </button>
+              </span>
             </div>
+          </article>
+        </section>
+
+        <div *ngIf="activeTab === 'upcoming' && upcomingAppointments.length === 0" class="state-card state-card--empty state-card--inline">
+          <div class="state-card__icon" aria-hidden="true">
+            <i class="fa-solid fa-calendar-check"></i>
           </div>
+          <h2 class="state-card__title">No upcoming visits</h2>
+          <p class="state-card__text">Book a slot at a clinic to see it listed here.</p>
+          <a routerLink="/home-for-patient" class="state-card__btn state-card__btn--link">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            Book an appointment
+          </a>
         </div>
-      </section>
 
-      <!-- Empty State for Upcoming Tab -->
-      <div *ngIf="activeTab === 'upcoming' && upcomingAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+        <div *ngIf="activeTab === 'past' && pastAppointments.length === 0" class="state-card state-card--empty state-card--inline">
+          <div class="state-card__icon" aria-hidden="true">
+            <i class="fa-solid fa-inbox"></i>
+          </div>
+          <h2 class="state-card__title">No past appointments</h2>
+          <p class="state-card__text">Completed or cancelled visits will show in this tab.</p>
         </div>
-        <h2>No upcoming appointments</h2>
-        <p>You don't have any upcoming appointments.</p>
-        <a routerLink="/clinic-details" class="btn btn-primary">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          Book an Appointment
-        </a>
-      </div>
-
-      <!-- Empty State for Past Tab -->
-      <div *ngIf="activeTab === 'past' && pastAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
-        </div>
-        <h2>No past appointments</h2>
-        <p>You don't have any past appointments yet.</p>
-      </div>
+      </ng-container>
     </div>
   </div>
 </section>

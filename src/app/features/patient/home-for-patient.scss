@@ -946,7 +946,7 @@
 /* UI refresh overrides */
 .hero-section {
   min-height: 76vh;
-  margin-bottom: 0;
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
 }
 
 .hero-overlay {
