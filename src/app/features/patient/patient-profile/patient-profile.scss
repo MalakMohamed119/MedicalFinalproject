@@ -467,3 +467,47 @@ $radius: 18px;
     }
   }
 }
+
+/* UI refresh overrides */
+.patient-profile-page {
+  background:
+    radial-gradient(850px 360px at 0% 0%, rgba(4, 158, 189, 0.08), transparent 58%),
+    linear-gradient(180deg, #ffffff 0%, #f4f8fa 52%, #ffffff 100%);
+}
+
+.page-inner {
+  max-width: 980px;
+}
+
+.profile-summary,
+.appointments-block,
+.loading-state,
+.error-state,
+.upcoming-card,
+.past-table-wrap {
+  border-radius: 10px;
+  border: 1px solid rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.profile-summary__avatar {
+  border-radius: 10px;
+}
+
+.upcoming-card {
+  border-left: 4px solid #0d6e7b;
+
+  &:hover {
+    border-color: rgba(4, 158, 189, 0.3);
+    border-left-color: #0d6e7b;
+    box-shadow: 0 1px 0 rgba(13, 110, 123, 0.1), 0 20px 42px rgba(15, 23, 42, 0.11);
+  }
+}
+
+.tabs__btn,
+.tabs__count,
+.profile-chip,
+.btn-cancel,
+.badge-completed {
+  border-radius: 10px;
+}

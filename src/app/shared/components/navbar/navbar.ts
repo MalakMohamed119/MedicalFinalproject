@@ -16,7 +16,7 @@ export class Navbar implements OnInit {
     if (this.userRole === 'Admin') return '/admin-dashboard';
     if (this.userRole === 'Doctor') return '/doctor/dashboard';
     if (this.userRole) return '/home-for-patient';
-    return '/login';
+    return '/';
   }
 
   ngOnInit(): void {

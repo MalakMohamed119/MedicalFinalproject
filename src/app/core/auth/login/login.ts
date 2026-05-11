@@ -44,25 +44,19 @@ export class Login {
 
     const { email, password } = this.loginForm.value;
     const credentials = { 
-      email: email, 
+      email: String(email).trim().toLowerCase(),
       password: password 
     };
 
-    console.log('Login attempt with:', email);
-
     this.authService.login(credentials).subscribe({
       next: (res: any) => {
-        console.log('Full API Response:', res);
-        console.log('Login successful', res);
         localStorage.setItem('token', res.accessToken);
-        localStorage.setItem('email', res.email || email);
+        localStorage.setItem('email', res.email || credentials.email);
         
         const decodedToken: any = jwtDecode(res.accessToken);
-        console.log('Decoded JWT:', decodedToken);
         const role = decodedToken.role || 
                      decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 
                      decodedToken['role'] || 'Patient';
-        console.log('Extracted Role:', role);
         localStorage.setItem('role', role);
         
         this.toastService.success('Login successful!');
@@ -77,10 +71,9 @@ export class Login {
         this.isLoading.set(false);
       },
       error: (err: any) => {
-        console.error('Login error:', err);
-        console.error('Server Error Detail:', err.error);
-        console.error('Full error response:', err);
-        const errorMessage = err.error?.detail || err.error?.message || err.error?.title || 'Invalid email or password';
+        const errorMessage = err.status === 401
+          ? 'Invalid email or password'
+          : err.error?.detail || err.error?.message || err.error?.title || 'Login failed. Please try again.';
         this.toastService.error(errorMessage);
         this.isLoading.set(false);
       }

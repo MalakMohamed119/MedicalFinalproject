@@ -551,13 +551,77 @@
 }
 
 @media (max-width: 768px) {
-  .sidebar { display: none; }
+  /* Keep sidebar visible on smaller screens (admin-like persistent layout) */
+  .sidebar { display: flex; }
+
   .welcome-header { padding: 1.75rem; flex-direction: column; gap: 1rem; }
+
+  /* Account for sidebar width */
   .content { padding: 1.25rem 1.5rem; }
+
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+
 @media (max-width: 480px) {
+  .sidebar { width: 220px; }
   .stats-grid { grid-template-columns: 1fr; }
+}
+
+
+/* UI refresh overrides */
+.admin-shell {
+  background:
+    radial-gradient(800px 360px at 100% 0%, rgba(4, 158, 189, 0.13), transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #edf6f8 100%);
+}
+
+.sidebar {
+  background: rgba(255, 255, 255, 0.94);
+  border-right: 1px solid rgba(13, 110, 123, 0.12);
+  box-shadow: 12px 0 36px rgba(15, 23, 42, 0.05);
+}
+
+.nav-item {
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #0d6e7b;
+    background: rgba(4, 158, 189, 0.08);
+    border-color: rgba(4, 158, 189, 0.16);
+    transform: translateX(3px);
+  }
+}
+
+.welcome-header {
+  margin: 1.5rem 1.5rem 0;
+  border-radius: 10px;
+  box-shadow: 0 20px 44px rgba(13, 110, 123, 0.2);
+  background:
+    linear-gradient(135deg, rgba(5, 50, 58, 0.98), rgba(13, 110, 123, 0.96) 55%, rgba(4, 158, 189, 0.92));
+}
+
+.stat-card,
+.admin-card {
+  border-radius: 10px;
+  border-color: rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 14px 34px rgba(15, 23, 42, 0.08);
+
+  &:hover {
+    border-color: rgba(4, 158, 189, 0.3);
+    box-shadow: 0 1px 0 rgba(13, 110, 123, 0.1), 0 22px 46px rgba(15, 23, 42, 0.13);
+  }
+}
+
+.stat-number {
+  letter-spacing: 0;
+}
+
+.logo-icon,
+.user-avatar,
+.card-icon,
+.stat-icon {
+  border-radius: 10px;
 }
 

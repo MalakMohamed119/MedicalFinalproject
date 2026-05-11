@@ -160,3 +160,34 @@
     justify-content: flex-end;
   }
 }
+
+/* UI refresh overrides */
+.relief-navbar {
+  min-height: 76px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(var(--ch-brand-rgb), 0.12);
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+}
+
+.relief-navbar .nav-brand img {
+  border-radius: 10px;
+}
+
+.relief-navbar .nav-brand span {
+  color: var(--ch-primary);
+}
+
+.relief-navbar .nav-pill {
+  border-radius: 10px;
+  min-height: 40px;
+
+  &:hover,
+  &.active-link {
+    transform: translateY(-1px);
+  }
+}
+
+.relief-navbar .nav-actions .nav-item {
+  border-radius: 10px;
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.12);
+}

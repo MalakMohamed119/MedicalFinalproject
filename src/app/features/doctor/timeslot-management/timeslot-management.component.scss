@@ -946,3 +946,50 @@ textarea.form-control {
   }
 }
 
+/* UI refresh overrides */
+.clinics-container {
+  max-width: 1280px;
+  background:
+    radial-gradient(850px 360px at 100% 0%, rgba(4, 158, 189, 0.12), transparent 58%),
+    linear-gradient(180deg, #f8fafc 0%, #eef7f9 100%);
+}
+
+.header,
+.clinic-selector,
+.form-card,
+.clinic-card,
+.no-clinics {
+  border-radius: 10px;
+  border: 1px solid rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 16px 38px rgba(15, 23, 42, 0.08);
+}
+
+.header,
+.clinic-selector {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.clinic-card {
+  &:hover {
+    border-color: rgba(4, 158, 189, 0.34);
+    box-shadow: 0 1px 0 rgba(13, 110, 123, 0.1), 0 24px 52px rgba(15, 23, 42, 0.13);
+  }
+}
+
+.btn,
+.form-control,
+.info-item,
+.badge,
+.clinic-card__icon {
+  border-radius: 10px;
+}
+
+.clinic-actions {
+  flex-wrap: wrap;
+}
+
+.clinic-actions .btn-sm {
+  min-height: 36px;
+  padding: 0.55rem 0.85rem;
+}
+

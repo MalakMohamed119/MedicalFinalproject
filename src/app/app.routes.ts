@@ -11,6 +11,7 @@ import { MyClinics } from './features/doctor/my-clinics/my-clinics.component';
 import { TimeslotManagement } from './features/doctor/timeslot-management/timeslot-management.component';
 import { ManageDoctorsComponent as ManageDoctors } from './features/admin/manage-doctors/manage-doctors.component';
 import { AdminDashboardComponent as AdminDashboard } from './features/admin/admin-dashboard/admin-dashboard.component';
+import { LandingComponent } from './features/landing/landing.component';
 
 import { Login } from './core/auth/login/login';
 import { Register } from './core/auth/register/register';
@@ -19,7 +20,7 @@ import { AddDoctorComponent } from './features/admin/add-doctor/add-doctor.compo
 
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '', component: LandingComponent },
   
   // Auth routes
   { path: 'login', component: Login },
