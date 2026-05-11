@@ -6,6 +6,7 @@ import { ClinicDetails } from './features/patient/clinic-details/clinic-details'
 import { PatientProfile } from './features/patient/patient-profile/patient-profile';
 import { MyAppointments } from './features/patient/my-appointments/my-appointments.component';
 import { DoctorDashboard } from './features/doctor/dashboard/dashboard.component';
+import { DoctorAppointments } from './features/doctor/appointments/appointments.component';
 import { MyClinics } from './features/doctor/my-clinics/my-clinics.component';
 import { TimeslotManagement } from './features/doctor/timeslot-management/timeslot-management.component';
 import { ManageDoctorsComponent as ManageDoctors } from './features/admin/manage-doctors/manage-doctors.component';
@@ -51,6 +52,11 @@ export const routes: Routes = [
   { 
     path: 'doctor/dashboard', 
     component: DoctorDashboard,
+   canActivate: [authGuard]
+  },
+  { 
+    path: 'doctor/appointments', 
+    component: DoctorAppointments,
    canActivate: [authGuard]
   },
   { 

@@ -196,6 +196,21 @@ export class AppointmentService {
     });
   }
 
+  // Get all patient appointments (Doctor view)
+  getAllPatientAppointments(): Observable<AppointmentResponse[]> {
+    const url = `${environment.timeSlotsApiUrl}/appointments/ShowPatientAppointments`;
+    const token = localStorage.getItem('token') || '';
+    
+    console.log('🔄 Calling all patient appointments API:', url);
+    console.log('🔑 Token present:', !!token);
+
+    return this.http.get<AppointmentResponse[]>(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
+
 }
 
 

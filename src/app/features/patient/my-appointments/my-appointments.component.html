@@ -61,10 +61,7 @@
 
       <!-- Upcoming Appointments Section -->
       <section class="appointments-section" *ngIf="activeTab === 'upcoming' && upcomingAppointments.length > 0">
-        <div class="section-header">
-          <h2>Upcoming Appointments</h2>
-          <p>Appointments that are pending or confirmed</p>
-        </div>
+        
         
         <div class="appointments-grid">
           <div *ngFor="let appointment of upcomingAppointments" class="appointment-card">
@@ -156,10 +153,7 @@
 
       <!-- Past Appointments Section -->
       <section class="appointments-section past-section" *ngIf="activeTab === 'past' && pastAppointments.length > 0">
-        <div class="section-header">
-          <h2>Past Appointments</h2>
-          <p>Completed and cancelled appointments</p>
-        </div>
+        
         
         <div class="appointments-grid">
           <div *ngFor="let appointment of pastAppointments" class="appointment-card past-appointment">

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
-import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
+import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { ClinicService } from '../../../core/services/clinic.service';
@@ -12,18 +12,18 @@ import { timeout } from 'rxjs/operators';
 import { TimeoutError } from 'rxjs';
 
 @Component({
-  selector: 'app-my-appointments',
+  selector: 'app-doctor-appointments',
   standalone: true,
   imports: [
     CommonModule,
     RouterLink,
     Navbar,
-    PatientFooterComponent
+    DoctorFooterComponent
   ],
-  templateUrl: './my-appointments.component.html',
-  styleUrls: ['./my-appointments.component.scss']
+  templateUrl: './appointments.component.html',
+  styleUrls: ['./appointments.component.scss']
 })
-export class MyAppointments implements OnInit {
+export class DoctorAppointments implements OnInit {
 
   appointments: any[] = [];
 
@@ -31,9 +31,9 @@ export class MyAppointments implements OnInit {
 
   error: string | null = null;
 
-  cancellingAppointmentId: number | null = null;
+  updatingAppointmentId: number | null = null;
 
-  activeTab: 'upcoming' | 'past' = 'upcoming';
+  activeTab: 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled' = 'all';
 
   constructor(
     private appointmentService: AppointmentService,
@@ -42,26 +42,34 @@ export class MyAppointments implements OnInit {
   ) {}
 
   // =========================================
-  // DERIVED APPOINTMENTS (IMPORTANT FIX)
+  // DERIVED APPOINTMENTS
   // =========================================
 
-  get upcomingAppointments(): any[] {
-    return this.appointments.filter(a =>
-      a.status === 'Pending' || a.status === 'Confirmed'
-    );
+  get allAppointments(): any[] {
+    return this.appointments;
   }
 
-  get pastAppointments(): any[] {
-    return this.appointments.filter(a =>
-      a.status === 'Completed' || a.status === 'Cancelled'
-    );
+  get pendingAppointments(): any[] {
+    return this.appointments.filter(a => a.status === 'Pending');
+  }
+
+  get confirmedAppointments(): any[] {
+    return this.appointments.filter(a => a.status === 'Confirmed');
+  }
+
+  get completedAppointments(): any[] {
+    return this.appointments.filter(a => a.status === 'Completed');
+  }
+
+  get cancelledAppointments(): any[] {
+    return this.appointments.filter(a => a.status === 'Cancelled');
   }
 
   // =========================================
   // TAB NAVIGATION
   // =========================================
 
-  setTab(tab: 'upcoming' | 'past'): void {
+  setTab(tab: 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'): void {
     this.activeTab = tab;
   }
 
@@ -70,7 +78,7 @@ export class MyAppointments implements OnInit {
   // =========================================
 
   ngOnInit(): void {
-    this.loadPatientAppointments();
+    this.loadAllPatientAppointments();
   }
 
   // =========================================
@@ -91,17 +99,17 @@ export class MyAppointments implements OnInit {
   }
 
   // =========================================
-  // LOAD APPOINTMENTS
+  // LOAD ALL PATIENT APPOINTMENTS
   // =========================================
 
-  async loadPatientAppointments(): Promise<void> {
+  async loadAllPatientAppointments(): Promise<void> {
 
     this.loading = true;
     this.error = null;
     this.cdr.detectChanges();
 
     this.appointmentService
-      .getPatientAppointments()
+      .getAllPatientAppointments()
       .pipe(timeout(10000))
       .subscribe({
 
@@ -116,7 +124,7 @@ export class MyAppointments implements OnInit {
 
             clinicName: a.clinicName ?? `Clinic ${a.clinicId}`,
 
-            patientName: a.patientName ?? 'Current Patient'
+            patientName: a.patientName ?? 'Patient'
           }));
 
           // Fetch clinic names for appointments that have clinicId but no clinicName
@@ -138,7 +146,7 @@ export class MyAppointments implements OnInit {
           this.cdr.detectChanges();
         },
 
-        error: (err) => {
+        error: (err: any) => {
 
           if (err instanceof TimeoutError) {
             this.error = 'Request timed out. Try again.';
@@ -157,44 +165,44 @@ export class MyAppointments implements OnInit {
   }
 
   // =========================================
-  // CANCEL APPOINTMENT (FIXED BEHAVIOR)
+  // UPDATE APPOINTMENT STATUS
   // =========================================
 
-  cancelAppointment(appointmentId: number): void {
+  updateAppointmentStatus(appointmentId: number, newStatus: string): void {
 
-    const confirmed = confirm('Are you sure you want to cancel this appointment?');
+    const confirmed = confirm(`Are you sure you want to change this appointment status to ${newStatus}?`);
 
     if (!confirmed) return;
 
-    this.cancellingAppointmentId = appointmentId;
+    this.updatingAppointmentId = appointmentId;
     this.cdr.detectChanges();
 
-    this.appointmentService.cancelAppointment(appointmentId)
+    this.appointmentService.updateAppointmentStatus(appointmentId, newStatus)
       .subscribe({
 
         next: () => {
 
-          // IMPORTANT: update status instead of moving manually
+          // Update the appointment status in the local array
           this.appointments = this.appointments.map(a => {
 
             if (a.id === appointmentId) {
               return {
                 ...a,
-                status: 'Cancelled'
+                status: newStatus
               };
             }
 
             return a;
           });
 
-          this.cancellingAppointmentId = null;
+          this.updatingAppointmentId = null;
           this.cdr.detectChanges();
         },
 
         error: () => {
 
-          this.error = 'Failed to cancel appointment. Please try again.';
-          this.cancellingAppointmentId = null;
+          this.error = 'Failed to update appointment status. Please try again.';
+          this.updatingAppointmentId = null;
           this.cdr.detectChanges();
         }
       });
