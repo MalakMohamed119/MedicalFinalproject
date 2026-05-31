@@ -1,10 +1,12 @@
 import { Routes } from '@angular/router';
 import { NotFound } from './features/not-found/not-found';
 import { authGuard } from './core/guards/auth.guard';
+import { patientProfileGuard } from './core/guards/patient-profile.guard';
 import { HomeForPatient } from './features/patient/home-for-patient';
 import { ClinicDetails } from './features/patient/clinic-details/clinic-details';
 import { PatientProfile } from './features/patient/patient-profile/patient-profile';
 import { MyAppointments } from './features/patient/my-appointments/my-appointments.component';
+import { CompleteProfileComponent } from './features/patient/complete-profile/complete-profile.component';
 import { DoctorDashboard } from './features/doctor/dashboard/dashboard.component';
 import { DoctorAppointments } from './features/doctor/appointments/appointments.component';
 import { MyClinics } from './features/doctor/my-clinics/my-clinics.component';
@@ -27,34 +29,38 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'logout', component: LogoutComponent },
+  { path: 'complete-profile', component: CompleteProfileComponent, canActivate: [authGuard] },
   
   // Protected routes
   { 
     path: 'home-for-patient', 
     component: HomeForPatient,
-   canActivate: [authGuard]
+   canActivate: [authGuard, patientProfileGuard]
   },
   {
     path: 'clinic-details',
-    component: ClinicDetails
+    component: ClinicDetails,
+    canActivate: [patientProfileGuard]
   },
   {
     path: 'clinic-details/:id',
-    component: ClinicDetails
+    component: ClinicDetails,
+    canActivate: [patientProfileGuard]
   },
   {
     path: 'profile',
-    component: PatientProfile
+    component: PatientProfile,
+    canActivate: [authGuard, patientProfileGuard]
   },
   {
     path: 'my-appointments',
     component: MyAppointments,
-    canActivate: [authGuard]
+    canActivate: [authGuard, patientProfileGuard]
   },
   {
     path: 'chatbot',
     component: ChatbotComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, patientProfileGuard]
   },
   { 
     path: 'doctor/dashboard', 

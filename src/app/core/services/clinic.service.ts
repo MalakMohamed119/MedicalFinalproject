@@ -137,7 +137,7 @@ export class ClinicService {
 
   getAllDoctors(pageIndex = 0, pageSize = 10, search = ''): Observable<DoctorResponse[]> {
 
-    console.log('Calling GetAllDoctors with API:', `${this.apiUrl}/api/api/doctors/GetAllDoctors`);
+    console.log('Calling GetAllDoctors with API:', `${this.apiUrl}/api/doctors/GetAllDoctors`);
 
     const params = { pageIndex: pageIndex.toString(), pageSize: pageSize.toString(), search };
 
@@ -184,7 +184,7 @@ export class ClinicService {
 
 
   getAvailableSlots(clinicId: number): Observable<TimeSlot[]> {
-    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/timeslots/getavailabletimeslots/${clinicId}`);
+    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/api/timeslots/getavailabletimeslots/${clinicId}`);
   }
 
 
@@ -230,7 +230,7 @@ export class ClinicService {
 
 
   createTimeSlot(data: any): Observable<any> {
-    const url = `${environment.timeSlotsApiUrl}/timeslots/createtimeslots`;
+    const url = `${environment.timeSlotsApiUrl}/api/timeslots/createtimeslots`;
     console.log('ClinicService: Creating time slot with URL:', url);
     console.log('ClinicService: Request data:', JSON.stringify(data, null, 2));
     return this.http.post(url, data);
@@ -240,19 +240,19 @@ export class ClinicService {
 
 
   updateTimeSlot(id: number, data: any): Observable<any> {
-    return this.http.put(`${environment.timeSlotsApiUrl}/timeslots/updatetimeslots/${id}`, data);
+    return this.http.put(`${environment.timeSlotsApiUrl}/api/timeslots/updatetimeslots/${id}`, data);
   }
 
 
 
   deleteTimeSlot(id: number): Observable<any> {
-    return this.http.delete(`${environment.timeSlotsApiUrl}/timeslots/deletetimeslots/${id}`);
+    return this.http.delete(`${environment.timeSlotsApiUrl}/api/timeslots/deletetimeslots/${id}`);
   }
 
 
 
   getTimeSlotsByClinic(clinicId: number): Observable<TimeSlot[]> {
-    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/timeslots/GetTimeSlotsByClinic/${clinicId}`);
+    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/api/timeslots/GetTimeSlotsByClinic/${clinicId}`);
   }
 
 
@@ -335,6 +335,10 @@ export class ClinicService {
 
     );
 
+  }
+
+  isDoctorActive(identityUserId: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.apiUrl}/api/doctors/internal/is-active/${identityUserId}`);
   }
 
 }

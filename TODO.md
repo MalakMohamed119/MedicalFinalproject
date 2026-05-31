@@ -1,8 +1,8 @@
-# Fix Tasks
+# TODO
 
-## PART 1 — Fix modal styling & button layout ✅
+## Current issue: complete-profile showing after first login + 403/404 on patient endpoints
 
-### manage-doctors.component.html ✅
+### Step 1 (done)
 - [x] Update actions cell with new button classes (`action-btn toggle-btn`, `action-btn edit-btn`, `action-btn pwd-btn`) + toggle icon
 - [x] Update Edit Modal: add `.modal-header` with close button
 - [x] Update Password Modal: add `.modal-header` with close button

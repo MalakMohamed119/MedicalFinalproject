@@ -15,6 +15,19 @@
   padding: 3rem 1.25rem 0;
   border-top: 1px solid rgba(var(--ch-brand-rgb), 0.12);
   font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.relief-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ch-accent), transparent);
+  opacity: 0.5;
 }
 
 .footer-container {
@@ -24,6 +37,8 @@
   grid-template-columns: 1.2fr 1fr 1fr;
   gap: 2.5rem;
   align-items: start;
+  position: relative;
+  z-index: 1;
 }
 
 .footer-section {
@@ -36,10 +51,16 @@
     align-items: center;
     gap: 0.5rem;
     letter-spacing: -0.01em;
+    position: relative;
 
     i {
       font-size: 0.9rem;
       opacity: 0.85;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover i {
+      transform: rotate(10deg) scale(1.2);
     }
   }
 
@@ -51,6 +72,11 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: var(--ch-primary);
+    }
   }
 }
 
@@ -77,20 +103,43 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.35rem 0;
+  padding: 0.35rem 0.5rem;
   border-radius: 6px;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 
   i {
     color: var(--ch-primary);
     font-size: 0.85rem;
     opacity: 0.9;
+    transition: transform 0.3s ease;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, rgba(var(--ch-accent-rgb), 0.1), transparent);
+    transition: width 0.3s ease;
   }
 
   &:hover {
     color: var(--ch-accent);
     background: rgba(var(--ch-accent-rgb), 0.06);
-    padding-left: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    transform: translateX(2px);
+
+    i {
+      transform: scale(1.2) rotate(5deg);
+    }
+
+    &::before {
+      width: 100%;
+    }
   }
 }
 
@@ -99,6 +148,11 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
 
   img {
     width: 45px;
@@ -107,6 +161,13 @@
     object-fit: contain;
     display: block;
     flex-shrink: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(var(--ch-brand-rgb), 0.15);
+  }
+
+  &:hover img {
+    transform: rotate(-5deg) scale(1.1);
+    box-shadow: 0 6px 16px rgba(var(--ch-accent-rgb), 0.25);
   }
 
   span {
@@ -114,6 +175,10 @@
     font-weight: 800;
     color: var(--ch-primary);
     letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--ch-primary) 0%, var(--ch-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
@@ -134,26 +199,51 @@
   background: var(--ch-surface-alt);
   color: var(--ch-primary);
   text-decoration: none;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+
+  &:active::before {
+    width: 100%;
+    height: 100%;
+  }
 
   &:hover {
-    background: var(--ch-accent);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(var(--ch-accent-rgb), 0.25);
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 20px rgba(var(--ch-accent-rgb), 0.3);
   }
 
   &.facebook:hover {
-    background: #1877f2;
+    background: linear-gradient(135deg, #1877f2 0%, #0d5bb8 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(24, 119, 242, 0.4);
   }
 
   &.instagram:hover {
     background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(214, 36, 159, 0.4);
   }
 
   &.linkedin:hover {
-    background: #0077b5;
+    background: linear-gradient(135deg, #0077b5 0%, #005885 100%);
+    color: white;
+    box-shadow: 0 8px 20px rgba(0, 119, 181, 0.4);
   }
 }
 

@@ -2,13 +2,12 @@ import { Component, signal, inject, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AdminFooterComponent } from '../../../shared/components/admin-footer/admin-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
 
 @Component({
   selector: 'app-add-doctor',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, AdminFooterComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './add-doctor.component.html',
   styleUrl: './add-doctor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,7 +39,7 @@ export class AddDoctorComponent {
     password: ['', [
       Validators.required,
       Validators.minLength(8),
-      Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
+      Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/)
     ]],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
@@ -69,10 +68,10 @@ export class AddDoctorComponent {
     const formValue = this.addDoctorForm.value as any;
 
     this.clinicService.createDoctor({
-      displayName: formValue.displayName,
-      email: formValue.email,
-      phoneNumber: formValue.phoneNumber,
-      specialty: formValue.specialty,
+      displayName: String(formValue.displayName).trim(),
+      email: String(formValue.email).trim().toLowerCase(),
+      phoneNumber: String(formValue.phoneNumber).trim(),
+      specialty: String(formValue.specialty).trim(),
       password: formValue.password
     }).subscribe({
       next: (response) => {
@@ -82,13 +81,20 @@ export class AddDoctorComponent {
       },
       error: (err: any) => {
         console.log('Create doctor error:', err);
-        const backendErrors = err.error?.errors;
+        const backendErrors = err.error?.errors || err.error?.Errors;
         if (backendErrors && typeof backendErrors === 'object') {
           const messages = Object.values(backendErrors).flat().join(' ');
           this.errorMessage.set(messages);
+        } else if (Array.isArray(err.error?.errors)) {
+          this.errorMessage.set(
+            err.error.errors
+              .map((error: any) => error.description || error.message || error.code)
+              .filter(Boolean)
+              .join(' ')
+          );
         } else {
           this.errorMessage.set(
-            err.error?.message || err.error?.title || err.message || 'Failed to create doctor'
+            err.error?.detail || err.error?.message || err.error?.title || err.message || 'Failed to create doctor'
           );
         }
         this.isLoading.set(false);

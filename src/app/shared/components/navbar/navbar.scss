@@ -168,23 +168,103 @@
   background: rgba(255, 255, 255, 0.94);
   border-bottom: 1px solid rgba(var(--ch-brand-rgb), 0.12);
   box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+  transition: all 0.3s ease;
+}
+
+.relief-navbar:hover {
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+.relief-navbar .nav-brand {
+  transition: transform 0.3s ease;
+}
+
+.relief-navbar .nav-brand:hover {
+  transform: scale(1.05);
+}
+
+.relief-navbar .nav-brand img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(var(--ch-brand-rgb), 0.15);
+}
+
+.relief-navbar .nav-brand:hover img {
+  transform: rotate(5deg) scale(1.1);
+  box-shadow: 0 6px 16px rgba(var(--ch-accent-rgb), 0.25);
 }
 
 .relief-navbar .nav-brand span {
   color: var(--ch-primary);
+  background: linear-gradient(135deg, var(--ch-primary) 0%, var(--ch-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .relief-navbar .nav-pill {
   border-radius: 10px;
   min-height: 40px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(var(--ch-accent-rgb), 0.1) 0%, rgba(var(--ch-brand-rgb), 0.05) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover::before,
+  &.active-link::before {
+    opacity: 1;
+  }
 
   &:hover,
   &.active-link {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--ch-accent-rgb), 0.15);
+  }
+
+  i {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover i {
+    transform: scale(1.2);
   }
 }
 
 .relief-navbar .nav-actions .nav-item {
   border-radius: 10px;
   border: 1px solid rgba(var(--ch-brand-rgb), 0.12);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(220, 38, 38, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+
+  &:hover::before {
+    width: 100%;
+    height: 100%;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.2);
+  }
 }

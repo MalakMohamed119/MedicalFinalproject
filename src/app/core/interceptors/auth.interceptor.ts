@@ -10,8 +10,9 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
   const isAuthRequest =
-    req.url.includes('/auth/Clinic/Authentication/Login') ||
-    req.url.includes('/auth/Clinic/Authentication/Register');
+    req.url.includes('/Clinic/Authentication/Login') ||
+    req.url.includes('/Clinic/Authentication/Register') ||
+    req.url.includes('/Clinic/Authentication/Refresh');
 
   const token = isPlatformBrowser(platformId) ? localStorage.getItem('token') : null;
   const shouldAttachToken =

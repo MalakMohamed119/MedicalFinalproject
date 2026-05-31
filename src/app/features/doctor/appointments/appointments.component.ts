@@ -1,6 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
@@ -16,7 +15,6 @@ import { TimeoutError } from 'rxjs';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     Navbar,
     DoctorFooterComponent
   ],

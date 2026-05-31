@@ -31,6 +31,17 @@
           <span>{{ userEmail() }}</span>
         </p>
 
+        <div class="profile-contact-list" *ngIf="phoneNumber() || address()">
+          <p *ngIf="phoneNumber()" class="profile-summary__email">
+            <i class="bi bi-telephone" aria-hidden="true"></i>
+            <span>{{ phoneNumber() }}</span>
+          </p>
+          <p *ngIf="address()" class="profile-summary__email">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            <span>{{ address() }}</span>
+          </p>
+        </div>
+
         <ul *ngIf="!isDoctor()" class="profile-chips" aria-label="Health details">
           <li class="profile-chip">
             <i class="bi bi-calendar3" aria-hidden="true"></i>
@@ -62,6 +73,169 @@
         </nav>
       </div>
     </div>
+
+    <div
+      *ngIf="notice()"
+      class="profile-notice"
+      [class.profile-notice--error]="noticeType() === 'error'"
+      [class.profile-notice--success]="noticeType() === 'success'">
+      <i
+        class="bi"
+        [class.bi-check-circle-fill]="noticeType() === 'success'"
+        [class.bi-exclamation-triangle-fill]="noticeType() === 'error'"
+        aria-hidden="true"></i>
+      <span>{{ notice() }}</span>
+    </div>
+
+    <section *ngIf="!loading() && !isDoctor()" class="profile-editor-grid" aria-label="Patient profile forms">
+      <form class="profile-form-panel" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="profile-form-panel__header">
+          <div>
+            <p class="profile-form-panel__eyebrow">Patient API</p>
+            <h2>Personal details</h2>
+          </div>
+          <span class="profile-form-panel__tag">MyProfile / Update</span>
+        </div>
+
+        <div class="profile-form-grid">
+          <label class="form-field form-field--wide">
+            <span>Full name</span>
+            <input type="text" formControlName="displayName" autocomplete="name" />
+          </label>
+
+          <label class="form-field">
+            <span>Email</span>
+            <input type="email" formControlName="email" autocomplete="email" />
+          </label>
+
+          <label class="form-field">
+            <span>Phone</span>
+            <input type="tel" formControlName="phoneNumber" autocomplete="tel" />
+          </label>
+
+          <label class="form-field">
+            <span>Age</span>
+            <input type="number" formControlName="age" min="0" />
+          </label>
+
+          <label class="form-field">
+            <span>Gender</span>
+            <select formControlName="gender">
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </label>
+
+          <label class="form-field">
+            <span>Date of birth</span>
+            <input type="date" formControlName="dateOfBirth" />
+          </label>
+
+          <label class="form-field">
+            <span>National ID</span>
+            <input type="text" formControlName="nationalId" />
+          </label>
+
+          <label class="form-field form-field--wide">
+            <span>Address</span>
+            <input type="text" formControlName="address" autocomplete="street-address" />
+          </label>
+        </div>
+
+        <button type="submit" class="profile-save-btn" [disabled]="savingProfile()">
+          <i
+            class="fa-solid"
+            [class.fa-spinner]="savingProfile()"
+            [class.fa-spin]="savingProfile()"
+            [class.fa-floppy-disk]="!savingProfile()"
+            aria-hidden="true"></i>
+          {{ savingProfile() ? 'Saving...' : 'Save profile' }}
+        </button>
+      </form>
+
+      <form class="profile-form-panel" [formGroup]="medicalForm" (ngSubmit)="saveMedicalData()">
+        <div class="profile-form-panel__header">
+          <div>
+            <p class="profile-form-panel__eyebrow">Medical data</p>
+            <h2>Health record</h2>
+          </div>
+          <span class="profile-form-panel__tag">Update</span>
+        </div>
+
+        <div class="medical-editor-block" formArrayName="allergies">
+          <div class="medical-editor-block__header">
+            <h3>Allergies</h3>
+            <button type="button" class="profile-icon-btn" (click)="addAllergy()" aria-label="Add allergy">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div
+            *ngFor="let allergy of allergies.controls; let i = index"
+            class="medical-row"
+            [formGroupName]="i">
+            <label class="form-field">
+              <span>Name</span>
+              <input type="text" formControlName="name" />
+            </label>
+            <label class="form-field">
+              <span>Description</span>
+              <input type="text" formControlName="description" />
+            </label>
+            <button
+              type="button"
+              class="profile-icon-btn profile-icon-btn--danger"
+              (click)="removeAllergy(i)"
+              [disabled]="allergies.length === 1"
+              aria-label="Remove allergy">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="medical-editor-block" formArrayName="medicalRecords">
+          <div class="medical-editor-block__header">
+            <h3>Medical records</h3>
+            <button type="button" class="profile-icon-btn" (click)="addMedicalRecord()" aria-label="Add medical record">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div
+            *ngFor="let record of medicalRecords.controls; let i = index"
+            class="medical-row"
+            [formGroupName]="i">
+            <label class="form-field">
+              <span>Diagnosis</span>
+              <input type="text" formControlName="diagnosis" />
+            </label>
+            <label class="form-field">
+              <span>Notes</span>
+              <input type="text" formControlName="notes" />
+            </label>
+            <button
+              type="button"
+              class="profile-icon-btn profile-icon-btn--danger"
+              (click)="removeMedicalRecord(i)"
+              [disabled]="medicalRecords.length === 1"
+              aria-label="Remove medical record">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="profile-save-btn" [disabled]="savingMedical()">
+          <i
+            class="fa-solid"
+            [class.fa-spinner]="savingMedical()"
+            [class.fa-spin]="savingMedical()"
+            [class.fa-notes-medical]="!savingMedical()"
+            aria-hidden="true"></i>
+          {{ savingMedical() ? 'Saving...' : 'Save medical data' }}
+        </button>
+      </form>
+    </section>
 
     <div class="appointments-block">
       <div *ngIf="loading()" class="loading-state">

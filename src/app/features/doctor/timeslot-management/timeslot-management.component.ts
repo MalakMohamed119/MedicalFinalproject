@@ -138,23 +138,36 @@ export class TimeslotManagement implements OnInit {
     const startDate = new Date(formValue.startTime);
     const endDate = new Date(formValue.endTime);
     
-    // Use ISO format that backend expects
+    // Extract date part (YYYY-MM-DD format)
+    const date = startDate.toISOString().split('T')[0];
+    
+    // Extract time parts (HH:mm format)
+    const startTime = startDate.toTimeString().slice(0, 5);
+    const endTime = endDate.toTimeString().slice(0, 5);
+    
+    // Use format that backend expects - wrap in 'request' object
     const payload = {
-      clinicId: Number(formValue.clinicId),
-      startTime: new Date(formValue.startTime).toISOString(),
-      endTime: new Date(formValue.endTime).toISOString(),
-      capacity: Number(formValue.capacity),
-      price: Number(formValue.price)
+      request: {
+        clinicId: Number(formValue.clinicId),
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        capacity: Number(formValue.capacity),
+        price: Number(formValue.price)
+      }
     };
     
     console.log('Creating time slot with payload:', payload);
 
     if (editing) {
       const updatePayload = {
-        startTime: payload.startTime,
-        endTime: payload.endTime,
-        capacity: payload.capacity,
-        price: payload.price
+        request: {
+          date: payload.request.date,
+          startTime: payload.request.startTime,
+          endTime: payload.request.endTime,
+          capacity: payload.request.capacity,
+          price: payload.request.price
+        }
       };
       this.clinicService.updateTimeSlot(editing.id, updatePayload).subscribe({
         next: () => {

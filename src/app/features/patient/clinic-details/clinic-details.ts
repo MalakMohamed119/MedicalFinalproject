@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -27,7 +27,6 @@ export interface ClinicServiceItem {
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     PatientFooterComponent,
     Navbar,
     ToastComponent

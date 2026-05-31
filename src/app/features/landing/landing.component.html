@@ -75,5 +75,61 @@
         </li>
       </ol>
     </section>
+
+    <section class="section-block testimonials-section">
+      <div class="section-heading">
+        <span class="eyebrow">What patients say</span>
+        <h2>Trusted by thousands of patients across the region.</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <article *ngFor="let testimonial of testimonials" class="testimonial-card">
+          <div class="testimonial-rating">
+            <i class="fa-solid fa-star" *ngFor="let _ of [].constructor(testimonial.rating)"></i>
+          </div>
+          <p class="testimonial-text">{{ testimonial.text }}</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="author-info">
+              <strong>{{ testimonial.name }}</strong>
+              <span>{{ testimonial.role }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block doctor-features-section">
+      <div class="section-heading">
+        <span class="eyebrow">For doctors</span>
+        <h2>Powerful tools to manage your practice efficiently.</h2>
+      </div>
+
+      <div class="doctor-features-grid">
+        <article *ngFor="let feature of doctorFeatures" class="doctor-feature-card">
+          <div class="feature-icon">
+            <i class="fa-solid {{ feature.icon }}"></i>
+          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.text }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div class="cta-content">
+        <h2>Ready to transform your healthcare experience?</h2>
+        <p>Join thousands of patients and doctors who trust MedGuid for their medical needs.</p>
+        <div class="cta-actions">
+          <a routerLink="/register" class="cta-primary">
+            Get started free
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <a routerLink="/login" class="cta-secondary">Sign in to your account</a>
+        </div>
+      </div>
+    </section>
   </main>
 </section>

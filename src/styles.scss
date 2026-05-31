@@ -103,13 +103,36 @@ body.clinic-modal-open {
 /* Shared card + button affordances (non-breaking enhancement) */
 .card,
 .square-clinic-card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .card:hover,
 .square-clinic-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--ch-shadow-md) !important;
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(var(--ch-brand-rgb), 0.15), 0 0 0 1px rgba(var(--ch-accent-rgb), 0.1) inset !important;
+}
+
+/* Glassmorphism effect for cards */
+.card::before,
+.square-clinic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before,
+.square-clinic-card:hover::before {
+  opacity: 1;
 }
 
 /* .clinic-card is styled per feature (patient home vs. doctor my-clinics) */
@@ -118,7 +141,30 @@ body.clinic-modal-open {
 button.btn {
   font-weight: 600;
   border-radius: var(--ch-radius) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Button ripple effect */
+.btn::after,
+button.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn:active::after,
+button.btn:active::after {
+  width: 300px;
+  height: 300px;
 }
 
 .app-btn-primary,
@@ -128,16 +174,47 @@ button.btn {
   background: var(--ch-gradient) !important;
   border: none !important;
   color: #fff !important;
-  box-shadow: 0 4px 16px rgba(4, 158, 189, 0.28);
+  box-shadow: 0 4px 16px rgba(4, 158, 189, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-btn-primary::before,
+.btn-primary::before,
+.sign-in-btn::before,
+.register-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.app-btn-primary:hover::before,
+.btn-primary:hover::before,
+.sign-in-btn:hover::before,
+.register-btn:hover::before {
+  left: 100%;
 }
 
 .app-btn-primary:hover,
 .btn-primary:hover,
 .sign-in-btn:hover,
 .register-btn:hover {
-  filter: brightness(1.04);
-  box-shadow: 0 8px 24px rgba(4, 158, 189, 0.35);
-  transform: translateY(-1px);
+  filter: brightness(1.08) saturate(1.1);
+  box-shadow: 0 8px 24px rgba(4, 158, 189, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.app-btn-primary:active,
+.btn-primary:active,
+.sign-in-btn:active,
+.register-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(4, 158, 189, 0.25);
 }
 
 /* Utility: icon-text rows in forms / lists */
@@ -150,6 +227,152 @@ button.btn {
 .ch-label-with-icon i {
   color: var(--ch-primary);
   opacity: 0.9;
+}
+
+/* Enhanced form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+input[type="datetime-local"],
+textarea,
+select {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid var(--ch-border);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--ch-accent);
+  box-shadow: 0 0 0 4px rgba(var(--ch-accent-rgb), 0.15), 0 4px 12px rgba(var(--ch-accent-rgb), 0.1);
+  transform: translateY(-1px);
+}
+
+input[type="text"]:hover,
+input[type="email"]:hover,
+input[type="password"]:hover,
+input[type="number"]:hover,
+input[type="tel"]:hover,
+input[type="date"]:hover,
+input[type="datetime-local"]:hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(var(--ch-accent-rgb), 0.4);
+}
+
+/* Smooth page transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Apply animations to page content */
+.clinics-container,
+.dashboard-wrapper,
+.clinic-details-page,
+.my-appointments-page,
+.patient-profile-page,
+.admin-shell {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.card,
+.clinic-card,
+.stat-card,
+.admin-card {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+/* Loading spinner enhancement */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Enhanced badge styles */
+.badge {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+/* Enhanced alert styles */
+.alert {
+  animation: slideInRight 0.3s ease-out;
+  border-left: 4px solid;
+}
+
+.alert-error {
+  border-left-color: var(--ch-danger);
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+}
+
+.alert-success {
+  border-left-color: var(--ch-success);
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
 }
 
 /* Role UI refresh: visual-only polish for patient, doctor, and admin pages */

@@ -7,21 +7,33 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = environment.apiUrl;
+  private readonly authUrl = `${environment.apiUrl}/auth/Clinic/Authentication`;
 
   constructor(private http: HttpClient) {}
 
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/Clinic/Authentication/Login`, credentials);
+    return this.http.post(`${this.authUrl}/Login`, credentials);
   }
 
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/Clinic/Authentication/Register`, userData);
+    return this.http.post(`${this.authUrl}/Register`, userData);
+  }
+
+  emailExists(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.authUrl}/EmailExists`, { params: { email } });
   }
 
   logout(): void {
     if (typeof window === 'undefined') return;
     localStorage.clear();
+  }
+
+  logoutRequest(): Observable<any> {
+    return this.http.post(`${this.authUrl}/Logout`, {});
+  }
+
+  refresh(refreshToken: string): Observable<any> {
+    return this.http.post(`${this.authUrl}/Refresh`, { refreshToken });
   }
 
   isLoggedIn(): boolean {
@@ -35,6 +47,26 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/auth/Clinic/Authentication/CurrentUser`);
+    return this.http.get(`${this.authUrl}/CurrentUser`);
+  }
+
+  deleteUser(email: string): Observable<void> {
+    return this.http.delete<void>(`${this.authUrl}/DeleteUser`, { params: { email } });
+  }
+
+  updateUser(id: string | number, data: any): Observable<any> {
+    return this.http.patch(`${this.authUrl}/UpdateUser/${id}`, data);
+  }
+
+  updatePassword(id: string | number, data: any): Observable<any> {
+    return this.http.patch(`${this.authUrl}/UpdatePassword/${id}`, data);
+  }
+
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.authUrl}/AllUsers`);
+  }
+
+  getUserById(id: string | number): Observable<any> {
+    return this.http.get(`${this.authUrl}/UserById/${id}`);
   }
 }

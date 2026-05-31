@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { PatientService } from '../../services/patient.service';
 import { ToastService } from '../../services/toast.service';
 import { jwtDecode } from 'jwt-decode';
 
@@ -21,6 +22,7 @@ export class Login {
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
+    private patientService: PatientService,
     private router: Router,
     private toastService: ToastService
   ) {
@@ -51,6 +53,9 @@ export class Login {
     this.authService.login(credentials).subscribe({
       next: (res: any) => {
         localStorage.setItem('token', res.accessToken);
+        if (res.refreshToken) {
+          localStorage.setItem('refreshToken', res.refreshToken);
+        }
         localStorage.setItem('email', res.email || credentials.email);
         
         const decodedToken: any = jwtDecode(res.accessToken);
@@ -66,7 +71,8 @@ export class Login {
         } else if (role === 'Doctor') {
           this.router.navigate(['/doctor/dashboard']);
         } else {
-          this.router.navigate(['/home-for-patient']);
+          this.routePatientAfterLogin();
+          return;
         }
         this.isLoading.set(false);
       },
@@ -86,6 +92,24 @@ export class Login {
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
+  }
+
+  private routePatientAfterLogin(): void {
+    this.patientService.getMyProfile().subscribe({
+      next: () => {
+        this.router.navigate(['/home-for-patient']);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        if (error.status === 404) {
+          this.router.navigate(['/complete-profile']);
+        } else {
+          this.router.navigate(['/home-for-patient']);
+        }
+
+        this.isLoading.set(false);
+      }
+    });
   }
 }
 

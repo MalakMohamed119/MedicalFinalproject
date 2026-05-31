@@ -1,0 +1,127 @@
+<section class="complete-profile-page">
+  <div class="complete-profile-shell">
+    <header class="complete-profile-header">
+      <p class="complete-profile-header__eyebrow">Patient setup</p>
+      <h1>Complete your health profile</h1>
+      <p>Your patient record is required before booking and managing visits.</p>
+    </header>
+
+    <div *ngIf="loading()" class="state-panel">
+      <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+      <span>Checking your profile...</span>
+    </div>
+
+    <form
+      *ngIf="!loading()"
+      class="complete-profile-form"
+      [formGroup]="profileForm"
+      (ngSubmit)="submit()">
+      <div *ngIf="error()" class="form-alert" role="alert">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>{{ error() }}</span>
+      </div>
+
+      <section class="form-section" aria-labelledby="personal-title">
+        <div class="form-section__header">
+          <h2 id="personal-title">Personal details</h2>
+        </div>
+
+        <div class="form-grid">
+          <label class="form-field">
+            <span>Date of birth</span>
+            <input type="date" formControlName="dateOfBirth" />
+          </label>
+
+          <label class="form-field">
+            <span>Gender</span>
+            <select formControlName="gender">
+              <option [ngValue]="1">Male</option>
+              <option [ngValue]="2">Female</option>
+            </select>
+          </label>
+
+          <label class="form-field form-field--wide">
+            <span>Address</span>
+            <input type="text" formControlName="address" autocomplete="street-address" />
+          </label>
+        </div>
+      </section>
+
+      <section class="form-section" formArrayName="allergies" aria-labelledby="allergies-title">
+        <div class="form-section__header">
+          <h2 id="allergies-title">Allergies</h2>
+          <button type="button" class="icon-btn" (click)="addAllergy()" aria-label="Add allergy">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div
+          *ngFor="let allergy of allergies.controls; let i = index"
+          class="row-group"
+          [formGroupName]="i">
+          <label class="form-field">
+            <span>Name</span>
+            <input type="text" formControlName="name" />
+          </label>
+
+          <label class="form-field">
+            <span>Description</span>
+            <input type="text" formControlName="description" />
+          </label>
+
+          <button
+            type="button"
+            class="icon-btn icon-btn--danger"
+            (click)="removeAllergy(i)"
+            [disabled]="allergies.length === 1"
+            aria-label="Remove allergy">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <section class="form-section" formArrayName="medicalRecords" aria-labelledby="records-title">
+        <div class="form-section__header">
+          <h2 id="records-title">Medical records</h2>
+          <button type="button" class="icon-btn" (click)="addMedicalRecord()" aria-label="Add medical record">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div
+          *ngFor="let record of medicalRecords.controls; let i = index"
+          class="row-group"
+          [formGroupName]="i">
+          <label class="form-field">
+            <span>Diagnosis</span>
+            <input type="text" formControlName="diagnosis" />
+          </label>
+
+          <label class="form-field">
+            <span>Notes</span>
+            <input type="text" formControlName="notes" />
+          </label>
+
+          <button
+            type="button"
+            class="icon-btn icon-btn--danger"
+            (click)="removeMedicalRecord(i)"
+            [disabled]="medicalRecords.length === 1"
+            aria-label="Remove medical record">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </section>
+
+      <button type="submit" class="submit-btn" [disabled]="saving()">
+        <i
+          class="fa-solid"
+          [class.fa-spinner]="saving()"
+          [class.fa-spin]="saving()"
+          [class.fa-check]="!saving()"
+          aria-hidden="true"></i>
+        <span>{{ saving() ? 'Saving...' : 'Continue' }}</span>
+      </button>
+    </form>
+  </div>
+</section>
