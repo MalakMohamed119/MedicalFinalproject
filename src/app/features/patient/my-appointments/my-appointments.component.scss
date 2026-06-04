@@ -299,15 +299,48 @@
 }
 
 .status-cancelled {
-  color: #b91c1c;
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.25);
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: rgba(225, 29, 72, 0.24);
+}
+
+.status-rejected {
+  color: #7f1d1d;
+  background: #fef2f2;
+  border-color: rgba(185, 28, 28, 0.22);
+}
+
+.status-noshow {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: rgba(71, 85, 105, 0.22);
 }
 
 .status-default {
   color: var(--ch-ink-muted);
   background: #f1f5f9;
   border-color: rgba(15, 23, 42, 0.08);
+}
+
+.my-appointments-page .appt-badge.status-cancelled,
+.my-appointments-page .appt-badge.status-rejected,
+.my-appointments-page .appt-badge.status-noshow {
+  box-shadow: none !important;
+}
+
+.my-appointments-page .appt-badge.status-cancelled {
+  color: #9f1239 !important;
+  background: #fff1f2 !important;
+}
+
+.my-appointments-page .appt-badge.status-rejected {
+  color: #7f1d1d !important;
+  background: #fef2f2 !important;
+}
+
+.my-appointments-page .appt-badge.status-noshow {
+  color: #475569 !important;
+  background: #f1f5f9 !important;
 }
 
 .appt-card__details {
@@ -502,6 +535,83 @@
 
 .state-card__btn--link {
   text-decoration: none;
+}
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.confirm-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.48);
+}
+
+.confirm-modal__card {
+  position: relative;
+  width: min(100%, 400px);
+  padding: 1.35rem;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+  text-align: center;
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--ch-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--ch-ink-muted);
+    line-height: 1.55;
+  }
+}
+
+.confirm-modal__icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 0.85rem;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  font-size: 1.2rem;
+}
+
+.confirm-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 1.25rem;
+}
+
+.confirm-modal__btn {
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.confirm-modal__btn--ghost {
+  color: var(--ch-ink);
+  background: #eef2f7;
+}
+
+.confirm-modal__btn--danger {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
 }
 
 @media (max-width: 640px) {

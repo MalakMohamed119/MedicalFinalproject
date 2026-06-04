@@ -2,8 +2,37 @@
 
 <section class="doctor-appointments-page">
   <div class="page-container">
-    
-    <!-- Loading State -->
+    <header class="appointments-hero">
+      <div>
+        <p class="appointments-hero__eyebrow">Doctor workspace</p>
+        <h1>Clinic appointments</h1>
+        <p>Review patient bookings, confirm visits, complete attended appointments, or reject requests.</p>
+      </div>
+      <div class="appointments-hero__summary" *ngIf="!loading && !error">
+        <span>{{ allAppointments.length }}</span>
+        <small>Total appointments</small>
+      </div>
+    </header>
+
+    <div *ngIf="!loading && !error && appointments.length > 0" class="appointment-metrics" aria-label="Appointment summary">
+      <article class="metric-card metric-card--pending">
+        <span>{{ pendingAppointments.length }}</span>
+        <small>Pending</small>
+      </article>
+      <article class="metric-card metric-card--confirmed">
+        <span>{{ confirmedAppointments.length }}</span>
+        <small>Confirmed</small>
+      </article>
+      <article class="metric-card metric-card--completed">
+        <span>{{ completedAppointments.length }}</span>
+        <small>Completed</small>
+      </article>
+      <article class="metric-card metric-card--rejected">
+        <span>{{ cancelledAppointments.length }}</span>
+        <small>Rejected</small>
+      </article>
+    </div>
+
     <div *ngIf="loading" class="loading-state">
       <div class="loading-spinner">
         <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
@@ -11,112 +40,83 @@
       <p>Loading appointments...</p>
     </div>
 
-    <!-- Error State -->
     <div *ngIf="error" class="error-state">
       <div class="error-icon">
         <i class="fa-solid fa-exclamation-triangle" aria-hidden="true"></i>
       </div>
       <h2>Oops! Something went wrong</h2>
       <p>{{ error }}</p>
-      <button type="button" class="retry-btn" (click)="loadAllPatientAppointments()">
+      <button type="button" class="retry-btn" (click)="loadDoctorClinicAppointments()">
         <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
         Try Again
       </button>
     </div>
 
-    <!-- Tab Navigation -->
     <div *ngIf="!loading && !error && appointments.length > 0" class="tab-navigation">
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'all'"
-        (click)="setTab('all')"
-      >
-        <i class="fa-solid fa-calendar"></i>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">
+        <i class="fa-solid fa-calendar" aria-hidden="true"></i>
         All ({{ allAppointments.length }})
       </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'pending'"
-        (click)="setTab('pending')"
-      >
-        <i class="fa-solid fa-clock"></i>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">
+        <i class="fa-solid fa-clock" aria-hidden="true"></i>
         Pending ({{ pendingAppointments.length }})
       </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'confirmed'"
-        (click)="setTab('confirmed')"
-      >
-        <i class="fa-solid fa-circle-check"></i>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'confirmed'" (click)="setTab('confirmed')">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
         Confirmed ({{ confirmedAppointments.length }})
       </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'completed'"
-        (click)="setTab('completed')"
-      >
-        <i class="fa-solid fa-check-double"></i>
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">
+        <i class="fa-solid fa-check-double" aria-hidden="true"></i>
         Completed ({{ completedAppointments.length }})
       </button>
-      <button 
-        class="tab-btn" 
-        [class.active]="activeTab === 'cancelled'"
-        (click)="setTab('cancelled')"
-      >
-        <i class="fa-solid fa-circle-xmark"></i>
-        Cancelled ({{ cancelledAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'cancelled'" (click)="setTab('cancelled')">
+        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+        Rejected ({{ cancelledAppointments.length }})
       </button>
     </div>
 
-    <!-- Appointments List -->
     <div *ngIf="!loading && !error">
-      <!-- Empty State -->
-      <div *ngIf="appointments.length === 0" class="empty-state">
+      <div *ngIf="appointments.length === 0 || visibleAppointments.length === 0" class="empty-state">
         <div class="empty-icon">
           <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
         </div>
-        <h2>No appointments found</h2>
+        <h2>{{ emptyTabTitle }}</h2>
         <p>No patient appointments have been scheduled yet.</p>
       </div>
 
-      <!-- All Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'all' && allAppointments.length > 0">
+      <section class="appointments-section" *ngIf="visibleAppointments.length > 0">
         <div class="appointments-grid">
-          <div *ngFor="let appointment of allAppointments" class="appointment-card">
-            <!-- Header -->
+          <article
+            *ngFor="let appointment of visibleAppointments"
+            class="appointment-card"
+            [class.completed-appointment]="appointment.status === 'Completed'"
+            [class.cancelled-appointment]="appointment.status === 'Rejected' || appointment.status === 'Cancelled'">
             <div class="appointment-header">
               <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
+                <span class="appointment-clinic__icon">
+                  <i class="fa-solid fa-hospital" aria-hidden="true"></i>
+                </span>
                 <div>
                   <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
+                  <p class="clinic-id">Clinic ID: {{ appointment.clinicId }}</p>
                 </div>
               </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
+              <span class="status-badge" [class]="getStatusClass(appointment.status)">
                 {{ appointment.status }}
               </span>
             </div>
 
-            <!-- Details -->
             <div class="appointment-details">
               <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
                 <div>
                   <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientName || 'Patient' }}
-                  </p>
+                  <p>{{ appointment.patientName || 'Patient' }}</p>
                 </div>
               </div>
 
               <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
+                <i class="fa-solid fa-calendar" aria-hidden="true"></i>
                 <div>
                   <strong>Date:</strong>
                   <p>{{ formatDate(appointment.date) }}</p>
@@ -124,480 +124,112 @@
               </div>
 
               <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
+                <i class="fa-solid fa-clock" aria-hidden="true"></i>
                 <div>
                   <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
+                  <p>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</p>
                 </div>
               </div>
 
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
+              <div class="detail-item" *ngIf="appointment.priceAtBooking">
+                <i class="fa-solid fa-money-bill" aria-hidden="true"></i>
                 <div>
                   <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
+                  <p>{{ appointment.priceAtBooking }} EGP</p>
                 </div>
               </div>
             </div>
 
-            <!-- ACTIONS -->
             <div class="appointment-actions">
-              <!-- CONFIRM BUTTON -->
               <button
-                *ngIf="appointment.status === 'Pending'"
+                *ngIf="canConfirm(appointment.status)"
                 type="button"
                 class="btn btn-success"
-                (click)="updateAppointmentStatus(appointment.id, 'Confirmed')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-check" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
+                (click)="openStatusConfirm(appointment.id, 'Confirmed')"
+                [disabled]="updatingAppointmentId === appointment.id">
+                <i
+                  class="fa-solid"
+                  [class.fa-check]="updatingAppointmentId !== appointment.id"
+                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
+                  [class.fa-spin]="updatingAppointmentId === appointment.id"
+                  aria-hidden="true"></i>
                 {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Confirm' }}
               </button>
 
-              <!-- COMPLETE BUTTON -->
               <button
-                *ngIf="appointment.status === 'Confirmed'"
+                *ngIf="canComplete(appointment.status)"
                 type="button"
                 class="btn btn-primary"
-                (click)="updateAppointmentStatus(appointment.id, 'Completed')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-check-double" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
+                (click)="openStatusConfirm(appointment.id, 'Completed')"
+                [disabled]="updatingAppointmentId === appointment.id">
+                <i
+                  class="fa-solid"
+                  [class.fa-check-double]="updatingAppointmentId !== appointment.id"
+                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
+                  [class.fa-spin]="updatingAppointmentId === appointment.id"
+                  aria-hidden="true"></i>
                 {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Complete' }}
               </button>
 
-              <!-- CANCEL BUTTON -->
               <button
-                *ngIf="appointment.status === 'Pending' || appointment.status === 'Confirmed'"
+                *ngIf="canReject(appointment.status)"
                 type="button"
                 class="btn btn-danger"
-                (click)="updateAppointmentStatus(appointment.id, 'Cancelled')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-xmark" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Cancel' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Pending Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'pending' && pendingAppointments.length > 0">
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of pendingAppointments" class="appointment-card">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
-                <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
-                </div>
-              </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
-                {{ appointment.status }}
-              </span>
-            </div>
-
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientName || 'Patient' }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ACTIONS -->
-            <div class="appointment-actions">
-              <!-- CONFIRM BUTTON -->
-              <button
-                type="button"
-                class="btn btn-success"
-                (click)="updateAppointmentStatus(appointment.id, 'Confirmed')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-check" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Confirm' }}
+                (click)="openStatusConfirm(appointment.id, 'Rejected')"
+                [disabled]="updatingAppointmentId === appointment.id">
+                <i
+                  class="fa-solid"
+                  [class.fa-xmark]="updatingAppointmentId !== appointment.id"
+                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
+                  [class.fa-spin]="updatingAppointmentId === appointment.id"
+                  aria-hidden="true"></i>
+                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Reject' }}
               </button>
 
-              <!-- CANCEL BUTTON -->
               <button
-                type="button"
-                class="btn btn-danger"
-                (click)="updateAppointmentStatus(appointment.id, 'Cancelled')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-xmark" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Cancel' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Confirmed Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'confirmed' && confirmedAppointments.length > 0">
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of confirmedAppointments" class="appointment-card">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
-                <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
-                </div>
-              </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
-                {{ appointment.status }}
-              </span>
-            </div>
-
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientName || 'Patient' }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ACTIONS -->
-            <div class="appointment-actions">
-              <!-- COMPLETE BUTTON -->
-              <button
-                type="button"
-                class="btn btn-primary"
-                (click)="updateAppointmentStatus(appointment.id, 'Completed')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-check-double" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Complete' }}
-              </button>
-
-              <!-- CANCEL BUTTON -->
-              <button
-                type="button"
-                class="btn btn-danger"
-                (click)="updateAppointmentStatus(appointment.id, 'Cancelled')"
-                [disabled]="updatingAppointmentId === appointment.id"
-              >
-                <i class="fa-solid fa-xmark" *ngIf="updatingAppointmentId !== appointment.id"></i>
-                <i class="fa-solid fa-spinner fa-spin" *ngIf="updatingAppointmentId === appointment.id"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Cancel' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Completed Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'completed' && completedAppointments.length > 0">
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of completedAppointments" class="appointment-card completed-appointment">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
-                <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
-                </div>
-              </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
-                {{ appointment.status }}
-              </span>
-            </div>
-
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientName || 'Patient' }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ACTIONS - No actions for completed appointments -->
-            <div class="appointment-actions">
-              <button
+                *ngIf="appointment.status === 'Completed' || appointment.status === 'Rejected' || appointment.status === 'Cancelled'"
                 type="button"
                 class="btn btn-secondary"
-                disabled
-              >
-                <i class="fa-solid fa-check-double"></i>
+                disabled>
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
                 {{ appointment.status }}
               </button>
             </div>
-          </div>
+          </article>
         </div>
       </section>
-
-      <!-- Cancelled Appointments Section -->
-      <section class="appointments-section" *ngIf="activeTab === 'cancelled' && cancelledAppointments.length > 0">
-        <div class="appointments-grid">
-          <div *ngFor="let appointment of cancelledAppointments" class="appointment-card cancelled-appointment">
-            <!-- Header -->
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <i class="fa-solid fa-hospital" aria-hidden="true"></i>
-                <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">
-                    Clinic ID: {{ appointment.clinicId }}
-                  </p>
-                </div>
-              </div>
-              <!-- STATUS BADGE -->
-              <span
-                class="status-badge"
-                [ngClass]="getStatusClass(appointment.status)"
-              >
-                {{ appointment.status }}
-              </span>
-            </div>
-
-            <!-- Details -->
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-user"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {{ appointment.patientName || 'Patient' }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>
-                    {{ formatTime(appointment.startTime) }}
-                    -
-                    {{ formatTime(appointment.endTime) }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                class="detail-item"
-                *ngIf="appointment.priceAtBooking"
-              >
-                <i class="fa-solid fa-money-bill"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>
-                    {{ appointment.priceAtBooking }} EGP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- ACTIONS - No actions for cancelled appointments -->
-            <div class="appointment-actions">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                disabled
-              >
-                <i class="fa-solid fa-circle-xmark"></i>
-                {{ appointment.status }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Empty State for individual tabs -->
-      <div *ngIf="activeTab === 'pending' && pendingAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-clock" aria-hidden="true"></i>
-        </div>
-        <h2>No pending appointments</h2>
-        <p>There are no pending appointments to display.</p>
-      </div>
-
-      <div *ngIf="activeTab === 'confirmed' && confirmedAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-        </div>
-        <h2>No confirmed appointments</h2>
-        <p>There are no confirmed appointments to display.</p>
-      </div>
-
-      <div *ngIf="activeTab === 'completed' && completedAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-check-double" aria-hidden="true"></i>
-        </div>
-        <h2>No completed appointments</h2>
-        <p>There are no completed appointments to display.</p>
-      </div>
-
-      <div *ngIf="activeTab === 'cancelled' && cancelledAppointments.length === 0 && appointments.length > 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
-        </div>
-        <h2>No cancelled appointments</h2>
-        <p>There are no cancelled appointments to display.</p>
-      </div>
     </div>
   </div>
 </section>
+
+<div *ngIf="pendingStatusAction" class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="confirm-modal__backdrop" (click)="closeStatusConfirm()"></div>
+  <div class="confirm-modal__card">
+    <div class="confirm-modal__icon" [class.confirm-modal__icon--danger]="isRejectAction">
+      <i
+        class="fa-solid"
+        [class.fa-check]="!isRejectAction"
+        [class.fa-xmark]="isRejectAction"
+        aria-hidden="true"></i>
+    </div>
+    <h2 id="confirm-title">Are you sure?</h2>
+    <p>
+      This appointment will be marked as
+      <strong>{{ isRejectAction ? 'Rejected' : pendingActionStatus }}</strong>.
+    </p>
+    <div class="confirm-modal__actions">
+      <button type="button" class="confirm-modal__btn confirm-modal__btn--ghost" (click)="closeStatusConfirm()">
+        No, keep it
+      </button>
+      <button
+        type="button"
+        class="confirm-modal__btn"
+        [class.confirm-modal__btn--danger]="isRejectAction"
+        (click)="confirmStatusUpdate()">
+        Yes, {{ isRejectAction ? 'reject' : 'confirm' }}
+      </button>
+    </div>
+  </div>
+</div>
 
 <app-doctor-footer></app-doctor-footer>

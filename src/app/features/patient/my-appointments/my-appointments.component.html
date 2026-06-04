@@ -204,4 +204,23 @@
   </div>
 </section>
 
+<div *ngIf="pendingCancelAppointmentId" class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+  <div class="confirm-modal__backdrop" (click)="closeCancelConfirm()"></div>
+  <div class="confirm-modal__card">
+    <div class="confirm-modal__icon">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </div>
+    <h2 id="cancel-title">Are you sure?</h2>
+    <p>This booking will be cancelled.</p>
+    <div class="confirm-modal__actions">
+      <button type="button" class="confirm-modal__btn confirm-modal__btn--ghost" (click)="closeCancelConfirm()">
+        No, keep it
+      </button>
+      <button type="button" class="confirm-modal__btn confirm-modal__btn--danger" (click)="confirmCancelAppointment()">
+        Yes, cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <app-patient-footer></app-patient-footer>

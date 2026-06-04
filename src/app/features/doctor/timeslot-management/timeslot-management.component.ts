@@ -1,11 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 
@@ -32,7 +31,6 @@ function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
 })
 export class TimeslotManagement implements OnInit {
   private clinicService = inject(ClinicService);
-  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   readonly timeslots = signal<TimeSlot[]>([]);
@@ -57,15 +55,7 @@ export class TimeslotManagement implements OnInit {
   }
 
   loadMyClinics(): void {
-    const currentUserId = this.authService.getCurrentUserId();
-    const clinicsRequest = currentUserId
-      ? this.clinicService.getClinicsByDoctorId(currentUserId).pipe(
-          switchMap((clinics) => clinics.length > 0 ? of(clinics) : this.clinicService.getMyClinics()),
-          catchError(() => this.clinicService.getMyClinics())
-        )
-      : this.clinicService.getMyClinics();
-
-    clinicsRequest.pipe(
+    this.clinicService.getMyClinics().pipe(
       map((clinics) => this.dedupeClinics(clinics)),
       catchError(() => of([]))
     ).subscribe({
@@ -170,40 +160,25 @@ export class TimeslotManagement implements OnInit {
       return;
     }
 
-    // Try different payload formats that backend might expect
     const startDate = new Date(formValue.startTime);
     const endDate = new Date(formValue.endTime);
-    
-    // Extract date part (YYYY-MM-DD format)
-    const date = startDate.toISOString().split('T')[0];
-    
-    // Extract time parts (HH:mm format)
-    const startTime = startDate.toTimeString().slice(0, 5);
-    const endTime = endDate.toTimeString().slice(0, 5);
-    
-    // Use format that backend expects - wrap in 'request' object
+
     const payload = {
-      request: {
-        clinicId: Number(formValue.clinicId),
-        date: date,
-        startTime: startTime,
-        endTime: endTime,
-        capacity: Number(formValue.capacity),
-        price: Number(formValue.price)
-      }
+      clinicId,
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      capacity: Number(formValue.capacity),
+      price: Number(formValue.price)
     };
-    
+
     console.log('Creating time slot with payload:', payload);
 
     if (editing) {
       const updatePayload = {
-        request: {
-          date: payload.request.date,
-          startTime: payload.request.startTime,
-          endTime: payload.request.endTime,
-          capacity: payload.request.capacity,
-          price: payload.request.price
-        }
+        startTime: payload.startTime,
+        endTime: payload.endTime,
+        capacity: payload.capacity,
+        price: payload.price
       };
       this.clinicService.updateTimeSlot(editing.id, updatePayload).subscribe({
         next: () => {
@@ -293,8 +268,27 @@ export class TimeslotManagement implements OnInit {
 
   formatDate(time: string): string {
     if (!time) return '';
-    return new Date(time).toLocaleDateString('en-US', {
+    const date = new Date(time);
+    if (Number.isNaN(date.getTime())) return 'Invalid date';
+
+    return date.toLocaleDateString('en-US', {
       weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
     });
+  }
+
+  formatDateDay(time: string): string {
+    if (!time) return '';
+    const date = new Date(time);
+    if (Number.isNaN(date.getTime())) return '--';
+
+    return date.toLocaleDateString('en-US', { day: '2-digit' });
+  }
+
+  formatDateMonth(time: string): string {
+    if (!time) return '';
+    const date = new Date(time);
+    if (Number.isNaN(date.getTime())) return 'Date';
+
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   }
 }

@@ -22,7 +22,7 @@
 
   <div class="clinic-selector" *ngIf="!showAddForm() && clinics().length > 0">
     <label for="clinicSelect"><i class="fas fa-hospital-alt"></i> Select Clinic:</label>
-    <select id="clinicSelect" class="form-control" (change)="onClinicChange($event)">
+    <select id="clinicSelect" class="form-control" [value]="selectedClinicId()" (change)="onClinicChange($event)">
       <option *ngFor="let clinic of clinics()" [value]="clinic.id">
         {{ clinic.clinicName }}
       </option>
@@ -118,7 +118,11 @@
 
     <div class="clinic-card" *ngFor="let slot of timeslots()">
       <div class="clinic-header">
-        <h3><i class="fas fa-calendar-day"></i> {{ formatDate(slot.startTime) }}</h3>
+        <div class="slot-date">
+          <span class="slot-date__day">{{ formatDateDay(slot.startTime) }}</span>
+          <span class="slot-date__month">{{ formatDateMonth(slot.startTime) }}</span>
+          <small>{{ formatDate(slot.startTime) }}</small>
+        </div>
         <div class="clinic-actions">
           <button class="btn btn-sm btn-outline-primary" (click)="editSlot(slot)">
             <i class="fas fa-edit"></i> Edit
@@ -145,7 +149,7 @@
       </div>
 
       <div class="clinic-footer">
-        <span class="badge" [class.badge-success]="slot.availableCount > 0"
+        <span class="badge slot-availability" [class.badge-success]="slot.availableCount > 0"
               [class.badge-danger]="slot.availableCount === 0">
           {{ slot.availableCount > 0 ? slot.availableCount + ' slots available' : 'Fully Booked' }}
         </span>

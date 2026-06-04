@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { PatientFooterComponent } from '../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ClinicResponse } from '../../shared/models/clinic-response.interface';
 import { ClinicService } from '../../core/services/clinic.service';
 import { Router } from '@angular/router';
+import { finalize, timeout } from 'rxjs/operators';
 
 type ClinicCard = ClinicResponse & {
   rating: number;
@@ -24,6 +25,7 @@ type ClinicCard = ClinicResponse & {
 export class HomeForPatient implements OnInit {
   private clinicService = inject(ClinicService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   readonly starNumbers: number[] = [1, 2, 3, 4, 5];
 
   clinics: ClinicCard[] = [];
@@ -45,7 +47,15 @@ export class HomeForPatient implements OnInit {
   loadClinics(): void {
     this.isLoading = true;
     this.error = null;
-this.clinicService.getAllClinics({}).subscribe({
+    this.cdr.detectChanges();
+
+    this.clinicService.getAllClinics({ pageIndex: 0, pageSize: 12 }).pipe(
+      timeout(12000),
+      finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
       next: (res: any) => {
         const data = Array.isArray(res) ? res : (res.data || res.results || res || []);
         this.clinics = data.map((clinic: ClinicResponse) => ({
@@ -53,17 +63,19 @@ this.clinicService.getAllClinics({}).subscribe({
           rating: 4.8,
           availableSlots: 10,
           image: 'assets/images/clinic-placeholder.jpg',
-          specialty: 'Medical Specialist'
+          specialty: clinic.description ? 'Specialized care' : 'Medical clinic'
         }));
         this.filteredClinics = [...this.clinics];
         this.stats.totalClinics = this.clinics.length;
-        this.isLoading = false;
+        this.cdr.markForCheck();
       },
 
       error: (err: any) => {
         console.error('Failed to load clinics:', err);
-        this.error = 'Failed to load clinics';
-        this.isLoading = false;
+        this.error = err?.name === 'TimeoutError'
+          ? 'Clinics are taking too long to load. Please try again.'
+          : 'Failed to load clinics';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -87,7 +99,7 @@ this.clinicService.getAllClinics({}).subscribe({
   }
 
   bookClinic(id: number): void {
-    console.log('Booking clinic:', id);
+    this.router.navigate(['/clinic-details', id]);
   }
 
   isStarFilled(rating: number, starNumber: number): boolean {

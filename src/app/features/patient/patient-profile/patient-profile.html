@@ -94,7 +94,7 @@
             <p class="profile-form-panel__eyebrow">Patient API</p>
             <h2>Personal details</h2>
           </div>
-          <span class="profile-form-panel__tag">MyProfile / Update</span>
+          <span class="profile-form-panel__tag">Update profile</span>
         </div>
 
         <div class="profile-form-grid">
@@ -160,7 +160,7 @@
             <p class="profile-form-panel__eyebrow">Medical data</p>
             <h2>Health record</h2>
           </div>
-          <span class="profile-form-panel__tag">Update</span>
+          <span class="profile-form-panel__tag">Same profile update</span>
         </div>
 
         <div class="medical-editor-block" formArrayName="allergies">
@@ -332,7 +332,7 @@
                   <tr>
                     <th scope="col">Clinic</th>
                     <th scope="col">Date</th>
-                    <th scope="col">Doctor</th>
+                    <th scope="col">{{ isDoctor() ? 'Patient' : 'Doctor' }}</th>
                     <th scope="col">Status</th>
                   </tr>
                 </thead>
@@ -340,7 +340,7 @@
                   <tr *ngFor="let p of past()">
                     <td data-label="Clinic">{{ p.clinicName }}</td>
                     <td data-label="Date">{{ p.dateLabel }}</td>
-                    <td data-label="Doctor">{{ p.doctorName }}</td>
+                    <td [attr.data-label]="isDoctor() ? 'Patient' : 'Doctor'">{{ p.doctorName }}</td>
                     <td data-label="Status">
                       <span class="badge-completed">{{ p.status }}</span>
                     </td>

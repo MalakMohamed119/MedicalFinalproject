@@ -184,7 +184,10 @@ export class MyClinics implements OnInit, OnDestroy {
 
     this.appointmentService.getClinicAppointments(clinicId).subscribe({
       next: (appointments: AppointmentResponse[]) => {
-        this.clinicAppointments.set(appointments);
+        this.clinicAppointments.set(appointments.map((appointment) => ({
+          ...appointment,
+          status: this.getStatusString(appointment.status)
+        })));
         this.appointmentsLoading.set(false);
         console.log('Clinic appointments loaded:', appointments);
       },
@@ -203,6 +206,13 @@ export class MyClinics implements OnInit, OnDestroy {
   }
 
   updateAppointmentStatus(appointmentId: number, status: string): void {
+    const current = this.clinicAppointments().find((appointment) => appointment.id === appointmentId);
+
+    if (status === 'Completed' && current?.status !== 'Confirmed') {
+      this.error.set('Appointment must be confirmed before it can be completed.');
+      return;
+    }
+
     this.appointmentService.updateAppointmentStatus(appointmentId, status).subscribe({
       next: () => {
         console.log('Appointment status updated successfully');
@@ -237,13 +247,40 @@ export class MyClinics implements OnInit, OnDestroy {
   }
 
   getStatusString(status: number | string): string {
+    if (typeof status === 'string') {
+      const numericStatus = Number(status);
+      if (Number.isFinite(numericStatus) && status.trim() !== '') {
+        return this.getStatusString(numericStatus);
+      }
+
+      switch (status.trim().toLowerCase()) {
+        case 'pending':
+          return 'Pending';
+        case 'confirmed':
+          return 'Confirmed';
+        case 'cancelled':
+        case 'canceled':
+        case 'rejected':
+          return 'Rejected';
+        case 'completed':
+          return 'Completed';
+        case 'noshow':
+        case 'no show':
+        case 'no-show':
+          return 'NoShow';
+        default:
+          return status;
+      }
+    }
+
     // Convert status number to string
     if (typeof status === 'number') {
       switch (status) {
         case 0: return 'Pending';
         case 1: return 'Confirmed';
-        case 2: return 'Completed';
-        case 3: return 'Cancelled';
+        case 2: return 'Rejected';
+        case 3: return 'Completed';
+        case 4: return 'NoShow';
         default: return 'Unknown';
       }
     }
@@ -258,6 +295,7 @@ export class MyClinics implements OnInit, OnDestroy {
       case 'pending':
         return 'status-pending';
       case 'cancelled':
+      case 'rejected':
         return 'status-cancelled';
       case 'completed':
         return 'status-completed';

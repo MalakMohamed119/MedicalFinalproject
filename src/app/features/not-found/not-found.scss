@@ -101,3 +101,32 @@ $muted: #64748b;
 .not-found-cta i {
   font-size: 1rem;
 }
+
+/* Page-specific professional pass */
+.not-found-page {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(246, 250, 251, 0.98)),
+    radial-gradient(900px 420px at 0% 0%, rgba(var(--ch-accent-rgb), 0.14), transparent 58%);
+}
+
+.not-found-card {
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.12);
+}
+
+.not-found-hero__icon {
+  border-radius: 8px;
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.14);
+  box-shadow: 0 14px 30px rgba(var(--ch-accent-rgb), 0.18);
+}
+
+.not-found-heading {
+  text-wrap: balance;
+}
+
+.not-found-cta {
+  min-height: 46px;
+  border-radius: 8px;
+}

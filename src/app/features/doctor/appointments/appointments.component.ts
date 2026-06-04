@@ -7,8 +7,8 @@ import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 
-import { timeout } from 'rxjs/operators';
-import { TimeoutError } from 'rxjs';
+import { forkJoin, of, TimeoutError } from 'rxjs';
+import { catchError, timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-doctor-appointments',
@@ -32,6 +32,16 @@ export class DoctorAppointments implements OnInit {
   updatingAppointmentId: number | null = null;
 
   activeTab: 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled' = 'all';
+
+  pendingStatusAction: { appointmentId: number; status: string } | null = null;
+
+  get pendingActionStatus(): string {
+    return this.pendingStatusAction?.status || '';
+  }
+
+  get isRejectAction(): boolean {
+    return this.pendingActionStatus === 'Rejected';
+  }
 
   constructor(
     private appointmentService: AppointmentService,
@@ -60,7 +70,37 @@ export class DoctorAppointments implements OnInit {
   }
 
   get cancelledAppointments(): any[] {
-    return this.appointments.filter(a => a.status === 'Cancelled');
+    return this.appointments.filter(a => a.status === 'Rejected' || a.status === 'Cancelled');
+  }
+
+  get visibleAppointments(): any[] {
+    switch (this.activeTab) {
+      case 'pending':
+        return this.pendingAppointments;
+      case 'confirmed':
+        return this.confirmedAppointments;
+      case 'completed':
+        return this.completedAppointments;
+      case 'cancelled':
+        return this.cancelledAppointments;
+      default:
+        return this.allAppointments;
+    }
+  }
+
+  get emptyTabTitle(): string {
+    switch (this.activeTab) {
+      case 'pending':
+        return 'No pending appointments';
+      case 'confirmed':
+        return 'No confirmed appointments';
+      case 'completed':
+        return 'No completed appointments';
+      case 'cancelled':
+        return 'No rejected appointments';
+      default:
+        return 'No appointments found';
+    }
   }
 
   // =========================================
@@ -76,7 +116,7 @@ export class DoctorAppointments implements OnInit {
   // =========================================
 
   ngOnInit(): void {
-    this.loadAllPatientAppointments();
+    this.loadDoctorClinicAppointments();
   }
 
   // =========================================
@@ -97,82 +137,105 @@ export class DoctorAppointments implements OnInit {
   }
 
   // =========================================
-  // LOAD ALL PATIENT APPOINTMENTS
+  // LOAD DOCTOR CLINIC APPOINTMENTS
   // =========================================
 
-  async loadAllPatientAppointments(): Promise<void> {
+  loadDoctorClinicAppointments(): void {
 
     this.loading = true;
     this.error = null;
     this.cdr.detectChanges();
 
-    this.appointmentService
-      .getAllPatientAppointments()
+    this.clinicService
+      .getMyClinics()
       .pipe(timeout(10000))
       .subscribe({
 
-        next: async (data: any[]) => {
-
-          // Get appointments with basic info first
-          const basicAppointments = data.map(a => ({
-
-            ...a,
-
-            status: this.getStatusString(a.status),
-
-            clinicName: a.clinicName ?? `Clinic ${a.clinicId}`,
-
-            patientName: a.patientName ?? 'Patient'
-          }));
-
-          // Fetch clinic names for appointments that have clinicId but no clinicName
-          const appointmentsWithClinicNames = await Promise.all(
-            basicAppointments.map(async (appointment) => {
-              if (appointment.clinicId && !appointment.clinicName || appointment.clinicName.includes(`Clinic ${appointment.clinicId}`)) {
-                const clinicName = await this.getClinicNameById(appointment.clinicId);
-                return {
-                  ...appointment,
-                  clinicName: clinicName
-                };
-              }
-              return appointment;
-            })
-          );
-
-          this.appointments = appointmentsWithClinicNames;
-          this.loading = false;
-          this.cdr.detectChanges();
-        },
-
-        error: (err: any) => {
-
-          if (err instanceof TimeoutError) {
-            this.error = 'Request timed out. Try again.';
-          } else if (err.status === 404) {
-            this.error = 'No appointments found.';
-          } else if (err.status === 401) {
-            this.error = 'Please log in again.';
-          } else {
-            this.error = `Failed to load appointments (${err.status ?? 'unknown'}).`;
+        next: (clinics) => {
+          if (clinics.length === 0) {
+            this.appointments = [];
+            this.loading = false;
+            this.cdr.detectChanges();
+            return;
           }
 
-          this.loading = false;
-          this.cdr.detectChanges();
-        }
+          const appointmentRequests = clinics.map((clinic) =>
+            this.appointmentService.getClinicAppointments(clinic.id).pipe(
+              catchError(() => of([]))
+            )
+          );
+
+          forkJoin(appointmentRequests).subscribe({
+            next: (groups) => {
+              this.appointments = groups.flat().map((appointment: any) => {
+                const clinic = clinics.find((item) => item.id === Number(appointment.clinicId));
+
+                return {
+                  ...appointment,
+                  status: this.getStatusString(appointment.status),
+                  clinicName: appointment.clinicName || clinic?.clinicName || `Clinic ${appointment.clinicId}`,
+                  patientName: appointment.patientName || 'Patient'
+                };
+              });
+
+              this.loading = false;
+              this.cdr.detectChanges();
+            },
+            error: (err: any) => this.setLoadError(err)
+          });
+        },
+
+        error: (err: any) => this.setLoadError(err)
       });
+  }
+
+  private setLoadError(err: any): void {
+    if (err instanceof TimeoutError) {
+      this.error = 'Request timed out. Try again.';
+    } else if (err.status === 404) {
+      this.error = 'No appointments found.';
+    } else if (err.status === 401) {
+      this.error = 'Please log in again.';
+    } else {
+      this.error = `Failed to load appointments (${err.status ?? 'unknown'}).`;
+    }
+
+    this.loading = false;
+    this.cdr.detectChanges();
   }
 
   // =========================================
   // UPDATE APPOINTMENT STATUS
   // =========================================
 
+  openStatusConfirm(appointmentId: number, newStatus: string): void {
+    this.pendingStatusAction = { appointmentId, status: newStatus };
+  }
+
+  closeStatusConfirm(): void {
+    this.pendingStatusAction = null;
+  }
+
+  confirmStatusUpdate(): void {
+    const action = this.pendingStatusAction;
+
+    if (!action) return;
+
+    this.updateAppointmentStatus(action.appointmentId, action.status);
+  }
+
   updateAppointmentStatus(appointmentId: number, newStatus: string): void {
+    const current = this.appointments.find(a => a.id === appointmentId);
 
-    const confirmed = confirm(`Are you sure you want to change this appointment status to ${newStatus}?`);
-
-    if (!confirmed) return;
+    if (newStatus === 'Completed' && current?.status !== 'Confirmed') {
+      this.error = 'Appointment must be confirmed before it can be completed.';
+      this.pendingStatusAction = null;
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.updatingAppointmentId = appointmentId;
+    this.pendingStatusAction = null;
     this.cdr.detectChanges();
 
     this.appointmentService.updateAppointmentStatus(appointmentId, newStatus)
@@ -211,19 +274,57 @@ export class DoctorAppointments implements OnInit {
   // =========================================
 
   getStatusString(status: number | string): string {
+    if (typeof status === 'string') {
+      const numericStatus = Number(status);
+      if (Number.isFinite(numericStatus) && status.trim() !== '') {
+        return this.getStatusString(numericStatus);
+      }
+
+      switch (status.trim().toLowerCase()) {
+        case 'pending':
+          return 'Pending';
+        case 'confirmed':
+          return 'Confirmed';
+        case 'cancelled':
+        case 'canceled':
+        case 'rejected':
+          return 'Rejected';
+        case 'completed':
+          return 'Completed';
+        case 'noshow':
+        case 'no show':
+        case 'no-show':
+          return 'NoShow';
+        default:
+          return status;
+      }
+    }
 
     if (typeof status === 'number') {
 
       switch (status) {
         case 0: return 'Pending';
         case 1: return 'Confirmed';
-        case 2: return 'Completed';
-        case 3: return 'Cancelled';
+        case 2: return 'Rejected';
+        case 3: return 'Completed';
+        case 4: return 'NoShow';
         default: return 'Unknown';
       }
     }
 
     return status;
+  }
+
+  canConfirm(status: string): boolean {
+    return status === 'Pending';
+  }
+
+  canComplete(status: string): boolean {
+    return status === 'Confirmed';
+  }
+
+  canReject(status: string): boolean {
+    return status === 'Pending' || status === 'Confirmed';
   }
 
   // =========================================
@@ -234,7 +335,9 @@ export class DoctorAppointments implements OnInit {
 
     if (!dateString) return 'N/A';
 
-    const date = new Date(dateString + 'T00:00:00');
+    const date = dateString.includes('T')
+      ? new Date(dateString)
+      : new Date(dateString + 'T00:00:00');
 
     if (isNaN(date.getTime())) return 'Invalid Date';
 
@@ -253,6 +356,14 @@ export class DoctorAppointments implements OnInit {
   formatTime(timeString: string): string {
 
     if (!timeString) return 'N/A';
+
+    const parsedDate = new Date(timeString);
+    if (!Number.isNaN(parsedDate.getTime()) && timeString.includes('T')) {
+      return parsedDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
     const parts = timeString.split(':');
 
@@ -284,6 +395,8 @@ export class DoctorAppointments implements OnInit {
       case 'confirmed': return 'status-confirmed';
       case 'completed': return 'status-completed';
       case 'cancelled': return 'status-cancelled';
+      case 'rejected': return 'status-cancelled';
+      case 'noshow': return 'status-cancelled';
 
       default: return 'status-default';
     }

@@ -26,6 +26,26 @@ export class ClinicService {
 
   constructor(private http: HttpClient) {}
 
+  private getToken(): string {
+    if (typeof localStorage === 'undefined') {
+      return '';
+    }
+
+    return (localStorage.getItem('token') || '')
+      .trim()
+      .replace(/^["']|["']$/g, '')
+      .replace(/^Bearer\s+/i, '')
+      .trim();
+  }
+
+  private authHeaders(): Record<string, string> {
+    const token = this.getToken();
+
+    return token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+  }
+
 
 
   getAdminDashboard(): Observable<any> {
@@ -112,6 +132,7 @@ export class ClinicService {
 
   getAllClinics(params: any): Observable<ClinicResponse[]> {
     return this.http.get<{pageIndex: number, pageSize: number, count: number, data: ClinicResponse[]}>(`${environment.apiUrl}/api/doctorclinics/GetAllClinics`, { params }).pipe(
+      timeout(12000),
       map((response: {pageIndex: number, pageSize: number, count: number, data: ClinicResponse[]}) => {
         console.log('Raw API response:', response);
         const clinicsArray = response.data || [];
@@ -294,26 +315,40 @@ export class ClinicService {
     const url = `${environment.timeSlotsApiUrl}/api/timeslots/createtimeslots`;
     console.log('ClinicService: Creating time slot with URL:', url);
     console.log('ClinicService: Request data:', JSON.stringify(data, null, 2));
-    return this.http.post(url, data);
+    return this.http.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.authHeaders()
+      }
+    });
 
   }
 
 
 
   updateTimeSlot(id: number, data: any): Observable<any> {
-    return this.http.put(`${environment.timeSlotsApiUrl}/api/timeslots/updatetimeslots/${id}`, data);
+    return this.http.put(`${environment.timeSlotsApiUrl}/api/timeslots/updatetimeslots/${id}`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...this.authHeaders()
+      }
+    });
   }
 
 
 
   deleteTimeSlot(id: number): Observable<any> {
-    return this.http.delete(`${environment.timeSlotsApiUrl}/api/timeslots/deletetimeslots/${id}`);
+    return this.http.delete(`${environment.timeSlotsApiUrl}/api/timeslots/deletetimeslots/${id}`, {
+      headers: this.authHeaders()
+    });
   }
 
 
 
   getTimeSlotsByClinic(clinicId: number): Observable<TimeSlot[]> {
-    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/api/timeslots/GetTimeSlotsByClinic/${clinicId}`);
+    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/api/timeslots/GetTimeSlotsByClinic/${clinicId}`, {
+      headers: this.authHeaders()
+    });
   }
 
 

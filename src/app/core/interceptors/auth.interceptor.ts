@@ -14,7 +14,7 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
     req.url.includes('/Clinic/Authentication/Register') ||
     req.url.includes('/Clinic/Authentication/Refresh');
 
-  const token = isPlatformBrowser(platformId) ? localStorage.getItem('token') : null;
+  const token = isPlatformBrowser(platformId) ? normalizeToken(localStorage.getItem('token')) : null;
   const shouldAttachToken =
     !!token &&
     (req.url.startsWith(environment.apiUrl) || req.url.startsWith(environment.timeSlotsApiUrl)) &&
@@ -40,4 +40,16 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
       return throwError(() => error);
     })
   );
+}
+
+function normalizeToken(token: string | null): string {
+  if (!token) {
+    return '';
+  }
+
+  return token
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .replace(/^Bearer\s+/i, '')
+    .trim();
 }

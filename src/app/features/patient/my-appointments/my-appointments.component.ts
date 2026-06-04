@@ -33,6 +33,8 @@ export class MyAppointments implements OnInit {
 
   cancellingAppointmentId: number | null = null;
 
+  pendingCancelAppointmentId: number | null = null;
+
   activeTab: 'upcoming' | 'past' = 'upcoming';
 
   constructor(
@@ -53,7 +55,7 @@ export class MyAppointments implements OnInit {
 
   get pastAppointments(): any[] {
     return this.appointments.filter(a =>
-      a.status === 'Completed' || a.status === 'Cancelled'
+      a.status === 'Completed' || a.status === 'Cancelled' || a.status === 'Rejected' || a.status === 'NoShow'
     );
   }
 
@@ -161,10 +163,19 @@ export class MyAppointments implements OnInit {
   // =========================================
 
   cancelAppointment(appointmentId: number): void {
+    this.pendingCancelAppointmentId = appointmentId;
+  }
 
-    const confirmed = confirm('Are you sure you want to cancel this appointment?');
+  closeCancelConfirm(): void {
+    this.pendingCancelAppointmentId = null;
+  }
 
-    if (!confirmed) return;
+  confirmCancelAppointment(): void {
+    const appointmentId = this.pendingCancelAppointmentId;
+
+    if (!appointmentId) return;
+
+    this.pendingCancelAppointmentId = null;
 
     this.cancellingAppointmentId = appointmentId;
     this.cdr.detectChanges();
@@ -205,14 +216,41 @@ export class MyAppointments implements OnInit {
   // =========================================
 
   getStatusString(status: number | string): string {
+    if (typeof status === 'string') {
+      const numericStatus = Number(status);
+      if (Number.isFinite(numericStatus) && status.trim() !== '') {
+        return this.getStatusString(numericStatus);
+      }
+
+      switch (status.trim().toLowerCase()) {
+        case 'pending':
+          return 'Pending';
+        case 'confirmed':
+          return 'Confirmed';
+        case 'cancelled':
+        case 'canceled':
+          return 'Cancelled';
+        case 'rejected':
+          return 'Rejected';
+        case 'completed':
+          return 'Completed';
+        case 'noshow':
+        case 'no show':
+        case 'no-show':
+          return 'NoShow';
+        default:
+          return status;
+      }
+    }
 
     if (typeof status === 'number') {
 
       switch (status) {
         case 0: return 'Pending';
         case 1: return 'Confirmed';
-        case 2: return 'Completed';
-        case 3: return 'Cancelled';
+        case 2: return 'Rejected';
+        case 3: return 'Completed';
+        case 4: return 'NoShow';
         default: return 'Unknown';
       }
     }
@@ -228,7 +266,9 @@ export class MyAppointments implements OnInit {
 
     if (!dateString) return 'N/A';
 
-    const date = new Date(dateString + 'T00:00:00');
+    const date = dateString.includes('T')
+      ? new Date(dateString)
+      : new Date(dateString + 'T00:00:00');
 
     if (isNaN(date.getTime())) return 'Invalid Date';
 
@@ -247,6 +287,14 @@ export class MyAppointments implements OnInit {
   formatTime(timeString: string): string {
 
     if (!timeString) return 'N/A';
+
+    const parsedDate = new Date(timeString);
+    if (!Number.isNaN(parsedDate.getTime()) && timeString.includes('T')) {
+      return parsedDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
 
     const parts = timeString.split(':');
 
@@ -278,6 +326,8 @@ export class MyAppointments implements OnInit {
       case 'confirmed': return 'status-confirmed';
       case 'completed': return 'status-completed';
       case 'cancelled': return 'status-cancelled';
+      case 'rejected': return 'status-rejected';
+      case 'noshow': return 'status-noshow';
 
       default: return 'status-default';
     }

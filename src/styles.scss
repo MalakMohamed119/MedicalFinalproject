@@ -771,3 +771,377 @@ body .clinics-container .clinic-actions .btn-sm {
   font-weight: 700 !important;
   font-size: 0.75rem !important;
 }
+
+/* Professional UI refinement layer: visual-only, shared across every route */
+:root {
+  --ch-bg-page: #f6fafb;
+  --ch-bg-panel: rgba(255, 255, 255, 0.94);
+  --ch-bg-muted: #eef6f8;
+  --ch-line-soft: rgba(var(--ch-brand-rgb), 0.12);
+  --ch-line-strong: rgba(var(--ch-brand-rgb), 0.2);
+  --ch-text-soft: #475569;
+  --ch-title: #0b2530;
+  --ch-radius-pro: 8px;
+  --ch-shadow-pro: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 16px 44px rgba(15, 23, 42, 0.08);
+  --ch-shadow-pro-hover: 0 1px 0 rgba(255, 255, 255, 0.94) inset, 0 22px 54px rgba(15, 23, 42, 0.12);
+}
+
+body {
+  color: var(--ch-title);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(246, 250, 251, 0.94)),
+    radial-gradient(1000px 420px at 8% -8%, rgba(var(--ch-accent-rgb), 0.12), transparent 58%),
+    radial-gradient(820px 360px at 100% 0%, rgba(5, 150, 105, 0.08), transparent 58%),
+    var(--ch-bg-page);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--ch-title);
+  letter-spacing: 0;
+}
+
+p {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead th {
+  color: #0f3d48;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: #eef7f9;
+}
+
+tbody tr {
+  transition: background 0.18s ease;
+}
+
+tbody tr:hover {
+  background: rgba(var(--ch-accent-rgb), 0.055);
+}
+
+.btn,
+button,
+[role='button'],
+a[class*='btn'],
+a[class*='action'],
+a[class*='cta'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn,
+button.btn,
+.primary-action,
+.secondary-action,
+.nav-cta,
+.nav-link,
+.cta-primary,
+.cta-secondary,
+.submit-btn,
+.add-btn,
+.back-btn,
+.action-btn,
+.retry-btn {
+  border-radius: var(--ch-radius-pro) !important;
+}
+
+.card,
+.admin-card,
+.stat-card,
+.clinic-card,
+.appointment-card,
+.form-card,
+.table-container,
+.search-section,
+.search-card,
+.profile-summary,
+.appointments-block,
+.sidebar-card,
+.services-panel,
+.loading-state,
+.error-state,
+.empty-state,
+.tab-navigation,
+.no-clinics {
+  background: var(--ch-bg-panel) !important;
+  border: 1px solid var(--ch-line-soft) !important;
+  border-radius: var(--ch-radius-pro) !important;
+  box-shadow: var(--ch-shadow-pro) !important;
+}
+
+.card:hover,
+.admin-card:hover,
+.stat-card:hover,
+.clinic-card:hover,
+.appointment-card:hover,
+.form-card:hover,
+.search-card:hover,
+.sidebar-card:hover,
+.services-panel:hover {
+  border-color: var(--ch-line-strong) !important;
+  box-shadow: var(--ch-shadow-pro-hover) !important;
+}
+
+.page-container,
+.container,
+.page-inner,
+.doctor-dashboard__inner,
+.admin-shell .content,
+.doctors-page,
+.add-doctor-page,
+.clinics-container {
+  width: min(100%, 1280px);
+}
+
+.page-container,
+.container,
+.page-inner,
+.doctor-dashboard__inner {
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2.5vw, 2rem);
+}
+
+.doctor-appointments-page,
+.doctor-dashboard,
+.clinics-container,
+.doctors-page,
+.add-doctor-page,
+.my-appointments-page,
+.patient-profile-page,
+.clinic-details-page,
+.dashboard-wrapper,
+.chatbot-page {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(246, 250, 251, 0.98) 42%, rgba(255, 255, 255, 0.92) 100%),
+    radial-gradient(900px 320px at 0% 0%, rgba(var(--ch-accent-rgb), 0.1), transparent 58%),
+    radial-gradient(720px 280px at 100% 10%, rgba(5, 150, 105, 0.07), transparent 58%) !important;
+}
+
+input,
+textarea,
+select,
+.form-control,
+.search-input {
+  background: #fbfdfe !important;
+  border: 1px solid var(--ch-line-soft) !important;
+  border-radius: var(--ch-radius-pro) !important;
+  color: var(--ch-title);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.form-control:focus,
+.search-input:focus {
+  background: #ffffff !important;
+  border-color: rgba(var(--ch-accent-rgb), 0.58) !important;
+  box-shadow: 0 0 0 4px rgba(var(--ch-accent-rgb), 0.14) !important;
+  transform: none !important;
+}
+
+.status-badge,
+.badge,
+.clinic-id-pill,
+.doctor-dash-hero__pill,
+.doctor-stat-card__tag,
+.hero-badge,
+.eyebrow {
+  letter-spacing: 0.06em;
+}
+
+.status-pending,
+.badge-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+}
+
+.status-confirmed,
+.badge-success {
+  background: linear-gradient(135deg, #0d9488 0%, #047857 100%) !important;
+}
+
+.status-completed {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+}
+
+.status-cancelled,
+.badge-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+}
+
+.relief-navbar {
+  border-bottom: 1px solid var(--ch-line-soft);
+}
+
+.relief-navbar .nav-container {
+  min-height: 64px;
+}
+
+.relief-navbar .nav-pill.active-link {
+  color: #ffffff;
+  background: var(--ch-gradient);
+  border-color: transparent;
+  box-shadow: 0 10px 24px rgba(var(--ch-accent-rgb), 0.22);
+}
+
+.relief-navbar .nav-pill.active-link i {
+  color: #ffffff;
+}
+
+.landing-page .service-card,
+.landing-page .testimonial-card,
+.landing-page .doctor-feature-card,
+.landing-page .flow-list li,
+.landing-page .stats-strip {
+  border-radius: var(--ch-radius-pro) !important;
+}
+
+.doctor-dashboard .doctor-dash-hero,
+.admin-shell .welcome-header {
+  border-radius: var(--ch-radius-pro) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.doctor-stat-card,
+.doctor-shortcut {
+  border-radius: var(--ch-radius-pro) !important;
+}
+
+.doctor-appointments-page .appointment-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.doctor-appointments-page .appointment-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--ch-gradient);
+}
+
+.doctor-appointments-page .appointment-header,
+.my-appointments-page .appointment-card__header,
+.patient-profile-page .profile-summary__header {
+  gap: 1rem;
+}
+
+.doctor-appointments-page .detail-item,
+.my-appointments-page .appointment-detail,
+.patient-profile-page .profile-field,
+.clinic-details-page .info-row {
+  background: rgba(var(--ch-accent-rgb), 0.045);
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.08);
+  border-radius: var(--ch-radius-pro);
+  padding: 0.75rem;
+}
+
+.admin-shell .sidebar,
+.relief-footer {
+  border-color: var(--ch-line-soft) !important;
+}
+
+.admin-shell .nav-item.active,
+.admin-shell .nav-item.router-link-active {
+  color: #ffffff !important;
+  background: var(--ch-gradient) !important;
+}
+
+.doctors-table,
+.table-container {
+  overflow: hidden;
+}
+
+.confirm-modal__card,
+.clinic-view-modal__card,
+.modal-card {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--ch-radius-pro) !important;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.3) !important;
+}
+
+.confirm-modal__backdrop,
+.clinic-view-overlay__backdrop {
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-page .landing-hero {
+    background:
+      linear-gradient(135deg, rgba(3, 25, 31, 0.9) 0%, rgba(13, 110, 123, 0.82) 100%),
+      linear-gradient(135deg, #05323a 0%, #0d6e7b 54%, #049ebd 100%) !important;
+  }
+
+  thead {
+    display: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--ch-line-soft);
+  }
+}
+
+@media (max-width: 640px) {
+  .page-container,
+  .container,
+  .page-inner,
+  .doctor-dashboard__inner {
+    padding-inline: 1rem;
+  }
+
+  .card,
+  .admin-card,
+  .stat-card,
+  .clinic-card,
+  .appointment-card,
+  .form-card,
+  .table-container,
+  .search-section,
+  .search-card,
+  .profile-summary,
+  .appointments-block,
+  .sidebar-card,
+  .services-panel {
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.92) inset, 0 10px 28px rgba(15, 23, 42, 0.07) !important;
+  }
+}

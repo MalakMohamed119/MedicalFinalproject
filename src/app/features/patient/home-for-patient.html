@@ -60,16 +60,54 @@
       </article>
     </div>
 
-    
+    <div class="search-panel" role="search">
+      <div class="search-panel__intro">
+        <span class="search-panel__eyebrow">Clinic directory</span>
+        <h2>Find a clinic</h2>
+        <p>Search by clinic, doctor, or address.</p>
+      </div>
+      <div class="search-input-wrapper">
+        <i class="bi bi-search search-icon" aria-hidden="true"></i>
+        <input
+          type="search"
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+          placeholder="Search clinics"
+          autocomplete="off"
+          [disabled]="isLoading" />
+      </div>
+      <button
+        *ngIf="searchTerm"
+        type="button"
+        class="cta-button cta-button--ghost search-clear-btn"
+        (click)="clearSearch()">
+        Clear
+      </button>
+    </div>
+
     <div class="section-heading">
       <h2>Available near you</h2>
-      <span class="section-heading__meta">{{ filteredClinics.length }} listings</span>
+      <span class="section-heading__meta">
+        {{ isLoading ? 'Loading listings' : filteredClinics.length + ' listings' }}
+      </span>
     </div>
 
     <div *ngIf="isLoading; else content">
       <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading clinics...</p>
+        <div class="loading-state__head">
+          <div class="spinner"></div>
+          <div>
+            <strong>Loading clinics</strong>
+            <p>Fetching nearby clinics. This should only take a moment.</p>
+          </div>
+        </div>
+        <div class="clinic-skeleton-grid" aria-hidden="true">
+          <div class="clinic-skeleton-card" *ngFor="let item of [1, 2, 3]">
+            <span></span>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
       </div>
     </div>
     <ng-template #content>
@@ -103,18 +141,24 @@
               </div>
               <div class="clinic-card__titles">
                 <h3>{{ clinic.clinicName }}</h3>
-                <p class="clinic-card__tagline">{{ clinic.description }}</p>
+                <p class="clinic-card__tagline">
+                  {{ clinic.description || 'A trusted clinic ready for your next visit.' }}
+                </p>
               </div>
             </div>
 
             <div class="clinic-card__details">
               <p class="clinic-row">
                 <i class="bi bi-person-badge" aria-hidden="true"></i>
-                <span>{{ clinic.doctorName }}</span>
+                <span>{{ clinic.doctorName || 'Doctor available' }}</span>
               </p>
               <p class="clinic-row">
                 <i class="bi bi-geo-alt" aria-hidden="true"></i>
-                <span>{{ clinic.clinicAddress }}</span>
+                <span>{{ clinic.clinicAddress || 'Address will be shared after booking' }}</span>
+              </p>
+              <p class="clinic-row" *ngIf="clinic.phoneNumber">
+                <i class="bi bi-telephone" aria-hidden="true"></i>
+                <span>{{ clinic.phoneNumber }}</span>
               </p>
             </div>
 
