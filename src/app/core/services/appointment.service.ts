@@ -148,4 +148,5 @@ export class AppointmentService {
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
+
 }

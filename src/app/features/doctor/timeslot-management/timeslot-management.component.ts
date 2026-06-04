@@ -1,9 +1,11 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 
@@ -30,6 +32,7 @@ function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
 })
 export class TimeslotManagement implements OnInit {
   private clinicService = inject(ClinicService);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
 
   readonly timeslots = signal<TimeSlot[]>([]);
@@ -54,16 +57,42 @@ export class TimeslotManagement implements OnInit {
   }
 
   loadMyClinics(): void {
-    this.clinicService.getMyClinics().subscribe({
-      next: (data) => {
-        this.clinics.set(data);
-        if (data.length > 0) {
-          this.selectedClinicId.set(data[0].id);
-          this.loadTimeslots(data[0].id);
+    const currentUserId = this.authService.getCurrentUserId();
+    const clinicsRequest = currentUserId
+      ? this.clinicService.getClinicsByDoctorId(currentUserId).pipe(
+          switchMap((clinics) => clinics.length > 0 ? of(clinics) : this.clinicService.getMyClinics()),
+          catchError(() => this.clinicService.getMyClinics())
+        )
+      : this.clinicService.getMyClinics();
+
+    clinicsRequest.pipe(
+      map((clinics) => this.dedupeClinics(clinics)),
+      catchError(() => of([]))
+    ).subscribe({
+      next: (clinics) => {
+        this.clinics.set(clinics);
+        if (clinics.length > 0) {
+          this.selectedClinicId.set(clinics[0].id);
+          this.loadTimeslots(clinics[0].id);
+        } else {
+          this.timeslots.set([]);
+          this.error.set('No clinics assigned to your doctor account.');
         }
       },
       error: () => this.error.set('Failed to load clinics.')
     });
+  }
+
+  private dedupeClinics(clinics: ClinicResponse[]): ClinicResponse[] {
+    const byId = new Map<number, ClinicResponse>();
+
+    for (const clinic of clinics) {
+      if (clinic.id > 0 && !byId.has(clinic.id)) {
+        byId.set(clinic.id, clinic);
+      }
+    }
+
+    return Array.from(byId.values());
   }
 
   onClinicChange(event: Event): void {
@@ -133,6 +162,13 @@ export class TimeslotManagement implements OnInit {
 
     const formValue = this.slotForm.value;
     const editing = this.editingSlot();
+    const clinicId = Number(formValue.clinicId);
+
+    if (!this.clinics().some((clinic) => clinic.id === clinicId)) {
+      this.loading.set(false);
+      this.error.set('Please select one of your clinics before saving.');
+      return;
+    }
 
     // Try different payload formats that backend might expect
     const startDate = new Date(formValue.startTime);
@@ -176,7 +212,7 @@ export class TimeslotManagement implements OnInit {
           this.cancelEdit();
         },
         error: (err) => {
-          this.error.set(err.error?.message || 'Failed to update time slot.');
+          this.error.set(this.getTimeSlotErrorMessage(err, 'Failed to update time slot.'));
           this.loading.set(false);
         }
       });
@@ -195,22 +231,7 @@ export class TimeslotManagement implements OnInit {
           console.error('Error status:', err.status);
           console.error('Error response body:', JSON.stringify(err.error, null, 2));
           
-          // Extract the actual error message
-          let errorMessage = 'Failed to create time slot.';
-          if (err.error?.errors?.TimeSlot && Array.isArray(err.error.errors.TimeSlot)) {
-            errorMessage = err.error.errors.TimeSlot.join(', ');
-          } else if (err.error?.message) {
-            errorMessage = err.error.message;
-          } else if (err.error?.error) {
-            errorMessage = err.error.error;
-          } else if (err.error?.title) {
-            errorMessage = err.error.title;
-          } else if (typeof err.error === 'string') {
-            errorMessage = err.error;
-          } else if (err.message) {
-            errorMessage = err.message;
-          }
-          
+          const errorMessage = this.getTimeSlotErrorMessage(err, 'Failed to create time slot.');
           console.log('Error message to display:', errorMessage);
           this.error.set(errorMessage);
           this.loading.set(false);
@@ -238,6 +259,29 @@ export class TimeslotManagement implements OnInit {
   clearMessages(): void {
     this.error.set(null);
     this.success.set(null);
+  }
+
+  private getTimeSlotErrorMessage(err: any, fallback: string): string {
+    if (err.error?.detail) {
+      return err.error.detail;
+    }
+
+    if (err.error?.errors?.TimeSlot && Array.isArray(err.error.errors.TimeSlot)) {
+      return err.error.errors.TimeSlot.join(', ');
+    }
+
+    if (Array.isArray(err.error?.errors)) {
+      return err.error.errors
+        .map((error: { description?: string; code?: string }) => error.description || error.code)
+        .filter(Boolean)
+        .join(', ') || fallback;
+    }
+
+    return err.error?.message ||
+      err.error?.error ||
+      (typeof err.error === 'string' ? err.error : '') ||
+      err.message ||
+      fallback;
   }
 
   formatTime(time: string): string {

@@ -40,14 +40,16 @@ export class CompleteProfileComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.patientService.getMyProfile().subscribe({
-      next: () => this.router.navigate(['/home-for-patient']),
-      error: (error) => {
-        if (error.status === 404) {
-          this.loading.set(false);
+    this.patientService.hasPatientProfile().subscribe({
+      next: (hasProfile) => {
+        if (hasProfile) {
+          this.router.navigate(['/home-for-patient']);
           return;
         }
 
+        this.loading.set(false);
+      },
+      error: () => {
         this.loading.set(false);
         this.error.set('Could not check your patient profile. Please try again.');
       }

@@ -77,6 +77,7 @@ export class PatientProfile implements OnInit {
   noticeType = signal<'success' | 'error'>('success');
   savingProfile = signal<boolean>(false);
   savingMedical = signal<boolean>(false);
+  private hasSavedPatientProfile = signal<boolean>(false);
 
   upcoming = signal<UpcomingAppointment[]>([]);
   past = signal<PastAppointment[]>([]);
@@ -121,7 +122,7 @@ export class PatientProfile implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         if (error.status === 404) {
-          this.loadAccountAsNewPatient();
+          this.loadProfileFromDetailsFallback();
           return;
         }
 
@@ -131,6 +132,7 @@ export class PatientProfile implements OnInit {
   }
 
   private loadProfileDetails(profile: PatientProfileResponse): void {
+    this.hasSavedPatientProfile.set(true);
     const details$ = this.patientService.getMyDetails().pipe(catchError(() => of(null)));
     const appointments$ = this.appointmentService.getPatientAppointments().pipe(
       catchError((error: HttpErrorResponse) => {
@@ -157,9 +159,26 @@ export class PatientProfile implements OnInit {
     });
   }
 
+  private loadProfileFromDetailsFallback(): void {
+    this.patientService.getMyDetails().subscribe({
+      next: (details) => {
+        this.loadProfileDetails(details);
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.loadAccountAsNewPatient();
+          return;
+        }
+
+        this.loadAccountFallback();
+      }
+    });
+  }
+
   private loadAccountAsNewPatient(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
+        this.hasSavedPatientProfile.set(false);
         this.patientId.set(null);
         this.applyPatientData(user as PatientProfileResponse);
         this.applyAppointments([]);
@@ -200,9 +219,9 @@ export class PatientProfile implements OnInit {
     }
 
     const payload = this.buildUpdatePayload();
-    const id = this.patientId();
-    const request$ = id
-      ? this.patientService.updatePatient(id, payload)
+    const userId = this.authService.getCurrentUserId();
+    const request$ = userId
+      ? this.authService.updateUser(userId, this.buildAccountUpdatePayload())
       : this.patientService.createPatient(payload);
 
     this.savingProfile.set(true);
@@ -228,11 +247,10 @@ export class PatientProfile implements OnInit {
     this.setAllergyRows(allergies);
     this.setMedicalRecordRows(medicalRecords);
 
-    const payload = this.buildMedicalDataPayload();
+    const request$ = this.patientService.saveMyMedicalData(this.buildMedicalDataPayload());
 
     this.savingMedical.set(true);
-    this.patientService
-      .saveMyMedicalData(payload)
+    request$
       .pipe(finalize(() => this.savingMedical.set(false)))
       .subscribe({
         next: (response) => {
@@ -258,7 +276,10 @@ export class PatientProfile implements OnInit {
 
     this.currentPatient.set(merged);
 
-    const id = this.readValue(merged, ['id', 'patientId', 'identityUserId']);
+    const id =
+      this.readValue(merged, ['identityUserId', 'userId', 'applicationUserId']) ||
+      this.authService.getCurrentUserId() ||
+      this.readValue(merged, ['id', 'patientId']);
     if (typeof id === 'string' || typeof id === 'number') {
       this.patientId.set(id);
     }
@@ -360,49 +381,66 @@ export class PatientProfile implements OnInit {
   }
 
   private deduplicateById<T extends { id?: number }>(items: T[]): T[] {
-    // Deduplicate by content to prevent duplicates in UI
-    const seenContent = new Map<string, T>();
+    const seen = new Map<string, T>();
 
     for (const item of items) {
-      let contentKey: string;
+      let key: string;
 
-      // For allergies, use name + description as key
       if ('name' in item && 'description' in item) {
         const allergy = item as { name?: string; description?: string };
-        contentKey = `${allergy.name || ''}__${allergy.description || ''}`.toLowerCase().trim();
+        key = `allergy:${allergy.name || ''}__${allergy.description || ''}`.toLowerCase().trim();
       }
-      // For medical records, use diagnosis + notes as key
+
       else if ('diagnosis' in item && 'notes' in item) {
         const record = item as { diagnosis?: string; notes?: string };
-        contentKey = `${record.diagnosis || ''}__${record.notes || ''}`.toLowerCase().trim();
-      }
-      else {
-        contentKey = JSON.stringify(item);
+        key = `record:${record.diagnosis || ''}__${record.notes || ''}`.toLowerCase().trim();
       }
 
-      // Keep the last occurrence of each unique content
-      seenContent.set(contentKey, item);
+      else {
+        key = item.id && item.id > 0 ? `id:${item.id}` : JSON.stringify(item);
+      }
+
+      if (!seen.has(key)) {
+        seen.set(key, item);
+      }
     }
 
-    return Array.from(seenContent.values());
+    return Array.from(seen.values());
   }
 
   private buildUpdatePayload(): PatientUpdateRequest {
     const profile = this.profileForm.getRawValue();
+    const dateOfBirth = String(profile.dateOfBirth || '').trim();
+    const allergies = this.deduplicateById(this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue()));
+    const medicalRecords = this.deduplicateById(this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue()));
 
     return {
       fullName: String(profile.displayName || '').trim(),
       email: String(profile.email || '').trim(),
       phoneNumber: String(profile.phoneNumber || '').trim(),
+      age: Number(profile.age) || 0,
+      gender: this.toGenderValue(profile.gender),
+      dateOfBirth: dateOfBirth ? `${dateOfBirth}T00:00:00` : '',
       address: String(profile.address || '').trim(),
-      allergies: this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue()),
-      medicalRecords: this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue())
+      nationalId: String(profile.nationalId || '').trim(),
+      allergies,
+      medicalRecords
+    };
+  }
+
+  private buildAccountUpdatePayload(): Record<string, string> {
+    const profile = this.profileForm.getRawValue();
+
+    return {
+      displayName: String(profile.displayName || '').trim(),
+      email: String(profile.email || '').trim(),
+      phoneNumber: String(profile.phoneNumber || '').trim()
     };
   }
 
   private buildMedicalDataPayload(): PatientMedicalData {
-    const allergies = this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue());
-    const medicalRecords = this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue());
+    const allergies = this.deduplicateById(this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue()));
+    const medicalRecords = this.deduplicateById(this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue()));
 
     return {
       allergies,
@@ -441,7 +479,7 @@ export class PatientProfile implements OnInit {
   private normalizeAllergies(value: unknown): PatientAllergy[] {
     if (Array.isArray(value)) {
       return value.map((item) => ({
-        id: this.readOptionalNumber(item, 'id'),
+        id: this.readOptionalNumber(item, ['id', 'allergyId', 'patientAllergyId']),
         name: this.readObjectString(item, 'name'),
         description: this.readObjectString(item, 'description')
       }));
@@ -457,7 +495,7 @@ export class PatientProfile implements OnInit {
   private normalizeMedicalRecords(value: unknown): PatientMedicalRecord[] {
     if (Array.isArray(value)) {
       return value.map((item) => ({
-        id: this.readOptionalNumber(item, 'id'),
+        id: this.readOptionalNumber(item, ['id', 'medicalRecordId', 'patientMedicalRecordId']),
         diagnosis: this.readObjectString(item, 'diagnosis'),
         notes: this.readObjectString(item, 'notes')
       }));
@@ -475,13 +513,27 @@ export class PatientProfile implements OnInit {
     return typeof value === 'string' ? value : '';
   }
 
-  private readOptionalNumber(source: unknown, key: string): number {
+  private readOptionalNumber(source: unknown, keys: string | string[]): number {
     if (!source || typeof source !== 'object') {
       return 0;
     }
 
-    const value = (source as Record<string, unknown>)[key];
-    return typeof value === 'number' ? value : 0;
+    for (const key of Array.isArray(keys) ? keys : [keys]) {
+      const value = (source as Record<string, unknown>)[key];
+
+      if (typeof value === 'number') {
+        return value;
+      }
+
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        if (Number.isFinite(parsed)) {
+          return parsed;
+        }
+      }
+    }
+
+    return 0;
   }
 
   private readValue(source: PatientProfileResponse, keys: string[]): unknown {
@@ -534,6 +586,18 @@ export class PatientProfile implements OnInit {
     }
 
     return typeof value === 'string' ? value : '';
+  }
+
+  private toGenderValue(value: unknown): number {
+    if (value === 1 || value === '1' || String(value).toLowerCase() === 'male') {
+      return 1;
+    }
+
+    if (value === 2 || value === '2' || String(value).toLowerCase() === 'female') {
+      return 2;
+    }
+
+    return 0;
   }
 
   private formatDateInput(value: string): string {
@@ -591,15 +655,18 @@ export class PatientProfile implements OnInit {
         year: 'numeric'
       });
 
-      const timeLabel = `${appt.startTime} - ${appt.endTime}`;
+      const timeLabel = `${this.formatTime(appt.startTime)} - ${this.formatTime(appt.endTime)}`;
 
-      const normalizedStatus = String(appt.status).toLowerCase();
+      const status = this.getStatusString(appt.status);
+      const normalizedStatus = status.toLowerCase();
+      const clinicName = appt.clinicName || `Clinic ${appt.clinicId}`;
+      const doctorName = appt.doctorName || 'Doctor Name';
 
       if (normalizedStatus === 'pending' || normalizedStatus === 'confirmed') {
 
         upcoming.push({
           id: appt.id,
-          clinicName: `Clinic ${appt.clinicId}`,
+          clinicName,
           dateLabel,
           timeLabel
         });
@@ -609,15 +676,56 @@ export class PatientProfile implements OnInit {
 
         past.push({
           id: appt.id,
-          clinicName: `Clinic ${appt.clinicId}`,
+          clinicName,
           dateLabel,
-          doctorName: 'Doctor Name',
-          status: String(appt.status)
+          doctorName,
+          status
         });
       }
     });
 
     return { upcoming, past };
+  }
+
+  private getStatusString(status: number | string): string {
+    if (typeof status === 'number') {
+      switch (status) {
+        case 0: return 'Pending';
+        case 1: return 'Confirmed';
+        case 2: return 'Completed';
+        case 3: return 'Cancelled';
+        default: return 'Unknown';
+      }
+    }
+
+    return status;
+  }
+
+  private formatTime(timeString: string): string {
+    if (!timeString) {
+      return 'N/A';
+    }
+
+    const parts = timeString.split(':');
+
+    if (parts.length < 2) {
+      return 'N/A';
+    }
+
+    const hours = Number(parts[0]);
+    const minutes = Number(parts[1]);
+
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+      return 'N/A';
+    }
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   private getInitials(displayName: string): string {

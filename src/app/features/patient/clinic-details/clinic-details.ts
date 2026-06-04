@@ -301,8 +301,10 @@ export class ClinicDetails implements OnInit {
         console.log('✅ Time slots loaded:', timeSlots);
 
         this.availableTimeSlots = timeSlots.filter(
-          slot => slot.availableCount > 0
+          slot => (slot.availableCount ?? Math.max((slot.capacity ?? 0) - (slot.bookedCount ?? 0), 0)) > 0
         );
+
+        this.selectedTimeSlot = this.availableTimeSlots[0] ?? null;
 
         this.cdr.detectChanges();
       },

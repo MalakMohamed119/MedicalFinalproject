@@ -129,7 +129,9 @@ export class ClinicService {
 
   getClinicsById(id: number): Observable<ClinicResponse> {
 
-    return this.http.get<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/GetClinicsById/${id}`);
+    return this.http.get<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/GetClinicsById/${id}`).pipe(
+      map((clinic) => this.normalizeClinic(clinic))
+    );
 
   }
 
@@ -184,14 +186,48 @@ export class ClinicService {
 
 
   getAvailableSlots(clinicId: number): Observable<TimeSlot[]> {
-    return this.http.get<TimeSlot[]>(`${environment.timeSlotsApiUrl}/api/timeslots/getavailabletimeslots/${clinicId}`);
+    return this.http.get<TimeSlot[] | { data?: TimeSlot[] }>(`${environment.timeSlotsApiUrl}/api/timeslots/getavailabletimeslots/${clinicId}`).pipe(
+      map((response) => {
+        const slots = Array.isArray(response) ? response : response.data ?? [];
+        return slots.map((slot) => this.normalizeTimeSlot(slot));
+      })
+    );
+  }
+
+  private normalizeTimeSlot(slot: any): TimeSlot {
+    const capacity = Number(slot.capacity ?? slot.Capacity ?? 0);
+    const bookedCount = Number(slot.bookedCount ?? slot.BookedCount ?? 0);
+    const availableCount = Number(
+      slot.availableCount ??
+      slot.AvailableCount ??
+      slot.remainingCount ??
+      slot.RemainingCount ??
+      Math.max(capacity - bookedCount, 0)
+    );
+
+    return {
+      id: Number(slot.id ?? slot.Id ?? 0),
+      clinicId: Number(slot.clinicId ?? slot.ClinicId ?? 0),
+      clinicName: String(slot.clinicName ?? slot.ClinicName ?? ''),
+      date: String(slot.date ?? slot.Date ?? ''),
+      startTime: String(slot.startTime ?? slot.StartTime ?? ''),
+      endTime: String(slot.endTime ?? slot.EndTime ?? ''),
+      capacity,
+      bookedCount,
+      availableCount,
+      price: Number(slot.price ?? slot.Price ?? slot.priceAtBooking ?? slot.PriceAtBooking ?? 0)
+    };
   }
 
 
 
   getClinicsByDoctorId(doctorId: string): Observable<ClinicResponse[]> {
 
-    return this.http.get<ClinicResponse[]>(`${this.apiUrl}/api/doctorclinics/GetClinicsByDoctorId/${doctorId}`);
+    return this.http.get<ClinicResponse[] | { data?: ClinicResponse[]; Data?: ClinicResponse[] }>(
+      `${this.apiUrl}/api/doctorclinics/GetClinicsByDoctorId/${doctorId}`
+    ).pipe(
+      map((response) => this.normalizeClinicsResponse(response))
+    );
 
   }
 
@@ -199,7 +235,11 @@ export class ClinicService {
 
   getMyClinics(): Observable<ClinicResponse[]> {
 
-    return this.http.get<ClinicResponse[]>(`${this.apiUrl}/api/doctorclinics/MyClinics`);
+    return this.http.get<ClinicResponse[] | { data?: ClinicResponse[]; Data?: ClinicResponse[] }>(
+      `${this.apiUrl}/api/doctorclinics/MyClinics`
+    ).pipe(
+      map((response) => this.normalizeClinicsResponse(response))
+    );
 
   }
 
@@ -207,7 +247,9 @@ export class ClinicService {
 
   createClinic(data: any): Observable<ClinicResponse> {
 
-    return this.http.post<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/CreateClinics`, data);
+    return this.http.post<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/CreateClinics`, data).pipe(
+      map((clinic) => this.normalizeClinic(clinic))
+    );
 
   }
 
@@ -215,8 +257,27 @@ export class ClinicService {
 
   updateClinic(id: number, data: any): Observable<ClinicResponse> {
 
-    return this.http.put<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/UpdateClinics/${id}`, data);
+    return this.http.put<ClinicResponse>(`${this.apiUrl}/api/doctorclinics/UpdateClinics/${id}`, data).pipe(
+      map((clinic) => this.normalizeClinic(clinic))
+    );
 
+  }
+
+  private normalizeClinicsResponse(response: ClinicResponse[] | { data?: ClinicResponse[]; Data?: ClinicResponse[] }): ClinicResponse[] {
+    const clinics = Array.isArray(response) ? response : response.data ?? response.Data ?? [];
+    return clinics.map((clinic) => this.normalizeClinic(clinic));
+  }
+
+  private normalizeClinic(clinic: any): ClinicResponse {
+    return {
+      id: Number(clinic.id ?? clinic.Id ?? clinic.clinicId ?? clinic.ClinicId ?? 0),
+      doctorId: String(clinic.doctorId ?? clinic.DoctorId ?? clinic.identityUserId ?? clinic.IdentityUserId ?? ''),
+      doctorName: String(clinic.doctorName ?? clinic.DoctorName ?? ''),
+      clinicName: String(clinic.clinicName ?? clinic.ClinicName ?? ''),
+      clinicAddress: String(clinic.clinicAddress ?? clinic.ClinicAddress ?? ''),
+      phoneNumber: clinic.phoneNumber ?? clinic.PhoneNumber ?? '',
+      description: String(clinic.description ?? clinic.Description ?? '')
+    };
   }
 
 

@@ -49,7 +49,11 @@ export interface PatientUpdateRequest {
   fullName: string;
   email: string;
   phoneNumber: string;
+  age: number;
+  gender: number;
+  dateOfBirth: string;
   address: string;
+  nationalId: string;
   allergies: PatientAllergy[];
   medicalRecords: PatientMedicalRecord[];
   [key: string]: unknown;

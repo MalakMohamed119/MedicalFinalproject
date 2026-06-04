@@ -95,18 +95,13 @@ export class Login {
   }
 
   private routePatientAfterLogin(): void {
-    this.patientService.getMyProfile().subscribe({
-      next: () => {
-        this.router.navigate(['/home-for-patient']);
+    this.patientService.hasPatientProfile().subscribe({
+      next: (hasProfile) => {
+        this.router.navigate([hasProfile ? '/home-for-patient' : '/complete-profile']);
         this.isLoading.set(false);
       },
-      error: (error) => {
-        if (error.status === 404) {
-          this.router.navigate(['/complete-profile']);
-        } else {
-          this.router.navigate(['/home-for-patient']);
-        }
-
+      error: () => {
+        this.router.navigate(['/home-for-patient']);
         this.isLoading.set(false);
       }
     });

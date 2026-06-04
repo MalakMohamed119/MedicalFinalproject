@@ -46,6 +46,28 @@ export class AuthService {
     return localStorage.getItem('role');
   }
 
+  getCurrentUserId(): string {
+    if (typeof window === 'undefined') return '';
+
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+
+    try {
+      const payloadSegment = token.split('.')[1] || '';
+      const base64 = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+      const paddedBase64 = base64.padEnd(base64.length + ((4 - base64.length % 4) % 4), '=');
+      const payload = JSON.parse(atob(paddedBase64)) as Record<string, unknown>;
+      const id =
+        payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] ||
+        payload['nameid'] ||
+        payload['sub'];
+
+      return typeof id === 'string' ? id : '';
+    } catch {
+      return '';
+    }
+  }
+
   getCurrentUser(): Observable<any> {
     return this.http.get(`${this.authUrl}/CurrentUser`);
   }

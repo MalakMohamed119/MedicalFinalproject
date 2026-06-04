@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   PatientCreateRequest,
@@ -24,6 +26,22 @@ export class PatientService {
 
   getMyDetails(): Observable<PatientProfileResponse> {
     return this.http.get<PatientProfileResponse>(`${this.patientUrl}/MyDetails`);
+  }
+
+  hasPatientProfile(): Observable<boolean> {
+    return this.getMyProfile().pipe(
+      map(() => true),
+      catchError((profileError) => {
+        if (profileError.status !== 404) {
+          return of(true);
+        }
+
+        return this.getMyDetails().pipe(
+          map(() => true),
+          catchError((detailsError) => of(detailsError.status !== 404))
+        );
+      })
+    );
   }
 
   createPatient(data: Partial<PatientProfileResponse> | PatientCreateRequest): Observable<PatientProfileResponse> {

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { map } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { PatientService } from '../services/patient.service';
 
@@ -17,16 +17,15 @@ export const patientProfileGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  return patientService.getMyProfile().pipe(
-    map(() => true),
-    catchError((error) => {
-      if (error.status === 404) {
-        return of(
+  return patientService.hasPatientProfile().pipe(
+    map((hasProfile) => {
+      if (!hasProfile) {
+        return (
           router.createUrlTree(['/complete-profile'], { queryParams: { returnUrl: state.url } })
         );
       }
 
-      return of(true);
+      return true;
     })
   );
 };
