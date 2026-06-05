@@ -164,7 +164,20 @@
       <form [formGroup]="passwordForm">
         <div class="form-group">
           <label>New Password</label>
-          <input formControlName="newPassword" type="password" placeholder="Min 6 characters">
+          <div class="password-field">
+            <input
+              formControlName="newPassword"
+              [type]="passwordVisible() ? 'text' : 'password'"
+              placeholder="Min 6 characters"
+            >
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'">
+              <i class="bi" [class.bi-eye]="!passwordVisible()" [class.bi-eye-slash]="passwordVisible()"></i>
+            </button>
+          </div>
         </div>
       </form>
       <div class="modal-actions">

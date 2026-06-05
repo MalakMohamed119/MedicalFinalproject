@@ -19,7 +19,6 @@ import { Login } from './core/auth/login/login';
 import { Register } from './core/auth/register/register';
 import { LogoutComponent } from './core/auth/logout/logout.component';
 import { AddDoctorComponent } from './features/admin/add-doctor/add-doctor.component';
-import { ManagePatientsComponent } from './features/admin/manage-patients/manage-patients.component';
 import { ManageClinicsComponent } from './features/admin/manage-clinics/manage-clinics.component';
 import { ManageAppointmentsComponent } from './features/admin/manage-appointments/manage-appointments.component';
 import { ChatbotComponent } from './features/patient/chatbot/chatbot.component';
@@ -99,11 +98,6 @@ export const routes: Routes = [
     path: 'admin/manage-doctors', 
     component: ManageDoctors,
    canActivate: [authGuard]
-  },
-  {
-    path: 'admin/manage-patients',
-    component: ManagePatientsComponent,
-    canActivate: [authGuard]
   },
   {
     path: 'admin/manage-clinics',

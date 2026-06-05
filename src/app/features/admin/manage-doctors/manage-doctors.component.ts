@@ -44,6 +44,7 @@ export class ManageDoctorsComponent implements OnInit {
   readonly showEditModal = signal(false);
   readonly showPasswordModal = signal(false);
   readonly editLoading = signal(false);
+  readonly passwordVisible = signal(false);
 
   editForm: FormGroup = this.fb.group({
     displayName: ['', Validators.required],
@@ -244,6 +245,7 @@ export class ManageDoctorsComponent implements OnInit {
     this.showEditModal.set(false);
     this.showPasswordModal.set(false);
     this.editingDoctor.set(null);
+    this.passwordVisible.set(false);
   }
 
   saveEdit(): void {
@@ -269,8 +271,13 @@ export class ManageDoctorsComponent implements OnInit {
   openPasswordModal(doctor: DoctorResponse): void {
     this.editingDoctor.set(doctor);
     this.passwordForm.reset();
+    this.passwordVisible.set(false);
     this.showPasswordModal.set(true);
     this.error.set('');
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible.update((visible) => !visible);
   }
 
   savePassword(): void {

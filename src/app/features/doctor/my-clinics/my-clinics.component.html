@@ -441,44 +441,70 @@
 
 
 
-          <div *ngIf="clinicAppointments().length > 0" class="appointments-list">
-          <div *ngFor="let appointment of clinicAppointments()" class="appointment-item">
-            <div class="appointment-header">
-              <div class="appointment-info">
-                <span class="appointment-date">
-                  <i class="fas fa-calendar"></i>
-                  {{ formatDate(appointment.appointmentDate || '') }}
-                </span>
-                <span class="appointment-time">
-                  <i class="fas fa-clock"></i>
-                  {{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}
-                </span>
-
-                </div>
-
-                <div class="appointment-status">
-
-                  <span class="status-badge" [class]="getStatusClass(getStatusString(appointment.status))">
-
-                    {{ getStatusString(appointment.status) }}
-
+          <div *ngIf="clinicAppointments().length > 0" class="appointments-list appointments-list--modern">
+            <article *ngFor="let appointment of clinicAppointments()" class="appointment-item appointment-item--modern">
+              <header class="appointment-item__top">
+                <div class="appointment-patient">
+                  <span class="appointment-patient__avatar" aria-hidden="true">
+                    {{ (appointment.patientName || 'Patient').slice(0, 2).toUpperCase() }}
                   </span>
-
+                  <div>
+                    <h3>{{ appointment.patientName || 'Unknown Patient' }}</h3>
+                    <p>Appointment #{{ appointment.id }}</p>
+                  </div>
                 </div>
 
-              </div>
+                <span class="status-badge" [class]="getStatusClass(getStatusString(appointment.status))">
+                  {{ getStatusString(appointment.status) }}
+                </span>
+              </header>
 
-              <div class="appointment-details">
+              <div class="appointment-details appointment-details--grid">
+                <div class="detail-item">
+                  <i class="fas fa-calendar"></i>
+                  <div>
+                    <small>Date</small>
+                    <span>{{ formatDate(appointment.appointmentDate || appointment.date || '') }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-clock"></i>
+                  <div>
+                    <small>Time</small>
+                    <span>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-hospital"></i>
+                  <div>
+                    <small>Clinic</small>
+                    <span>{{ appointment.clinicName || clinicData.clinicName }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <i class="fas fa-fingerprint"></i>
+                  <div>
+                    <small>Slot ID</small>
+                    <span>{{ appointment.timeSlotId || 'N/A' }}</span>
+                  </div>
+                </div>
                 <div class="detail-item">
                   <i class="fas fa-user"></i>
-                  <span>Patient: {{ appointment.patientName || 'Unknown' }}</span>
+                  <div>
+                    <small>Patient ID</small>
+                    <span>{{ appointment.patientId || 'N/A' }}</span>
+                  </div>
                 </div>
-                <div class="detail-item" *ngIf="appointment.priceAtBooking">
+                <div class="detail-item">
                   <i class="fas fa-money-bill"></i>
-                  <span>Price: {{ appointment.priceAtBooking }} EGP</span>
+                  <div>
+                    <small>Price</small>
+                    <span>{{ appointment.priceAtBooking || appointment.price || 0 }} EGP</span>
+                  </div>
                 </div>
               </div>
-              <div class="appointment-actions">
+
+              <footer class="appointment-actions appointment-actions--modern">
                 <button *ngIf="appointment.status === 'Pending'"
                         type="button"
                         class="btn btn-sm btn-success"
@@ -486,19 +512,19 @@
                   <i class="fas fa-check"></i> Confirm
                 </button>
                 <button *ngIf="appointment.status === 'Confirmed'"
-                        type="button" 
-                        class="btn btn-sm btn-success" 
+                        type="button"
+                        class="btn btn-sm btn-success"
                         (click)="updateAppointmentStatus(appointment.id, 'Completed')">
                   <i class="fas fa-check"></i> Complete
                 </button>
                 <button *ngIf="appointment.status === 'Pending' || appointment.status === 'Confirmed'"
-                        type="button" 
-                        class="btn btn-sm btn-warning" 
+                        type="button"
+                        class="btn btn-sm btn-warning"
                         (click)="updateAppointmentStatus(appointment.id, 'Rejected')">
                   <i class="fas fa-times"></i> Reject
                 </button>
-              </div>
-            </div>
+              </footer>
+            </article>
 
           </div>
 
