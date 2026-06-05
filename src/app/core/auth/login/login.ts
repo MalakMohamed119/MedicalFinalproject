@@ -77,9 +77,12 @@ export class Login {
         this.isLoading.set(false);
       },
       error: (err: any) => {
-        const errorMessage = err.status === 401
-          ? 'Invalid email or password'
-          : err.error?.detail || err.error?.message || err.error?.title || 'Login failed. Please try again.';
+        const errorMessage =
+          err.status === 401
+            ? 'Invalid email or password'
+            : err.status === 502
+              ? 'Auth service is unavailable. Start Docker container Clinic-AuthV22 and the API gateway on port 8082.'
+              : err.error?.detail || err.error?.message || err.error?.title || 'Login failed. Please try again.';
         this.toastService.error(errorMessage);
         this.isLoading.set(false);
       }

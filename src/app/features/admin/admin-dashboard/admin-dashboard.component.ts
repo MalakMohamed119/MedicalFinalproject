@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { PatientService } from '../../../core/services/patient.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 
 interface NavItem {
@@ -13,9 +14,8 @@ interface NavItem {
 
 interface DashboardStats {
   appointments: number;
-  confirmed: number;
-  cancelled: number;
-  slots: number;
+  patients: number;
+  clinics: number;
 }
 
 @Component({
@@ -29,13 +29,13 @@ interface DashboardStats {
 export class AdminDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private clinicService = inject(ClinicService);
+  private patientService = inject(PatientService);
   private router = inject(Router);
 
   readonly stats = signal<DashboardStats>({
     appointments: 0,
-    confirmed: 0,
-    cancelled: 0,
-    slots: 0
+    patients: 0,
+    clinics: 0
   });
   readonly totalDoctors = signal<number>(0);
   readonly loading = signal(true);
@@ -47,6 +47,9 @@ export class AdminDashboardComponent implements OnInit {
 
   readonly manageNavItems: NavItem[] = [
     { label: 'Manage Doctors', icon: 'fa-user-doctor', route: '/admin/manage-doctors' },
+    { label: 'All Patients', icon: 'fa-users', route: '/admin/manage-patients' },
+    { label: 'All Clinics', icon: 'fa-hospital', route: '/admin/manage-clinics' },
+    { label: 'All Appointments', icon: 'fa-calendar-days', route: '/admin/manage-appointments' },
     { label: 'Add Doctor', icon: 'fa-user-plus', route: '/admin/add-doctor' }
   ];
 
@@ -65,6 +68,31 @@ export class AdminDashboardComponent implements OnInit {
       },
       error: () => this.totalDoctors.set(0)
     });
+
+    this.patientService.getAllPatients().subscribe({
+      next: (patients) => {
+        this.stats.update((current) => ({
+          ...current,
+          patients: Array.isArray(patients) ? patients.length : 0
+        }));
+      },
+      error: () => {
+        this.stats.update((current) => ({ ...current, patients: 0 }));
+      }
+    });
+
+    this.clinicService.getAllClinics({ pageIndex: 0, pageSize: 1000 }).subscribe({
+      next: (clinics) => {
+        const list = Array.isArray(clinics) ? clinics : ((clinics as { data?: unknown[] })?.data ?? []);
+        this.stats.update((current) => ({
+          ...current,
+          clinics: list.length
+        }));
+      },
+      error: () => {
+        this.stats.update((current) => ({ ...current, clinics: 0 }));
+      }
+    });
   }
 
   loadDashboard(): void {
@@ -73,12 +101,10 @@ export class AdminDashboardComponent implements OnInit {
 
     this.clinicService.getAdminDashboard().subscribe({
       next: (data: DashboardResponse) => {
-        this.stats.set({
-          appointments: data.totalAppointments || 0,
-          confirmed: data.confirmedAppointments || 0,
-          cancelled: data.cancelledAppointments || 0,
-          slots: data.availableTimeSlots || 0
-        });
+        this.stats.update((current) => ({
+          ...current,
+          appointments: data.totalAppointments || 0
+        }));
         this.loading.set(false);
       },
       error: (err: any) => {

@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { AuthService } from './auth.service';
 import {
   PatientCreateRequest,
   PatientMedicalData,
@@ -16,9 +17,8 @@ import {
 })
 export class PatientService {
   private readonly patientUrl = `${environment.apiUrl}/patient/Patiant`;
-
-
-  constructor(private http: HttpClient) {}
+  private readonly authService = inject(AuthService);
+  private readonly http = inject(HttpClient);
 
   getMyProfile(): Observable<PatientProfileResponse> {
     return this.http.get<PatientProfileResponse>(`${this.patientUrl}/MyProfile`);
@@ -29,18 +29,14 @@ export class PatientService {
   }
 
   hasPatientProfile(): Observable<boolean> {
-    return this.getMyProfile().pipe(
-      map(() => true),
-      catchError((profileError) => {
-        if (profileError.status !== 404) {
-          return of(true);
-        }
+    const userId = this.authService.getCurrentUserId();
+    if (!userId) {
+      return of(false);
+    }
 
-        return this.getMyDetails().pipe(
-          map(() => true),
-          catchError((detailsError) => of(detailsError.status !== 404))
-        );
-      })
+    return this.getDetailsByIdentityUserId(userId).pipe(
+      map(() => true),
+      catchError((error) => of(error.status !== 404))
     );
   }
 
@@ -51,11 +47,8 @@ export class PatientService {
 
 
 
-  updatePatient(
-    id: string | number,
-    data: Partial<PatientProfileResponse> | PatientUpdateRequest
-  ): Observable<PatientProfileResponse> {
-    return this.http.put<PatientProfileResponse>(`${this.patientUrl}/Update/${id}`, data);
+  updatePatient(data: PatientUpdateRequest): Observable<void> {
+    return this.http.put<void>(`${this.patientUrl}/Update`, data);
   }
 
   deletePatient(id: string | number): Observable<void> {

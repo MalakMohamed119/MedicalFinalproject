@@ -1,0 +1,47 @@
+<div class="admin-page-shell">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="admin-page-main">
+    <header class="page-header">
+      <h1>All Clinics</h1>
+      <span class="page-count">{{ clinics().length }} clinics</span>
+    </header>
+
+    <div class="loading-state" *ngIf="loading()">
+      <div class="spinner"></div>
+      <p>Loading clinics...</p>
+    </div>
+
+    <div class="error-state" *ngIf="error() as errMsg">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ errMsg }}
+      <button type="button" (click)="loadClinics()">Retry</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading() && !error() && clinics().length === 0">
+      <i class="fa-solid fa-hospital"></i>
+      <h3>No clinics found</h3>
+    </div>
+
+    <div class="table-container" *ngIf="!loading() && !error() && clinics().length > 0">
+      <table class="doctors-table">
+        <thead>
+          <tr>
+            <th>Clinic</th>
+            <th>Doctor</th>
+            <th>Address</th>
+            <th>Phone</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let clinic of clinics()">
+            <td>{{ clinic.clinicName }}</td>
+            <td>{{ clinic.doctorName || '—' }}</td>
+            <td>{{ clinic.clinicAddress || '—' }}</td>
+            <td>{{ clinic.phoneNumber || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

@@ -87,7 +87,7 @@
       <ng-container *ngIf="loading()">
         <p class="section-label">Overview</p>
         <div class="stats-grid">
-          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4,5]">
+          <div class="stat-card skeleton" *ngFor="let _ of [1,2,3,4]">
             <div class="stat-card-top">
               <div class="skeleton-icon"></div>
               <div class="skeleton-tag"></div>
@@ -103,7 +103,17 @@
       <ng-container *ngIf="!loading()">
         <p class="section-label">Overview</p>
         <div class="stats-grid">
-          <a routerLink="/admin/manage-doctors" class="stat-card appointments">
+          <a routerLink="/admin/manage-doctors" class="stat-card doctors">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+              <span class="stat-tag">Registered</span>
+            </div>
+            <span class="stat-number">{{ totalDoctors() }}</span>
+            <span class="stat-label">Total Doctors</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-appointments" class="stat-card appointments">
             <div class="stat-card-top">
               <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
               <span class="stat-tag">Total</span>
@@ -113,43 +123,23 @@
             <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
           </a>
 
-          <a routerLink="/admin/manage-doctors" class="stat-card confirmed">
+          <a routerLink="/admin/manage-patients" class="stat-card patients">
             <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
-              <span class="stat-tag">Active</span>
-            </div>
-            <span class="stat-number">{{ stats().confirmed }}</span>
-            <span class="stat-label">Confirmed Appointments</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
-          </a>
-
-          <a routerLink="/admin/manage-doctors" class="stat-card cancelled">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-circle-xmark"></i></div>
-              <span class="stat-tag">Inactive</span>
-            </div>
-            <span class="stat-number">{{ stats().cancelled }}</span>
-            <span class="stat-label">Cancelled Appointments</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
-          </a>
-
-          <a routerLink="/admin/manage-doctors" class="stat-card slots">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
-              <span class="stat-tag">Available</span>
-            </div>
-            <span class="stat-number">{{ stats().slots }}</span>
-            <span class="stat-label">Available Time Slots</span>
-            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
-          </a>
-
-          <a routerLink="/admin/manage-doctors" class="stat-card doctors">
-            <div class="stat-card-top">
-              <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+              <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
               <span class="stat-tag">Registered</span>
             </div>
-            <span class="stat-number">{{ totalDoctors() }}</span>
-            <span class="stat-label">Total Doctors</span>
+            <span class="stat-number">{{ stats().patients }}</span>
+            <span class="stat-label">Total Patients</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
+          <a routerLink="/admin/manage-clinics" class="stat-card clinics">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-hospital"></i></div>
+              <span class="stat-tag">Active</span>
+            </div>
+            <span class="stat-number">{{ stats().clinics }}</span>
+            <span class="stat-label">Total Clinics</span>
             <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
           </a>
         </div>

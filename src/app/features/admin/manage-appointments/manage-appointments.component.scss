@@ -1,0 +1,99 @@
+@import '../manage-doctors/manage-doctors.component.scss';
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.page-count {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.status-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 2rem 1.25rem;
+}
+
+.status-tab {
+  min-height: 38px;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #64748b;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba(13, 110, 123, 0.24);
+    color: #0d6e7b;
+  }
+
+  &--active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #0d6e7b, #049ebd);
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(4, 158, 189, 0.22);
+  }
+}
+
+.appointments-table {
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+
+  .status-pending {
+    color: #92400e;
+    background: rgba(245, 158, 11, 0.18);
+    border-color: rgba(245, 158, 11, 0.35);
+  }
+
+  .status-confirmed {
+    color: #166534;
+    background: rgba(22, 163, 74, 0.14);
+    border-color: rgba(22, 163, 74, 0.28);
+  }
+
+  .status-completed {
+    color: #1d4ed8;
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.28);
+  }
+
+  .status-cancelled {
+    color: #9f1239;
+    background: #fff1f2;
+    border-color: rgba(225, 29, 72, 0.24);
+  }
+
+  .status-default {
+    color: #475569;
+    background: #f1f5f9;
+    border-color: rgba(71, 85, 105, 0.18);
+  }
+}
+
+@media (max-width: 768px) {
+  .status-tabs {
+    margin-inline: 1rem;
+  }
+}

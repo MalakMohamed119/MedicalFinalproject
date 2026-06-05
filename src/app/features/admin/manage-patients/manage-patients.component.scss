@@ -1,0 +1,16 @@
+@import '../manage-doctors/manage-doctors.component.scss';
+@import '../manage-appointments/manage-appointments.component.scss';
+
+.patients-table {
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    border: 1px solid transparent;
+  }
+}

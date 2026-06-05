@@ -5,12 +5,12 @@
     <header class="appointments-hero">
       <div>
         <p class="appointments-hero__eyebrow">Doctor workspace</p>
-        <h1>Clinic appointments</h1>
-        <p>Review patient bookings, confirm visits, complete attended appointments, or reject requests.</p>
+        <h1>Appointments</h1>
+        <p>Review patient bookings, confirm visits, and manage your schedule.</p>
       </div>
       <div class="appointments-hero__summary" *ngIf="!loading && !error">
         <span>{{ allAppointments.length }}</span>
-        <small>Total appointments</small>
+        <small>{{ appointmentSummaryLabel }}</small>
       </div>
     </header>
 
@@ -29,7 +29,7 @@
       </article>
       <article class="metric-card metric-card--rejected">
         <span>{{ cancelledAppointments.length }}</span>
-        <small>Rejected</small>
+        <small>Cancelled</small>
       </article>
     </div>
 
@@ -54,153 +54,175 @@
 
     <div *ngIf="!loading && !error && appointments.length > 0" class="tab-navigation">
       <button type="button" class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">
-        <i class="fa-solid fa-calendar" aria-hidden="true"></i>
         All ({{ allAppointments.length }})
       </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">
-        <i class="fa-solid fa-clock" aria-hidden="true"></i>
-        Pending ({{ pendingAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'today'" (click)="setTab('today')">
+        Today ({{ todayAppointments.length }})
       </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'confirmed'" (click)="setTab('confirmed')">
-        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-        Confirmed ({{ confirmedAppointments.length }})
-      </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">
-        <i class="fa-solid fa-check-double" aria-hidden="true"></i>
-        Completed ({{ completedAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeTab === 'upcoming'" (click)="setTab('upcoming')">
+        Upcoming ({{ upcomingAppointments.length }})
       </button>
       <button type="button" class="tab-btn" [class.active]="activeTab === 'cancelled'" (click)="setTab('cancelled')">
-        <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
-        Rejected ({{ cancelledAppointments.length }})
+        Cancelled ({{ cancelledAppointments.length }})
       </button>
     </div>
 
-    <div *ngIf="!loading && !error">
+    <div *ngIf="!loading && !error" class="appointments-content" [class.appointments-content--fade]="tabAnimating">
       <div *ngIf="appointments.length === 0 || visibleAppointments.length === 0" class="empty-state">
         <div class="empty-icon">
           <i class="fa-solid fa-calendar-xmark" aria-hidden="true"></i>
         </div>
         <h2>{{ emptyTabTitle }}</h2>
-        <p>No patient appointments have been scheduled yet.</p>
+        <p>{{ emptyTabMessage }}</p>
       </div>
 
-      <section class="appointments-section" *ngIf="visibleAppointments.length > 0">
-        <div class="appointments-grid">
-          <article
-            *ngFor="let appointment of visibleAppointments"
-            class="appointment-card"
-            [class.completed-appointment]="appointment.status === 'Completed'"
-            [class.cancelled-appointment]="appointment.status === 'Rejected' || appointment.status === 'Cancelled'">
-            <div class="appointment-header">
-              <div class="appointment-clinic">
-                <span class="appointment-clinic__icon">
-                  <i class="fa-solid fa-hospital" aria-hidden="true"></i>
-                </span>
-                <div>
-                  <h3>{{ appointment.clinicName || 'Clinic' }}</h3>
-                  <p class="clinic-id">Clinic ID: {{ appointment.clinicId }}</p>
-                </div>
-              </div>
-              <span class="status-badge" [class]="getStatusClass(appointment.status)">
-                {{ appointment.status }}
-              </span>
-            </div>
+      <ng-container *ngIf="visibleAppointments.length > 0">
+        <section
+          *ngFor="let group of groupedVisibleAppointments"
+          class="appointments-group"
+          [attr.aria-label]="group.label + ' appointments'">
+          <h2 class="appointments-group__title">{{ group.label }}</h2>
 
-            <div class="appointment-details">
-              <div class="detail-item">
-                <i class="fa-solid fa-user" aria-hidden="true"></i>
-                <div>
-                  <strong>Patient:</strong>
-                  <p>{{ appointment.patientName || 'Patient' }}</p>
+          <div class="appointments-grid">
+            <article
+              *ngFor="let appointment of group.appointments"
+              class="appointment-card"
+              [class.completed-appointment]="appointment.status === 'Completed'"
+              [class.cancelled-appointment]="appointment.status === 'Rejected' || appointment.status === 'Cancelled'"
+              (click)="openAppointmentDetail(appointment)"
+              (keydown.enter)="openAppointmentDetail(appointment)"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="'View appointment for ' + (appointment.patientName || 'patient')">
+              <div class="appointment-card__main">
+                <div class="appointment-card__patient">
+                  <span class="appointment-card__avatar" aria-hidden="true">
+                    {{ getPatientInitials(appointment.patientName) }}
+                  </span>
+                  <div>
+                    <h3>{{ appointment.patientName || 'Patient' }}</h3>
+                    <p>{{ appointment.clinicName || 'Clinic' }}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div class="detail-item">
-                <i class="fa-solid fa-calendar" aria-hidden="true"></i>
-                <div>
-                  <strong>Date:</strong>
-                  <p>{{ formatDate(appointment.date) }}</p>
-                </div>
-              </div>
-
-              <div class="detail-item">
-                <i class="fa-solid fa-clock" aria-hidden="true"></i>
-                <div>
-                  <strong>Time:</strong>
-                  <p>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</p>
+                <div class="appointment-card__meta">
+                  <span class="appointment-card__time">
+                    <i class="fa-solid fa-clock" aria-hidden="true"></i>
+                    {{ formatTime(appointment.startTime) }}
+                  </span>
+                  <span class="status-badge" [class]="getStatusClass(appointment.status)">
+                    {{ appointment.status }}
+                  </span>
                 </div>
               </div>
 
-              <div class="detail-item" *ngIf="appointment.priceAtBooking">
-                <i class="fa-solid fa-money-bill" aria-hidden="true"></i>
-                <div>
-                  <strong>Price:</strong>
-                  <p>{{ appointment.priceAtBooking }} EGP</p>
-                </div>
+              <div class="appointment-card__actions" (click)="$event.stopPropagation()">
+                <button
+                  *ngIf="canConfirm(appointment.status)"
+                  type="button"
+                  class="btn btn-success btn--compact"
+                  (click)="openStatusConfirm(appointment.id, 'Confirmed')"
+                  [disabled]="updatingAppointmentId === appointment.id">
+                  Confirm
+                </button>
+                <button
+                  *ngIf="canReject(appointment.status)"
+                  type="button"
+                  class="btn btn-danger btn--compact"
+                  (click)="openStatusConfirm(appointment.id, 'Rejected')"
+                  [disabled]="updatingAppointmentId === appointment.id">
+                  Cancel
+                </button>
               </div>
-            </div>
-
-            <div class="appointment-actions">
-              <button
-                *ngIf="canConfirm(appointment.status)"
-                type="button"
-                class="btn btn-success"
-                (click)="openStatusConfirm(appointment.id, 'Confirmed')"
-                [disabled]="updatingAppointmentId === appointment.id">
-                <i
-                  class="fa-solid"
-                  [class.fa-check]="updatingAppointmentId !== appointment.id"
-                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
-                  [class.fa-spin]="updatingAppointmentId === appointment.id"
-                  aria-hidden="true"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Confirm' }}
-              </button>
-
-              <button
-                *ngIf="canComplete(appointment.status)"
-                type="button"
-                class="btn btn-primary"
-                (click)="openStatusConfirm(appointment.id, 'Completed')"
-                [disabled]="updatingAppointmentId === appointment.id">
-                <i
-                  class="fa-solid"
-                  [class.fa-check-double]="updatingAppointmentId !== appointment.id"
-                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
-                  [class.fa-spin]="updatingAppointmentId === appointment.id"
-                  aria-hidden="true"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Complete' }}
-              </button>
-
-              <button
-                *ngIf="canReject(appointment.status)"
-                type="button"
-                class="btn btn-danger"
-                (click)="openStatusConfirm(appointment.id, 'Rejected')"
-                [disabled]="updatingAppointmentId === appointment.id">
-                <i
-                  class="fa-solid"
-                  [class.fa-xmark]="updatingAppointmentId !== appointment.id"
-                  [class.fa-spinner]="updatingAppointmentId === appointment.id"
-                  [class.fa-spin]="updatingAppointmentId === appointment.id"
-                  aria-hidden="true"></i>
-                {{ updatingAppointmentId === appointment.id ? 'Updating...' : 'Reject' }}
-              </button>
-
-              <button
-                *ngIf="appointment.status === 'Completed' || appointment.status === 'Rejected' || appointment.status === 'Cancelled'"
-                type="button"
-                class="btn btn-secondary"
-                disabled>
-                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-                {{ appointment.status }}
-              </button>
-            </div>
-          </article>
-        </div>
-      </section>
+            </article>
+          </div>
+        </section>
+      </ng-container>
     </div>
   </div>
 </section>
+
+<div
+  *ngIf="selectedAppointment as appointment"
+  class="detail-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="detail-modal-title">
+  <div class="detail-modal__backdrop" (click)="closeAppointmentDetail()"></div>
+  <div class="detail-modal__panel">
+    <button type="button" class="detail-modal__close" (click)="closeAppointmentDetail()" aria-label="Close">
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+
+    <header class="detail-modal__header">
+      <span class="detail-modal__avatar" aria-hidden="true">{{ getPatientInitials(appointment.patientName) }}</span>
+      <div>
+        <h2 id="detail-modal-title">{{ appointment.patientName || 'Patient' }}</h2>
+        <p>{{ appointment.clinicName || 'Clinic' }}</p>
+      </div>
+      <span class="status-badge detail-modal__status" [class]="getStatusClass(appointment.status)">
+        {{ appointment.status }}
+      </span>
+    </header>
+
+    <div class="detail-modal__body">
+      <section class="detail-modal__section">
+        <h3>Date &amp; Time</h3>
+        <p>{{ formatDate(appointment.date) || 'N/A' }}</p>
+        <p>{{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}</p>
+      </section>
+
+      <section class="detail-modal__section">
+        <h3>Status</h3>
+        <span class="status-badge" [class]="getStatusClass(appointment.status)">{{ appointment.status }}</span>
+      </section>
+
+      <section class="detail-modal__section">
+        <h3>Clinic</h3>
+        <p>{{ appointment.clinicName || 'Clinic' }}</p>
+      </section>
+
+      <section class="detail-modal__section" *ngIf="appointment.notes || appointment.patientNotes">
+        <h3>Notes</h3>
+        <p>{{ appointment.notes || appointment.patientNotes }}</p>
+      </section>
+    </div>
+
+    <footer class="detail-modal__actions">
+      <button
+        *ngIf="canConfirm(appointment.status)"
+        type="button"
+        class="btn btn-success"
+        (click)="openStatusConfirm(appointment.id, 'Confirmed')"
+        [disabled]="updatingAppointmentId === appointment.id">
+        Confirm
+      </button>
+      <button
+        *ngIf="canComplete(appointment.status)"
+        type="button"
+        class="btn btn-primary"
+        (click)="openStatusConfirm(appointment.id, 'Completed')"
+        [disabled]="updatingAppointmentId === appointment.id">
+        Complete
+      </button>
+      <button
+        *ngIf="canReject(appointment.status)"
+        type="button"
+        class="btn btn-danger"
+        (click)="openStatusConfirm(appointment.id, 'Rejected')"
+        [disabled]="updatingAppointmentId === appointment.id">
+        Cancel
+      </button>
+      <button
+        *ngIf="appointment.status === 'Confirmed' || appointment.status === 'Pending'"
+        type="button"
+        class="btn btn-secondary"
+        (click)="rescheduleAppointment()">
+        Reschedule
+      </button>
+    </footer>
+  </div>
+</div>
 
 <div *ngIf="pendingStatusAction" class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
   <div class="confirm-modal__backdrop" (click)="closeStatusConfirm()"></div>

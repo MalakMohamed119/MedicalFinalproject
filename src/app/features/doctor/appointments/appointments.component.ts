@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
@@ -31,9 +32,13 @@ export class DoctorAppointments implements OnInit {
 
   updatingAppointmentId: number | null = null;
 
-  activeTab: 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled' = 'all';
+  activeTab: 'all' | 'today' | 'upcoming' | 'cancelled' = 'all';
 
   pendingStatusAction: { appointmentId: number; status: string } | null = null;
+
+  selectedAppointment: any | null = null;
+
+  tabAnimating = false;
 
   get pendingActionStatus(): string {
     return this.pendingStatusAction?.status || '';
@@ -46,6 +51,7 @@ export class DoctorAppointments implements OnInit {
   constructor(
     private appointmentService: AppointmentService,
     private clinicService: ClinicService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -73,14 +79,44 @@ export class DoctorAppointments implements OnInit {
     return this.appointments.filter(a => a.status === 'Rejected' || a.status === 'Cancelled');
   }
 
+  get todayAppointments(): any[] {
+    return this.appointments.filter((appointment) => {
+      const date = this.getAppointmentDate(appointment);
+      return date ? this.isToday(date) : false;
+    });
+  }
+
+  get upcomingAppointments(): any[] {
+    return this.appointments.filter((appointment) => {
+      const date = this.getAppointmentDate(appointment);
+      if (!date) {
+        return false;
+      }
+
+      const today = this.startOfDay(new Date());
+      return date >= this.addDays(today, 1);
+    });
+  }
+
+  get appointmentSummaryLabel(): string {
+    if (this.activeTab === 'today') {
+      return 'Today';
+    }
+    if (this.activeTab === 'upcoming') {
+      return 'Upcoming';
+    }
+    if (this.activeTab === 'cancelled') {
+      return 'Cancelled';
+    }
+    return 'Total appointments';
+  }
+
   get visibleAppointments(): any[] {
     switch (this.activeTab) {
-      case 'pending':
-        return this.pendingAppointments;
-      case 'confirmed':
-        return this.confirmedAppointments;
-      case 'completed':
-        return this.completedAppointments;
+      case 'today':
+        return this.todayAppointments;
+      case 'upcoming':
+        return this.upcomingAppointments;
       case 'cancelled':
         return this.cancelledAppointments;
       default:
@@ -88,18 +124,45 @@ export class DoctorAppointments implements OnInit {
     }
   }
 
+  get groupedVisibleAppointments(): Array<{ label: string; appointments: any[] }> {
+    const order = ['Today', 'Tomorrow', 'Upcoming', 'Other'];
+    const groups = new Map<string, any[]>();
+
+    for (const appointment of this.visibleAppointments) {
+      const label = this.getDateGroupLabel(appointment);
+      const bucket = groups.get(label) ?? [];
+      bucket.push(appointment);
+      groups.set(label, bucket);
+    }
+
+    return order
+      .filter((label) => (groups.get(label)?.length ?? 0) > 0)
+      .map((label) => ({ label, appointments: groups.get(label)! }));
+  }
+
   get emptyTabTitle(): string {
     switch (this.activeTab) {
-      case 'pending':
-        return 'No pending appointments';
-      case 'confirmed':
-        return 'No confirmed appointments';
-      case 'completed':
-        return 'No completed appointments';
+      case 'today':
+        return 'No appointments today';
+      case 'upcoming':
+        return 'No upcoming appointments';
       case 'cancelled':
-        return 'No rejected appointments';
+        return 'No cancelled appointments';
       default:
         return 'No appointments found';
+    }
+  }
+
+  get emptyTabMessage(): string {
+    switch (this.activeTab) {
+      case 'today':
+        return 'You have a clear schedule for today.';
+      case 'upcoming':
+        return 'New bookings will appear here once patients schedule visits.';
+      case 'cancelled':
+        return 'Cancelled and rejected appointments will show up in this tab.';
+      default:
+        return 'No patient appointments have been scheduled yet.';
     }
   }
 
@@ -107,8 +170,103 @@ export class DoctorAppointments implements OnInit {
   // TAB NAVIGATION
   // =========================================
 
-  setTab(tab: 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'): void {
+  setTab(tab: 'all' | 'today' | 'upcoming' | 'cancelled'): void {
+    if (this.activeTab === tab) {
+      return;
+    }
+
+    this.tabAnimating = true;
     this.activeTab = tab;
+    this.cdr.detectChanges();
+
+    window.setTimeout(() => {
+      this.tabAnimating = false;
+      this.cdr.detectChanges();
+    }, 220);
+  }
+
+  openAppointmentDetail(appointment: any): void {
+    this.selectedAppointment = appointment;
+  }
+
+  closeAppointmentDetail(): void {
+    this.selectedAppointment = null;
+  }
+
+  rescheduleAppointment(): void {
+    this.closeAppointmentDetail();
+    this.router.navigate(['/doctor/manage-slots']);
+  }
+
+  getPatientInitials(name: string | undefined): string {
+    const parts = String(name || 'Patient')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+
+    if (parts.length === 0) {
+      return 'P';
+    }
+
+    if (parts.length === 1) {
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+
+  private getAppointmentDate(appointment: any): Date | null {
+    if (!appointment?.date) {
+      return null;
+    }
+
+    const date = appointment.date.includes('T')
+      ? new Date(appointment.date)
+      : new Date(`${appointment.date}T00:00:00`);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private startOfDay(date: Date): Date {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const copy = new Date(date);
+    copy.setDate(copy.getDate() + days);
+    return copy;
+  }
+
+  private isToday(date: Date): boolean {
+    return date.toDateString() === new Date().toDateString();
+  }
+
+  private isTomorrow(date: Date): boolean {
+    return date.toDateString() === this.addDays(this.startOfDay(new Date()), 1).toDateString();
+  }
+
+  getDateGroupLabel(appointment: any): string {
+    const date = this.getAppointmentDate(appointment);
+    if (!date) {
+      return 'Other';
+    }
+
+    if (this.isToday(date)) {
+      return 'Today';
+    }
+
+    if (this.isTomorrow(date)) {
+      return 'Tomorrow';
+    }
+
+    const today = this.startOfDay(new Date());
+    if (date >= this.addDays(today, 2)) {
+      return 'Upcoming';
+    }
+
+    return 'Other';
   }
 
   // =========================================
@@ -257,6 +415,9 @@ export class DoctorAppointments implements OnInit {
           });
 
           this.updatingAppointmentId = null;
+          if (this.selectedAppointment?.id === appointmentId) {
+            this.selectedAppointment = this.appointments.find((item) => item.id === appointmentId) ?? null;
+          }
           this.cdr.detectChanges();
         },
 
@@ -339,7 +500,7 @@ export class DoctorAppointments implements OnInit {
       ? new Date(dateString)
       : new Date(dateString + 'T00:00:00');
 
-    if (isNaN(date.getTime())) return 'Invalid Date';
+    if (isNaN(date.getTime())) return '';
 
     return date.toLocaleDateString('en-US', {
       weekday: 'short',

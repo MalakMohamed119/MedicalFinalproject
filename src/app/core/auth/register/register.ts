@@ -73,12 +73,6 @@ export class Register {
         this._router.navigate(['/login']);
       },
       error: (error: any) => {
-        if (error.status === 500) {
-          this._toastService.success('Registration successful!');
-          this.registerForm.reset();
-          this._router.navigate(['/login']);
-          return;
-        }
         const errors = error.error?.errors;
         let msg: string;
         if (errors) {

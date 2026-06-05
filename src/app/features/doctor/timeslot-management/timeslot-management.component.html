@@ -116,13 +116,16 @@
       </button>
     </div>
 
-    <div class="clinic-card" *ngFor="let slot of timeslots()">
+    <article
+      class="clinic-card slot-card"
+      *ngFor="let slot of timeslots(); let i = index"
+      [class.slot-card--available]="getSlotStatus(slot) === 'available'"
+      [class.slot-card--almost]="getSlotStatus(slot) === 'almost-full'"
+      [class.slot-card--booked]="getSlotStatus(slot) === 'booked'"
+      [style.animation-delay]="slotCardDelay(i)">
+      <span class="slot-card__accent" aria-hidden="true"></span>
+
       <div class="clinic-header">
-        <div class="slot-date">
-          <span class="slot-date__day">{{ formatDateDay(slot.startTime) }}</span>
-          <span class="slot-date__month">{{ formatDateMonth(slot.startTime) }}</span>
-          <small>{{ formatDate(slot.startTime) }}</small>
-        </div>
         <div class="clinic-actions">
           <button class="btn btn-sm btn-outline-primary" (click)="editSlot(slot)">
             <i class="fas fa-edit"></i> Edit
@@ -134,10 +137,24 @@
       </div>
 
       <div class="clinic-info">
-        <div class="info-item">
-          <i class="fas fa-play-circle"></i>
-          <span>{{ formatTime(slot.startTime) }} → {{ formatTime(slot.endTime) }}</span>
+        <div class="slot-card__time-row">
+          <i class="fas fa-clock slot-card__icon" aria-hidden="true"></i>
+          <ng-container *ngIf="getSlotTimeRange(slot) as range; else slotTimeFallback">
+            <span class="slot-card__time">
+              {{ range.start }}<span class="slot-card__period">{{ range.period }}</span>
+            </span>
+            <span class="slot-card__range-end" *ngIf="range.end">to {{ range.end }}</span>
+          </ng-container>
+          <ng-template #slotTimeFallback>
+            <span class="slot-card__time slot-card__time--muted">Time TBD</span>
+          </ng-template>
         </div>
+
+        <p class="slot-card__date" *ngIf="getSlotDateLabel(slot) as dateLabel">
+          <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+          <span>{{ dateLabel }}</span>
+        </p>
+
         <div class="info-item">
           <i class="fas fa-users"></i>
           <span>{{ slot.bookedCount }} / {{ slot.capacity }} booked</span>
@@ -149,13 +166,9 @@
       </div>
 
       <div class="clinic-footer">
-        <span class="badge slot-availability" [class.badge-success]="slot.availableCount > 0"
-              [class.badge-danger]="slot.availableCount === 0">
-          {{ slot.availableCount > 0 ? slot.availableCount + ' slots available' : 'Fully Booked' }}
-        </span>
         <small>ID: {{ slot.id }}</small>
       </div>
-    </div>
+    </article>
   </div>
 </div>
 <app-doctor-footer></app-doctor-footer>

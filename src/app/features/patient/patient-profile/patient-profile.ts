@@ -15,6 +15,7 @@ import { PatientService } from '../../../core/services/patient.service';
 import { AppointmentResponse } from '../../../shared/models/appointment-response.interface';
 import {
   PatientAllergy,
+  PatientCreateRequest,
   PatientMedicalRecord,
   PatientProfileResponse,
   PatientUpdateRequest
@@ -79,6 +80,7 @@ export class PatientProfile implements OnInit {
   savingProfile = signal<boolean>(false);
   savingMedical = signal<boolean>(false);
   private hasSavedPatientProfile = signal<boolean>(false);
+  private appointmentsLoaded = false;
 
   upcoming = signal<UpcomingAppointment[]>([]);
   past = signal<PastAppointment[]>([]);
@@ -90,8 +92,7 @@ export class PatientProfile implements OnInit {
     age: [0],
     gender: [''],
     dateOfBirth: [''],
-    address: ['', [Validators.required]],
-    nationalId: ['']
+    address: ['', [Validators.required]]
   });
 
   medicalForm = this.formBuilder.group({
@@ -190,28 +191,17 @@ export class PatientProfile implements OnInit {
 
   private loadProfileDetails(profile: PatientProfileResponse): void {
     this.hasSavedPatientProfile.set(true);
-    const details$ = this.patientService.getMyDetails().pipe(catchError(() => of(null)));
-    const appointments$ = this.appointmentService.getPatientAppointments().pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status !== 404) {
-          this.showNotice('Failed to load appointments. Profile data is still available.', 'error');
-        }
 
-        return of([]);
-      })
-    );
-
-    forkJoin({
-      details: details$,
-      appointments: appointments$
-    }).subscribe({
-      next: ({ details, appointments }) => {
+    this.patientService.getMyDetails().pipe(catchError(() => of(null))).subscribe({
+      next: (details) => {
         this.applyPatientData(profile, details as PatientProfileResponse | null);
-        this.applyAppointments(appointments);
+        this.applyAppointments([]);
+        this.loading.set(false);
       },
       error: () => {
         this.applyPatientData(profile);
         this.applyAppointments([]);
+        this.loading.set(false);
       }
     });
   }
@@ -238,7 +228,7 @@ export class PatientProfile implements OnInit {
         this.hasSavedPatientProfile.set(false);
         this.patientId.set(null);
         this.applyPatientData(user as PatientProfileResponse);
-        this.loadPatientAppointmentsForProfile();
+        this.applyAppointments([]);
         this.showNotice('Complete your address, then save your profile to create your patient record.', 'error');
       },
       error: () => {
@@ -252,7 +242,7 @@ export class PatientProfile implements OnInit {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         this.applyPatientData(user as PatientProfileResponse);
-        this.loadPatientAppointmentsForProfile();
+        this.applyAppointments([]);
       },
       error: () => {
         this.error.set('Failed to load patient information');
@@ -262,12 +252,20 @@ export class PatientProfile implements OnInit {
   }
 
   private loadPatientAppointmentsForProfile(): void {
-    this.appointmentService.getPatientAppointments().pipe(
-      catchError(() => of([]))
-    ).subscribe({
-      next: (appointments) => this.applyAppointments(appointments),
-      error: () => this.applyAppointments([])
-    });
+    this.appointmentService
+      .getPatientAppointments()
+      .pipe(catchError(() => of([])))
+      .subscribe({
+        next: (appointments) => {
+          const { upcoming, past } = this.splitAppointments(appointments);
+          this.upcoming.set(upcoming);
+          this.past.set(past);
+        },
+        error: () => {
+          this.upcoming.set([]);
+          this.past.set([]);
+        }
+      });
   }
 
   private applyAppointments(appointments: AppointmentResponse[]): void {
@@ -284,22 +282,42 @@ export class PatientProfile implements OnInit {
       return;
     }
 
-    const payload = this.buildUpdatePayload();
-    const patientRecordId = this.getPatientRecordId();
-    const request$ = this.hasSavedPatientProfile() && patientRecordId
-      ? this.patientService.updatePatient(patientRecordId, payload)
-      : this.patientService.createPatient(payload);
-
     this.savingProfile.set(true);
-    request$
+
+    if (this.hasSavedPatientProfile()) {
+      const payload = this.buildUpdatePayload();
+      this.patientService
+        .updatePatient(payload)
+        .pipe(finalize(() => this.savingProfile.set(false)))
+        .subscribe({
+          next: () => {
+            this.applyPatientData(this.currentPatient(), this.mapUpdateToProfile(payload));
+            this.showNotice('Profile updated successfully.', 'success');
+          },
+          error: (error: HttpErrorResponse) => {
+            this.showNotice(this.getSaveErrorMessage(error), 'error');
+          }
+        });
+      return;
+    }
+
+    const createPayload = this.buildCreatePayload();
+    if (!createPayload.userId) {
+      this.savingProfile.set(false);
+      this.showNotice('Session expired. Please log in again.', 'error');
+      return;
+    }
+
+    this.patientService
+      .createPatient(createPayload)
       .pipe(finalize(() => this.savingProfile.set(false)))
       .subscribe({
         next: (response) => {
-          this.applyPatientData(response, payload);
+          this.applyPatientData(response);
           this.hasSavedPatientProfile.set(true);
-          this.showNotice('Profile updated successfully.', 'success');
+          this.showNotice('Profile saved successfully.', 'success');
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.showNotice(this.getSaveErrorMessage(error), 'error');
         }
       });
@@ -319,21 +337,41 @@ export class PatientProfile implements OnInit {
     this.setMedicalRecordRows(medicalRecords);
 
     const payload = this.buildUpdatePayload();
-    const patientRecordId = this.getPatientRecordId();
-    const request$ = this.hasSavedPatientProfile() && patientRecordId
-      ? this.patientService.updatePatient(patientRecordId, payload)
-      : this.patientService.createPatient(payload);
-
     this.savingMedical.set(true);
-    request$
+
+    if (this.hasSavedPatientProfile()) {
+      this.patientService
+        .updatePatient(payload)
+        .pipe(finalize(() => this.savingMedical.set(false)))
+        .subscribe({
+          next: () => {
+            this.applyPatientData(this.currentPatient(), this.mapUpdateToProfile(payload));
+            this.showNotice('Profile and medical data saved successfully.', 'success');
+          },
+          error: (error: HttpErrorResponse) => {
+            this.showNotice(this.getSaveErrorMessage(error), 'error');
+          }
+        });
+      return;
+    }
+
+    const createPayload = this.buildCreatePayload();
+    if (!createPayload.userId) {
+      this.savingMedical.set(false);
+      this.showNotice('Session expired. Please log in again.', 'error');
+      return;
+    }
+
+    this.patientService
+      .createPatient(createPayload)
       .pipe(finalize(() => this.savingMedical.set(false)))
       .subscribe({
         next: (response) => {
-          this.applyPatientData(response, payload);
+          this.applyPatientData(response);
           this.hasSavedPatientProfile.set(true);
           this.showNotice('Profile and medical data saved successfully.', 'success');
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.showNotice(this.getSaveErrorMessage(error), 'error');
         }
       });
@@ -351,9 +389,18 @@ export class PatientProfile implements OnInit {
 
     this.currentPatient.set(merged);
 
-    const id = this.readValue(merged, ['id', 'patientId']);
-    if (typeof id === 'string' || typeof id === 'number') {
-      this.patientId.set(id);
+    const identityUserId = this.readString(merged, ['identityUserId']);
+    const recordId = this.readValue(merged, ['id', 'patientId']);
+    const authUserId = this.authService.getCurrentUserId();
+    const isPatientRecordId =
+      recordId !== null &&
+      recordId !== undefined &&
+      recordId !== '' &&
+      (!authUserId || String(recordId) !== authUserId) &&
+      (!identityUserId || String(recordId) !== identityUserId);
+
+    if (isPatientRecordId && (typeof recordId === 'string' || typeof recordId === 'number')) {
+      this.patientId.set(recordId);
     } else {
       this.patientId.set(null);
     }
@@ -382,8 +429,7 @@ export class PatientProfile implements OnInit {
       age,
       gender,
       dateOfBirth: this.formatDateInput(this.readString(merged, ['dateOfBirth'])),
-      address,
-      nationalId: this.readString(merged, ['nationalId'])
+      address
     });
 
     this.medicalForm.patchValue({
@@ -484,35 +530,57 @@ export class PatientProfile implements OnInit {
 
   private buildUpdatePayload(): PatientUpdateRequest {
     const profile = this.profileForm.getRawValue();
-    const dateOfBirth = String(profile.dateOfBirth || '').trim();
     const allergies = this.deduplicateById(this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue()));
-    const medicalRecords = this.deduplicateById(this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue()));
+    const medicalRecords = this.deduplicateById(
+      this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue())
+    );
 
     return {
       fullName: String(profile.displayName || '').trim(),
       email: String(profile.email || '').trim(),
       phoneNumber: String(profile.phoneNumber || '').trim(),
-      age: Number(profile.age) || 0,
-      gender: this.toGenderValue(profile.gender),
-      dateOfBirth: dateOfBirth ? `${dateOfBirth}T00:00:00` : '',
       address: String(profile.address || '').trim(),
-      nationalId: String(profile.nationalId || '').trim(),
-      allergies,
-      medicalRecords
+      allergies: allergies.map((allergy) => ({
+        id: allergy.id ?? 0,
+        name: allergy.name,
+        description: allergy.description
+      })),
+      medicalRecords: medicalRecords.map((record) => ({
+        id: record.id ?? 0,
+        diagnosis: record.diagnosis,
+        notes: record.notes
+      }))
     };
   }
 
-  private getPatientRecordId(): string | number | null {
-    const patient = this.currentPatient();
-    const id = patient
-      ? this.readValue(patient, ['id', 'patientId'])
-      : null;
+  private mapUpdateToProfile(payload: PatientUpdateRequest): PatientProfileResponse {
+    return {
+      fullName: payload.fullName,
+      displayName: payload.fullName,
+      email: payload.email,
+      phoneNumber: payload.phoneNumber,
+      address: payload.address,
+      allergies: payload.allergies,
+      medicalRecords: payload.medicalRecords
+    };
+  }
 
-    if (typeof id === 'string' || typeof id === 'number') {
-      return id;
-    }
+  private buildCreatePayload(): PatientCreateRequest {
+    const profile = this.profileForm.getRawValue();
+    const dateOfBirth = String(profile.dateOfBirth || '').trim();
+    const allergies = this.deduplicateById(this.cleanMedicalRows<PatientAllergy>(this.allergies.getRawValue()));
+    const medicalRecords = this.deduplicateById(
+      this.cleanMedicalRows<PatientMedicalRecord>(this.medicalRecords.getRawValue())
+    );
 
-    return this.patientId();
+    return {
+      dateOfBirth: dateOfBirth ? `${dateOfBirth}T00:00:00` : new Date().toISOString(),
+      gender: this.toGenderValue(profile.gender),
+      address: String(profile.address || '').trim(),
+      userId: this.authService.getCurrentUserId(),
+      allergies,
+      medicalRecords
+    };
   }
 
 
@@ -838,6 +906,16 @@ export class PatientProfile implements OnInit {
 
   setTab(tab: 'upcoming' | 'past'): void {
     this.activeTab.set(tab);
+    this.loadAppointmentsIfNeeded();
+  }
+
+  private loadAppointmentsIfNeeded(): void {
+    if (this.isDoctor() || this.appointmentsLoaded || this.loading()) {
+      return;
+    }
+
+    this.appointmentsLoaded = true;
+    this.loadPatientAppointmentsForProfile();
   }
 
   cancelAppointment(id: number): void {

@@ -1,44 +1,5 @@
 <div class="admin-page-shell">
-  <aside class="admin-fixed-sidebar">
-    <a class="sidebar-logo" routerLink="/admin-dashboard">
-      <div class="logo-icon">
-        <i class="fa-solid fa-shield-halved"></i>
-      </div>
-      <div>
-        <div class="logo-text">MediCare Admin</div>
-        <div class="logo-sub">Control Panel</div>
-      </div>
-    </a>
-
-    <nav class="sidebar-nav" aria-label="Admin navigation">
-      <div class="nav-section-label">Main</div>
-      <a routerLink="/admin-dashboard" class="nav-item">
-        <i class="fa-solid fa-gauge-high"></i>
-        <span>Dashboard</span>
-      </a>
-
-      <div class="nav-section-label">Manage</div>
-      <a routerLink="/admin/manage-doctors" class="nav-item active">
-        <i class="fa-solid fa-user-doctor"></i>
-        <span>Manage Doctors</span>
-      </a>
-      <a routerLink="/admin/add-doctor" class="nav-item">
-        <i class="fa-solid fa-user-plus"></i>
-        <span>Add Doctor</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-avatar">AD</div>
-      <div class="user-info">
-        <span class="user-name">Admin</span>
-        <span class="user-role">Super Admin</span>
-      </div>
-      <a routerLink="/logout" class="logout-side-btn" title="Logout">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-      </a>
-    </div>
-  </aside>
+  <app-admin-sidebar></app-admin-sidebar>
 
   <main class="admin-page-main">
 <div class="doctors-page">

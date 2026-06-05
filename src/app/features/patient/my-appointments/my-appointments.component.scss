@@ -287,9 +287,9 @@
 }
 
 .status-confirmed {
-  color: var(--ch-primary);
-  background: rgba(var(--ch-brand-rgb), 0.12);
-  border-color: rgba(var(--ch-brand-rgb), 0.22);
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.28);
 }
 
 .status-completed {
@@ -533,7 +533,8 @@
   }
 }
 
-.state-card__btn--link {
+.state-card__btn--link,
+a.btn-appointment {
   text-decoration: none;
 }
 
@@ -638,4 +639,106 @@
   .appt-card__row dt {
     font-size: 0.65rem;
   }
+}
+
+/* Patient appointments polish */
+.my-appointments-page {
+  --patient-primary: #0d6e7b;
+  --patient-primary-deep: #075866;
+  --patient-accent: #049ebd;
+  --patient-mint: #14b8a6;
+  --patient-ink: #102331;
+  --patient-muted: #607384;
+  --patient-line: rgba(13, 110, 123, 0.12);
+
+  color: var(--patient-ink);
+  background:
+    radial-gradient(900px 380px at 10% -8%, rgba(4, 158, 189, 0.1), transparent 58%),
+    radial-gradient(760px 340px at 100% 4%, rgba(20, 184, 166, 0.08), transparent 56%),
+    linear-gradient(180deg, #ffffff 0%, #f6fafb 48%, #ffffff 100%);
+}
+
+.my-appts-backdrop {
+  opacity: 0.38;
+  background: radial-gradient(ellipse 70% 42% at 50% -15%, rgba(4, 158, 189, 0.12), transparent 65%);
+}
+
+.my-appts-hero__eyebrow,
+.my-appts-tabs__btn--active,
+.my-appts-tabs__badge {
+  color: var(--patient-primary);
+}
+
+.my-appts-hero__title,
+.my-appts-toolbar__count,
+.appt-card__title,
+.state-card__title {
+  color: var(--patient-ink);
+}
+
+.my-appts-hero__lede,
+.my-appts-toolbar__hint,
+.appt-card__meta,
+.appt-card__row dt,
+.state-card__text {
+  color: var(--patient-muted);
+}
+
+.my-appts-shell,
+.state-card,
+.appt-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: var(--patient-line);
+  box-shadow: 0 14px 34px rgba(15, 35, 49, 0.08);
+}
+
+.my-appts-tabs {
+  background: #eef6f8;
+}
+
+.my-appts-tabs__btn {
+  border-radius: 10px;
+
+  &:hover {
+    color: var(--patient-primary);
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  &--active {
+    background: #ffffff;
+    box-shadow: 0 6px 16px rgba(15, 35, 49, 0.08);
+  }
+}
+
+.appt-card {
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcfd 100%);
+
+  &:hover {
+    border-color: rgba(4, 158, 189, 0.24);
+    box-shadow: 0 18px 40px rgba(15, 35, 49, 0.11);
+  }
+}
+
+.appt-card--upcoming {
+  border-left-color: var(--patient-primary);
+}
+
+.appt-card__clinic-icon,
+.state-card__btn {
+  background: linear-gradient(135deg, var(--patient-primary), var(--patient-accent));
+  box-shadow: 0 8px 20px rgba(4, 158, 189, 0.22);
+}
+
+.status-confirmed {
+  color: var(--patient-primary);
+  background: rgba(4, 158, 189, 0.1);
+  border-color: rgba(4, 158, 189, 0.22);
+}
+
+.state-card--empty .state-card__icon,
+.state-card--loading .state-card__icon,
+.appt-card__row dt i,
+.appt-card__footer-label i {
+  color: var(--patient-accent);
 }

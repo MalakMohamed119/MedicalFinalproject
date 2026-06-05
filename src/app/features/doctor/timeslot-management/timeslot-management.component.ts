@@ -7,14 +7,26 @@ import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/
 import { ClinicService } from '../../../core/services/clinic.service';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
+import {
+  formatSlotDateLabel,
+  formatTimeDisplay,
+  formatTimeRange,
+  getSlotAvailabilityStatus,
+  parseValidDate,
+  SlotAvailabilityStatus
+} from '../../../shared/utils/date-time.util';
 
 function timeRangeValidator(group: AbstractControl): ValidationErrors | null {
   const start = group.get('startTime')?.value;
   const end = group.get('endTime')?.value;
 
   if (start && end) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
+    const startDate = parseValidDate(start);
+    const endDate = parseValidDate(end);
+    if (!startDate || !endDate) {
+      return null;
+    }
+
     if (endDate.getTime() <= startDate.getTime()) {
       return { timeRange: true };
     }
@@ -96,7 +108,7 @@ export class TimeslotManagement implements OnInit {
     this.error.set(null);
     this.clinicService.getTimeSlotsByClinic(clinicId).subscribe({
       next: (data) => {
-        this.timeslots.set(data);
+        this.timeslots.set(data.map((slot) => this.normalizeTimeSlot(slot)));
         this.loading.set(false);
       },
       error: () => {
@@ -160,13 +172,19 @@ export class TimeslotManagement implements OnInit {
       return;
     }
 
-    const startDate = new Date(formValue.startTime);
-    const endDate = new Date(formValue.endTime);
+    const startTime = this.toLocalDateTimePayload(formValue.startTime);
+    const endTime = this.toLocalDateTimePayload(formValue.endTime);
+
+    if (!startTime || !endTime) {
+      this.loading.set(false);
+      this.error.set('Please enter valid start and end times.');
+      return;
+    }
 
     const payload = {
       clinicId,
-      startTime: startDate.toISOString(),
-      endTime: endDate.toISOString(),
+      startTime,
+      endTime,
       capacity: Number(formValue.capacity),
       price: Number(formValue.price)
     };
@@ -216,7 +234,10 @@ export class TimeslotManagement implements OnInit {
   }
 
   deleteSlot(slot: TimeSlot): void {
-    if (confirm(`Delete time slot from ${this.formatTime(slot.startTime)} to ${this.formatTime(slot.endTime)}?`)) {
+    const start = this.formatTime(slot.startTime) || 'the selected start time';
+    const end = this.formatTime(slot.endTime) || 'the selected end time';
+
+    if (confirm(`Delete time slot from ${start} to ${end}?`)) {
       this.loading.set(true);
       this.clinicService.deleteTimeSlot(slot.id).subscribe({
         next: () => {
@@ -259,36 +280,60 @@ export class TimeslotManagement implements OnInit {
       fallback;
   }
 
-  formatTime(time: string): string {
-    if (!time) return '';
-    return new Date(time).toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: true
-    });
+  slotCardDelay(index: number): string {
+    return `${Math.min(index, 16) * 50}ms`;
   }
 
-  formatDate(time: string): string {
-    if (!time) return '';
-    const date = new Date(time);
-    if (Number.isNaN(date.getTime())) return 'Invalid date';
-
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-    });
+  getSlotDateLabel(slot: TimeSlot): string | null {
+    return formatSlotDateLabel(slot.startTime);
   }
 
-  formatDateDay(time: string): string {
-    if (!time) return '';
-    const date = new Date(time);
-    if (Number.isNaN(date.getTime())) return '--';
-
-    return date.toLocaleDateString('en-US', { day: '2-digit' });
+  getSlotTimeRange(slot: TimeSlot): { start: string; end: string; period: string } | null {
+    return formatTimeRange(slot.startTime, slot.endTime);
   }
 
-  formatDateMonth(time: string): string {
-    if (!time) return '';
-    const date = new Date(time);
-    if (Number.isNaN(date.getTime())) return 'Date';
+  getSlotStatus(slot: TimeSlot): SlotAvailabilityStatus {
+    return getSlotAvailabilityStatus(this.getSlotAvailableCount(slot), slot.capacity ?? 0);
+  }
 
-    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  getSlotAvailableCount(slot: TimeSlot): number {
+    return Math.max(Number(slot.availableCount) || 0, 0);
+  }
+
+  formatTime(time: unknown): string {
+    const display = formatTimeDisplay(time);
+    return display ? `${display.time} ${display.period}` : '';
+  }
+
+  private toLocalDateTimePayload(value: unknown): string | null {
+    const parsed = parseValidDate(value);
+    if (!parsed) {
+      return null;
+    }
+
+    const raw = String(value).trim();
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) {
+      return `${raw}:00`;
+    }
+
+    return raw;
+  }
+
+  private normalizeTimeSlot(slot: TimeSlot): TimeSlot {
+    const capacity = Math.max(Number(slot.capacity) || 0, 0);
+    const bookedCount = Math.max(Number(slot.bookedCount) || 0, 0);
+    const rawAvailable = Number(slot.availableCount);
+    const availableCount = Math.max(
+      Number.isFinite(rawAvailable) ? rawAvailable : Math.max(capacity - bookedCount, 0),
+      0
+    );
+
+    return {
+      ...slot,
+      capacity,
+      bookedCount,
+      availableCount,
+      price: Math.max(Number(slot.price) || 0, 0)
+    };
   }
 }

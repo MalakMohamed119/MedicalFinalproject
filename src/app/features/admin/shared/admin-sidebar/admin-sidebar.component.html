@@ -1,0 +1,45 @@
+<aside class="admin-fixed-sidebar">
+  <a class="sidebar-logo" routerLink="/admin-dashboard">
+    <div class="logo-icon">
+      <i class="fa-solid fa-shield-halved"></i>
+    </div>
+    <div>
+      <div class="logo-text">MediCare Admin</div>
+      <div class="logo-sub">Control Panel</div>
+    </div>
+  </a>
+
+  <nav class="sidebar-nav" aria-label="Admin navigation">
+    <div class="nav-section-label">Main</div>
+    <a
+      *ngFor="let item of mainNav"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: !!item.exact }"
+      class="nav-item">
+      <i class="fa-solid {{ item.icon }}"></i>
+      <span>{{ item.label }}</span>
+    </a>
+
+    <div class="nav-section-label">Manage</div>
+    <a
+      *ngFor="let item of manageNav"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      class="nav-item">
+      <i class="fa-solid {{ item.icon }}"></i>
+      <span>{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-avatar">AD</div>
+    <div class="user-info">
+      <span class="user-name">Admin</span>
+      <span class="user-role">Super Admin</span>
+    </div>
+    <a routerLink="/logout" class="logout-side-btn" title="Logout">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+    </a>
+  </div>
+</aside>

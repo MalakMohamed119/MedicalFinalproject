@@ -1,194 +1,242 @@
 <app-navbar></app-navbar>
 
-<!-- Glowing Circle Button -->
-<div class="glowing-circle" (click)="onGlowingCircleClick()" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false">
-  <div class="glowing-circle-inner">
-    <i class="fa-solid fa-robot"></i>
-  </div>
-  <div class="glow-effect"></div>
-  <!-- Tooltip -->
-  <div class="tooltip" *ngIf="showTooltip" [class.show]="showTooltip">
-    <span>Ask me</span>
-    <div class="tooltip-arrow"></div>
-  </div>
-</div>
+<div class="clinics-page">
+  <div class="clinics-page__mesh" aria-hidden="true"></div>
 
-<header class="hero-section">
-  <div class="hero-background"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <span class="hero-badge">
-      <i class="bi bi-shield-plus" aria-hidden="true"></i>
-      Trusted care network
-    </span>
-    <h1 class="light-text">Medical Health Platform</h1>
-    <p class="hero-subtitle">
-      Discover trusted clinics and book appointments with ease. A calm, clear path to your next visit.
-    </p>
-  </div>
-</header>
-
-<section class="dashboard-wrapper">
-  <div class="container">
-    <div class="stats-row">
-      <article class="stat-card">
-        <div class="stat-card__icon stat-card__icon--blue">
-          <i class="bi bi-hospital" aria-hidden="true"></i>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__value">{{ stats.totalClinics }}</span>
-          <span class="stat-card__label">Partner clinics</span>
-        </div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-card__icon stat-card__icon--green">
-          <i class="bi bi-people-fill" aria-hidden="true"></i>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__value">{{ stats.totalDoctors }}</span>
-          <span class="stat-card__label">Specialists</span>
-        </div>
-      </article>
-      <article class="stat-card">
-        <div class="stat-card__icon stat-card__icon--slate">
-          <i class="bi bi-emoji-smile" aria-hidden="true"></i>
-        </div>
-        <div class="stat-card__body">
-          <span class="stat-card__value">{{ stats.happyPatients | number }}</span>
-          <span class="stat-card__label">Care visits booked</span>
-        </div>
-      </article>
+  <div
+    class="glowing-circle"
+    (click)="onGlowingCircleClick()"
+    (mouseenter)="showTooltip = true"
+    (mouseleave)="showTooltip = false">
+    <div class="glowing-circle-inner">
+      <i class="fa-solid fa-robot"></i>
     </div>
-
-    <div class="search-panel" role="search">
-      <div class="search-panel__intro">
-        <span class="search-panel__eyebrow">Clinic directory</span>
-        <h2>Find a clinic</h2>
-        <p>Search by clinic, doctor, or address.</p>
-      </div>
-      <div class="search-input-wrapper">
-        <i class="bi bi-search search-icon" aria-hidden="true"></i>
-        <input
-          type="search"
-          [(ngModel)]="searchTerm"
-          (input)="onSearch()"
-          placeholder="Search clinics"
-          autocomplete="off"
-          [disabled]="isLoading" />
-      </div>
-      <button
-        *ngIf="searchTerm"
-        type="button"
-        class="cta-button cta-button--ghost search-clear-btn"
-        (click)="clearSearch()">
-        Clear
-      </button>
+    <div class="glow-effect"></div>
+    <div class="tooltip" *ngIf="showTooltip" [class.show]="showTooltip">
+      <span>Ask me</span>
+      <div class="tooltip-arrow"></div>
     </div>
+  </div>
 
-    <div class="section-heading">
-      <h2>Available near you</h2>
-      <span class="section-heading__meta">
-        {{ isLoading ? 'Loading listings' : filteredClinics.length + ' listings' }}
+  <header class="clinics-hero">
+    <div class="clinics-hero__inner">
+      <span class="clinics-hero__badge">
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        Verified care network
       </span>
-    </div>
+      <h1 class="clinics-hero__title">Find your next clinic</h1>
+      <p class="clinics-hero__lead">
+        Browse trusted practices, compare availability, and book in minutes.
+      </p>
 
-    <div *ngIf="isLoading; else content">
-      <div class="loading-state">
-        <div class="loading-state__head">
-          <div class="spinner"></div>
+      <div class="clinics-hero__filters" role="group" aria-label="Filter clinics">
+        <span class="clinics-hero__filters-label">Specialty</span>
+        <div class="filter-chips filter-chips--wrap">
+          <button
+            type="button"
+            class="filter-chip"
+            *ngFor="let specialty of specialtyFilters"
+            [class.filter-chip--active]="activeSpecialty === specialty"
+            (click)="setSpecialtyFilter(specialty)">
+            {{ specialty }}
+          </button>
+        </div>
+
+        <span class="clinics-hero__filters-label">Quick filters</span>
+        <div class="filter-chips">
+          <button
+            type="button"
+            class="filter-chip filter-chip--icon"
+            [class.filter-chip--active]="locationFilter === 'cairo'"
+            (click)="setLocationFilter('cairo')">
+            <i class="bi bi-geo-alt" aria-hidden="true"></i>
+            Near me
+          </button>
+          <button
+            type="button"
+            class="filter-chip filter-chip--icon"
+            [class.filter-chip--active]="availabilityFilter === 'open'"
+            (click)="setAvailabilityFilter(availabilityFilter === 'open' ? 'all' : 'open')">
+            <i class="bi bi-clock" aria-hidden="true"></i>
+            Open now
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="clinics-main">
+    <div class="clinics-main__container">
+      <div class="clinics-stats" aria-label="Platform statistics">
+        <article class="clinics-stat">
+          <span class="clinics-stat__value">{{ stats.totalClinics }}</span>
+          <span class="clinics-stat__label">Partner clinics</span>
+        </article>
+        <article class="clinics-stat">
+          <span class="clinics-stat__value">{{ stats.totalDoctors }}</span>
+          <span class="clinics-stat__label">Specialists</span>
+        </article>
+        <article class="clinics-stat">
+          <span class="clinics-stat__value">{{ stats.happyPatients | number }}</span>
+          <span class="clinics-stat__label">Visits booked</span>
+        </article>
+      </div>
+
+      <div
+        class="clinics-toolbar"
+        [class.clinics-toolbar--compact]="toolbarScrolled"
+        role="region"
+        aria-label="Results controls">
+        <div class="clinics-toolbar__left">
+          <h2 class="clinics-toolbar__title">Available near you</h2>
+          <span class="clinics-toolbar__count">
+            {{ isLoading ? 'Loading…' : filteredClinics.length + ' clinics' }}
+          </span>
+        </div>
+
+        <div class="clinics-toolbar__actions">
+          <label class="clinics-toolbar__sort" for="clinic-sort">
+            <span class="visually-hidden">Sort clinics</span>
+            <select id="clinic-sort" [ngModel]="sortBy" (ngModelChange)="setSort($event)">
+              <option *ngFor="let opt of sortOptions" [ngValue]="opt.value">{{ opt.label }}</option>
+            </select>
+          </label>
+
+          <button
+            type="button"
+            class="view-toggle"
+            [class.view-toggle--active]="!mapView"
+            (click)="mapView = false"
+            aria-label="List view"
+            [attr.aria-pressed]="!mapView">
+            <i class="bi bi-grid" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            class="view-toggle"
+            [class.view-toggle--active]="mapView"
+            (click)="toggleMapView()"
+            aria-label="Map view"
+            [attr.aria-pressed]="mapView">
+            <i class="bi bi-map" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading; else content" class="clinics-loading">
+        <div class="clinics-loading__head">
+          <div class="clinics-loading__spinner" aria-hidden="true"></div>
           <div>
-            <strong>Loading clinics</strong>
-            <p>Fetching nearby clinics. This should only take a moment.</p>
+            <strong>Finding clinics near you</strong>
+            <p>Curating the best matches for your search.</p>
           </div>
         </div>
         <div class="clinic-skeleton-grid" aria-hidden="true">
-          <div class="clinic-skeleton-card" *ngFor="let item of [1, 2, 3]">
-            <span></span>
-            <div></div>
-            <div></div>
+          <div class="clinic-skeleton-card" *ngFor="let item of [1, 2, 3, 4, 5, 6]">
+            <div class="clinic-skeleton-card__shimmer"></div>
+            <span class="clinic-skeleton-card__line clinic-skeleton-card__line--short"></span>
+            <span class="clinic-skeleton-card__line"></span>
+            <span class="clinic-skeleton-card__line clinic-skeleton-card__line--med"></span>
+            <div class="clinic-skeleton-card__footer"></div>
           </div>
         </div>
       </div>
-    </div>
-    <ng-template #content>
-      <div *ngIf="error; else clinicsList" class="error-state">
-        <i class="bi bi-exclamation-triangle"></i>
-        <p>{{ error }}</p>
-        <button (click)="loadClinics()" class="cta-button cta-button--small">Retry</button>
-      </div>
-      <ng-template #clinicsList>
-        <div class="card-grid" *ngIf="filteredClinics.length > 0; else emptyState">
-          <article class="clinic-card" *ngFor="let clinic of filteredClinics; trackBy: trackByClinic">
-            <div class="clinic-card__top">
-              <span class="clinic-card__specialty">{{ clinic.specialty }}</span>
-              <div
-                class="clinic-card__rating"
-                [attr.aria-label]="'Rating ' + clinic.rating + ' out of 5'">
-                <span class="clinic-card__rating-num">{{ clinic.rating }}</span>
-                <div class="clinic-card__stars" role="presentation">
-                  <i
-                    *ngFor="let n of starNumbers"
-                    class="bi star-icon"
-                    [class.bi-star-fill]="isStarFilled(clinic.rating, n)"
-                    [class.bi-star]="!isStarFilled(clinic.rating, n)"></i>
-                </div>
-              </div>
-            </div>
 
-            <div class="clinic-card__brand">
-              <div class="clinic-card__avatar">
-                <i class="bi bi-building-check" aria-hidden="true"></i>
-              </div>
-              <div class="clinic-card__titles">
-                <h3>{{ clinic.clinicName }}</h3>
-                <p class="clinic-card__tagline">
-                  {{ clinic.description || 'A trusted clinic ready for your next visit.' }}
-                </p>
-              </div>
-            </div>
-
-            <div class="clinic-card__details">
-              <p class="clinic-row">
-                <i class="bi bi-person-badge" aria-hidden="true"></i>
-                <span>{{ clinic.doctorName || 'Doctor available' }}</span>
-              </p>
-              <p class="clinic-row">
-                <i class="bi bi-geo-alt" aria-hidden="true"></i>
-                <span>{{ clinic.clinicAddress || 'Address will be shared after booking' }}</span>
-              </p>
-              <p class="clinic-row" *ngIf="clinic.phoneNumber">
-                <i class="bi bi-telephone" aria-hidden="true"></i>
-                <span>{{ clinic.phoneNumber }}</span>
-              </p>
-            </div>
-
-            <div class="clinic-card__footer">
-              <div class="availability-pill">
-                <i class="bi bi-calendar-check" aria-hidden="true"></i>
-                <span>{{ clinic.availableSlots }} open slots</span>
-              </div>
-              <button type="button" class="cta-button" (click)="bookClinic(clinic.id)">
-                <span>Book visit</span>
-                <i class="bi bi-arrow-right-short cta-button__arrow" aria-hidden="true"></i>
-              </button>
-            </div>
-          </article>
-        </div>
-      </ng-template>
-      <ng-template #emptyState>
-        <div class="empty-state">
-          <div class="empty-state__icon-wrap">
-            <i class="bi bi-search-heart" aria-hidden="true"></i>
-          </div>
-          <h3>No matches</h3>
-          <p>Try another keyword or browse all clinics again.</p>
-          <button type="button" class="cta-button cta-button--ghost" (click)="clearSearch()">
-            Reset search
+      <ng-template #content>
+        <div *ngIf="error; else results" class="clinics-error">
+          <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+          <p>{{ error }}</p>
+          <button type="button" class="btn-appointment btn-appointment--inline" (click)="loadClinics()">
+            <i class="bi bi-arrow-clockwise btn-appointment__icon" aria-hidden="true"></i>
+            <span class="btn-appointment__label">Try again</span>
           </button>
         </div>
+
+        <ng-template #results>
+          <div *ngIf="mapView" class="clinics-map-panel" role="img" aria-label="Map preview of clinic locations">
+            <div class="clinics-map-panel__grid"></div>
+            <div class="clinics-map-panel__pins">
+              <span
+                class="clinics-map-pin"
+                *ngFor="let clinic of filteredClinics | slice:0:8; let i = index"
+                [style.--x]="(12 + i * 11) + '%'"
+                [style.--y]="(18 + (i % 4) * 18) + '%'"
+                [attr.title]="clinic.clinicName">
+                <i class="bi bi-hospital" aria-hidden="true"></i>
+              </span>
+            </div>
+            <p class="clinics-map-panel__hint">
+              Map preview · {{ filteredClinics.length }} locations · switch to list to book
+            </p>
+          </div>
+
+          <div *ngIf="!mapView">
+            <div class="clinic-card-grid" *ngIf="filteredClinics.length > 0; else emptyState">
+              <article
+                class="clinic-card"
+                *ngFor="let clinic of filteredClinics; trackBy: trackByClinic; let i = index"
+                [style.animation-delay]="cardAnimationDelay(i)">
+                <div class="clinic-card__accent" aria-hidden="true"></div>
+
+                <div class="clinic-card__body">
+                  <div class="clinic-card__head">
+                    <h3 class="clinic-card__name">{{ clinic.clinicName }}</h3>
+                    <span class="clinic-card__tag">{{ clinic.specialty }}</span>
+                  </div>
+
+                  <div class="clinic-card__rating" aria-label="Rating {{ clinic.rating }} out of 5">
+                    <span class="clinic-card__stars" aria-hidden="true">
+                      <i
+                        class="bi"
+                        *ngFor="let star of starNumbers"
+                        [class.bi-star-fill]="isStarFilled(clinic.rating, star)"
+                        [class.bi-star]="!isStarFilled(clinic.rating, star)"></i>
+                    </span>
+                    <span class="clinic-card__rating-value">{{ clinic.rating }}</span>
+                    <span class="clinic-card__reviews">({{ clinic.reviewCount }} reviews)</span>
+                  </div>
+
+                  <p class="clinic-card__location">
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    <span>{{ clinic.clinicAddress || 'Address shared after booking' }}</span>
+                  </p>
+
+                  <p class="clinic-card__slots">
+                    <i class="bi bi-calendar2-check" aria-hidden="true"></i>
+                    <span>{{ clinic.availableSlots }} slot{{ clinic.availableSlots === 1 ? '' : 's' }} available</span>
+                  </p>
+                </div>
+
+                <footer class="clinic-card__footer">
+                  <button
+                    type="button"
+                    class="clinic-card__cta"
+                    (click)="bookClinic(clinic.id)"
+                    [attr.aria-label]="'Book now at ' + clinic.clinicName">
+                    Book Now
+                    <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                  </button>
+                </footer>
+              </article>
+            </div>
+
+            <ng-template #emptyState>
+              <div class="clinics-empty">
+                <div class="clinics-empty__icon">
+                  <i class="bi bi-search-heart" aria-hidden="true"></i>
+                </div>
+                <h3>No clinics match</h3>
+                <p>Adjust your filters to discover more options.</p>
+                <button type="button" class="btn-appointment btn-appointment--ghost btn-appointment--inline" (click)="resetFilters()">
+                  Reset filters
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
       </ng-template>
-    </ng-template>
-  </div>
-</section>
+    </div>
+  </section>
+</div>
 
 <app-patient-footer></app-patient-footer>

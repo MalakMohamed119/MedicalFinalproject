@@ -217,6 +217,163 @@ button.btn:active::after {
   box-shadow: 0 2px 8px rgba(4, 158, 189, 0.25);
 }
 
+/* Premium appointment / booking CTA — shared across patient flows */
+a.btn-appointment {
+  text-decoration: none;
+}
+
+.btn-appointment,
+.btn-appointment.btn-primary,
+.clinic-card__cta.btn-appointment,
+.primary-btn.btn-appointment {
+  --btn-appt-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --btn-appt-shadow: 0 4px 18px rgba(16, 185, 129, 0.32);
+  --btn-appt-shadow-hover: 0 10px 32px rgba(16, 185, 129, 0.42);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.9rem 1.35rem;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(135deg, #0d9488 0%, #10b981 48%, #059669 100%);
+  box-shadow: var(--btn-appt-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition:
+    transform 0.25s var(--btn-appt-ease),
+    box-shadow 0.25s var(--btn-appt-ease),
+    filter 0.25s var(--btn-appt-ease);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.28) 50%,
+      transparent 65%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s var(--btn-appt-ease);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .btn-appointment__icon,
+  > i,
+  i[aria-hidden='true'] {
+    position: relative;
+    z-index: 2;
+    font-size: 1.05rem;
+    transition: transform 0.25s var(--btn-appt-ease);
+  }
+
+  .btn-appointment__label,
+  > span:not(.btn-appointment__icon) {
+    position: relative;
+    z-index: 2;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: var(--btn-appt-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+
+    &::before {
+      transform: translateX(120%);
+    }
+
+    .btn-appointment__icon,
+    > i {
+      transform: scale(1.08) rotate(-4deg);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    filter: brightness(0.98);
+    box-shadow: 0 2px 12px rgba(16, 185, 129, 0.28);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      var(--btn-appt-shadow-hover),
+      0 0 0 3px rgba(16, 185, 129, 0.35),
+      0 0 0 6px rgba(16, 185, 129, 0.12);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.2);
+  }
+}
+
+.btn-appointment.btn-primary {
+  background: linear-gradient(135deg, #0d9488 0%, #10b981 48%, #059669 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.btn-appointment--inline {
+  width: auto;
+  min-width: 11rem;
+}
+
+.btn-appointment--ghost {
+  background: rgba(255, 255, 255, 0.92);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+
+  &::after {
+    border-color: rgba(16, 185, 129, 0.15);
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.08);
+    color: #047857;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+  }
+}
+
+.btn-appointment--loading {
+  pointer-events: none;
+
+  .btn-appointment__icon {
+    animation: btn-appt-spin 0.85s linear infinite;
+  }
+}
+
+@keyframes btn-appt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Utility: icon-text rows in forms / lists */
 .ch-label-with-icon {
   display: inline-flex;
@@ -987,25 +1144,6 @@ select:focus,
 .status-cancelled,
 .badge-danger {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
-}
-
-.relief-navbar {
-  border-bottom: 1px solid var(--ch-line-soft);
-}
-
-.relief-navbar .nav-container {
-  min-height: 64px;
-}
-
-.relief-navbar .nav-pill.active-link {
-  color: #ffffff;
-  background: var(--ch-gradient);
-  border-color: transparent;
-  box-shadow: 0 10px 24px rgba(var(--ch-accent-rgb), 0.22);
-}
-
-.relief-navbar .nav-pill.active-link i {
-  color: #ffffff;
 }
 
 .landing-page .service-card,

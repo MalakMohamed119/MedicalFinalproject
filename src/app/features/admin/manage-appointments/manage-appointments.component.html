@@ -1,0 +1,106 @@
+<div class="admin-page-shell">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="admin-page-main">
+    <header class="page-header">
+      <div>
+        <h1>All Appointments</h1>
+        <span class="page-count">{{ statusCounts().all }} total bookings</span>
+      </div>
+    </header>
+
+    <div class="status-tabs" *ngIf="!loading() && !error() && appointments().length > 0">
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === 'all'"
+        (click)="setStatusFilter('all')">
+        All ({{ statusCounts().all }})
+      </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === 'pending'"
+        (click)="setStatusFilter('pending')">
+        Pending ({{ statusCounts().pending }})
+      </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === 'confirmed'"
+        (click)="setStatusFilter('confirmed')">
+        Confirmed ({{ statusCounts().confirmed }})
+      </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === 'completed'"
+        (click)="setStatusFilter('completed')">
+        Completed ({{ statusCounts().completed }})
+      </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="statusFilter() === 'cancelled'"
+        (click)="setStatusFilter('cancelled')">
+        Cancelled ({{ statusCounts().cancelled }})
+      </button>
+    </div>
+
+    <div class="loading-state" *ngIf="loading()">
+      <div class="spinner"></div>
+      <p>Loading appointments...</p>
+    </div>
+
+    <div class="error-state" *ngIf="error() as errMsg">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ errMsg }}
+      <button type="button" (click)="loadAppointments()">Retry</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading() && !error() && appointments().length === 0">
+      <i class="fa-solid fa-calendar-days"></i>
+      <h3>No appointments found</h3>
+      <p>Bookings will appear here once patients reserve clinic visits.</p>
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="!loading() && !error() && appointments().length > 0 && filteredAppointments().length === 0">
+      <i class="fa-solid fa-filter"></i>
+      <h3>No appointments in this state</h3>
+      <p>Try another status filter to see more bookings.</p>
+    </div>
+
+    <div class="table-container" *ngIf="!loading() && !error() && filteredAppointments().length > 0">
+      <table class="doctors-table appointments-table">
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Clinic</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let appointment of filteredAppointments()">
+            <td>
+              <strong>{{ appointment.patientNameResolved }}</strong>
+            </td>
+            <td>{{ appointment.clinicNameResolved }}</td>
+            <td>{{ formatDate(appointment.date) }}</td>
+            <td>{{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(appointment.statusLabel)">
+                {{ appointment.statusLabel }}
+              </span>
+            </td>
+            <td>{{ appointment.priceAtBooking ? appointment.priceAtBooking + ' EGP' : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

@@ -14,7 +14,6 @@ export interface PatientProfileResponse {
   bloodType?: string;
   dateOfBirth?: string;
   address?: string;
-  nationalId?: string;
   medicalHistory?: string;
   allergies?: string | PatientAllergy[];
   medicalRecords?: PatientMedicalRecord[];
@@ -41,6 +40,7 @@ export interface PatientCreateRequest {
   dateOfBirth: string;
   gender: number;
   address: string;
+  userId: string;
   allergies: PatientAllergy[];
   medicalRecords: PatientMedicalRecord[];
 }
@@ -49,14 +49,9 @@ export interface PatientUpdateRequest {
   fullName: string;
   email: string;
   phoneNumber: string;
-  age: number;
-  gender: number;
-  dateOfBirth: string;
   address: string;
-  nationalId: string;
   allergies: PatientAllergy[];
   medicalRecords: PatientMedicalRecord[];
-  [key: string]: unknown;
 }
 
 export interface PatientMedicalData {

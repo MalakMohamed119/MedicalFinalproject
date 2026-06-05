@@ -270,7 +270,7 @@ export class MyAppointments implements OnInit {
       ? new Date(dateString)
       : new Date(dateString + 'T00:00:00');
 
-    if (isNaN(date.getTime())) return 'Invalid Date';
+    if (isNaN(date.getTime())) return '';
 
     return date.toLocaleDateString('en-US', {
       weekday: 'short',

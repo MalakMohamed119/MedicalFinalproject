@@ -86,7 +86,7 @@
                 </span>
                 <div>
                   <h2 class="appt-card__title">{{ appointment.clinicName || 'Clinic' }}</h2>
-                  <p class="appt-card__meta">Clinic ID {{ appointment.clinicId }}</p>
+                  <p class="appt-card__meta" *ngIf="appointment.doctorName">{{ appointment.doctorName }}</p>
                 </div>
               </div>
               <span class="appt-badge" [ngClass]="getStatusClass(appointment.status)">
@@ -95,9 +95,9 @@
             </div>
 
             <dl class="appt-card__details">
-              <div class="appt-card__row">
+              <div class="appt-card__row" *ngIf="formatDate(appointment.date) as apptDate">
                 <dt><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Date</dt>
-                <dd>{{ formatDate(appointment.date) }}</dd>
+                <dd>{{ apptDate }}</dd>
               </div>
               <div class="appt-card__row">
                 <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Time</dt>
@@ -142,7 +142,7 @@
                 </span>
                 <div>
                   <h2 class="appt-card__title">{{ appointment.clinicName || 'Clinic' }}</h2>
-                  <p class="appt-card__meta">Clinic ID {{ appointment.clinicId }}</p>
+                  <p class="appt-card__meta" *ngIf="appointment.doctorName">{{ appointment.doctorName }}</p>
                 </div>
               </div>
               <span class="appt-badge" [ngClass]="getStatusClass(appointment.status)">
@@ -151,9 +151,9 @@
             </div>
 
             <dl class="appt-card__details">
-              <div class="appt-card__row">
+              <div class="appt-card__row" *ngIf="formatDate(appointment.date) as apptDate">
                 <dt><i class="fa-solid fa-calendar-day" aria-hidden="true"></i> Date</dt>
-                <dd>{{ formatDate(appointment.date) }}</dd>
+                <dd>{{ apptDate }}</dd>
               </div>
               <div class="appt-card__row">
                 <dt><i class="fa-solid fa-clock" aria-hidden="true"></i> Time</dt>
@@ -186,9 +186,9 @@
           </div>
           <h2 class="state-card__title">No upcoming visits</h2>
           <p class="state-card__text">Book a slot at a clinic to see it listed here.</p>
-          <a routerLink="/home-for-patient" class="state-card__btn state-card__btn--link">
-            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-            Book an appointment
+          <a routerLink="/home-for-patient" class="btn-appointment btn-appointment--inline state-card__btn--link">
+            <i class="bi bi-calendar-plus-fill btn-appointment__icon" aria-hidden="true"></i>
+            <span class="btn-appointment__label">Book an appointment</span>
           </a>
         </div>
 

@@ -329,7 +329,7 @@ input[type="search"] {
   width: 100%;
 }
 
-.clinic-card__cta {
+.clinic-card__cta:not(.btn-appointment) {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -392,7 +392,7 @@ input[type="search"] {
   flex-wrap: wrap;
 }
 
-.primary-btn {
+.primary-btn:not(.btn-appointment) {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -514,11 +514,92 @@ input[type="search"] {
   }
 }
 
+.selected-slot-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: -0.5rem 0 1.35rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 128, 128, 0.1), rgba(16, 185, 129, 0.08));
+  border: 1px solid rgba(0, 128, 128, 0.16);
+}
+
+.selected-slot-summary__icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  color: #ffffff;
+  background: linear-gradient(135deg, $teal, #10b981);
+  box-shadow: 0 8px 18px rgba(0, 128, 128, 0.2);
+}
+
+.selected-slot-summary__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+
+  strong {
+    color: $text;
+    font-size: 0.98rem;
+    line-height: 1.25;
+  }
+
+  small {
+    color: $text-muted;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+}
+
+.selected-slot-summary__label {
+  color: $teal;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .time-slots-section h5 {
   margin: 0 0 1rem;
   color: $text;
   font-size: 1rem;
   font-weight: 600;
+}
+
+.time-slots-section__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h5 {
+    margin: 0 0 0.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: $text-muted;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+}
+
+.time-slots-section__count {
+  flex-shrink: 0;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  color: $teal;
+  background: rgba(0, 128, 128, 0.08);
+  border: 1px solid rgba(0, 128, 128, 0.14);
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .no-slots {
@@ -533,75 +614,444 @@ input[type="search"] {
   }
 }
 
-.time-slots-grid {
-  display: grid;
-  gap: 1rem;
-  max-height: 300px;
-  overflow-y: auto;
+.slot-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-.time-slot-card {
-  border: 2px solid rgba(0, 128, 128, 0.1);
-  border-radius: $radius-md;
-  padding: 1rem;
+.slot-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  min-width: 5.7rem;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.56rem 0.82rem;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  color: $text;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
+  animation: slot-card-enter 0.35s ease both;
+
+  &:hover:not(:disabled):not(.slot-pill--selected) {
+    transform: scale(1.02);
+    border-color: $teal;
+    box-shadow: 0 8px 18px rgba(0, 128, 128, 0.16);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $teal;
+    outline-offset: 2px;
+  }
+
+  &:disabled:not(.slot-pill--selected) {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: $text-muted;
+    background: #eef2f4;
+    border-color: rgba(100, 116, 139, 0.28);
+    box-shadow: none;
+    transform: none;
+  }
+
+  &--almost:not(:disabled):not(.slot-pill--selected) {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: rgba(255, 251, 235, 0.88);
+  }
+
+  &--selected {
+    color: #ffffff !important;
+    background: #0d6e7b !important;
+    border-color: #0d6e7b !important;
+    box-shadow: 0 0 0 3px rgba(4, 158, 189, 0.18), 0 10px 24px rgba(13, 110, 123, 0.28);
+    transform: scale(1.02);
+
+    .slot-pill__icon,
+    .slot-pill__period,
+    .slot-pill__range-end,
+    .slot-pill__time {
+      color: #ffffff !important;
+      opacity: 1;
+    }
+  }
+}
+
+.slot-pill.slot-pill--selected,
+.slot-pill.slot-pill--selected:disabled {
+  opacity: 1 !important;
+  color: #ffffff !important;
+  background: #0d6e7b !important;
+  border-color: #0d6e7b !important;
+  box-shadow: 0 0 0 3px rgba(4, 158, 189, 0.2), 0 10px 24px rgba(13, 110, 123, 0.28) !important;
+  filter: none !important;
+  visibility: visible !important;
+
+  .slot-pill__check,
+  .slot-pill__icon,
+  .slot-pill__time,
+  .slot-pill__period,
+  .slot-pill__range-end {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+.slot-pill__time-row {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.24rem;
+  min-width: 0;
+}
+
+.slot-pill__icon,
+.slot-pill__check {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+}
+
+.slot-pill__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.slot-pill__time {
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-pill__period,
+.slot-pill__range-end {
+  font-size: 0.72rem;
+  font-weight: 800;
+  opacity: 0.78;
+}
+
+.slot-pill__time--muted {
+  color: inherit;
+  font-size: 0.82rem;
+}
+
+.slot-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.56rem 0.82rem;
+  border: 1px dashed rgba(15, 118, 110, 0.36);
+  border-radius: 999px;
+  background: rgba(0, 128, 128, 0.06);
+  color: $teal;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease;
 
   &:hover {
-    border-color: $teal;
-    background: rgba(0, 128, 128, 0.03);
-  }
-
-  &.selected {
+    transform: scale(1.02);
     border-color: $teal;
     background: rgba(0, 128, 128, 0.1);
-    box-shadow: 0 0 0 2px rgba(0, 128, 128, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $teal;
+    outline-offset: 2px;
   }
 }
 
-.time-slot__datetime {
-  font-weight: 600;
-  color: $text;
-  margin-bottom: 0.5rem;
+.slot-selection-label {
+  margin: 0.75rem 0 0;
+  color: $text-muted;
+  font-size: 0.82rem;
+  font-weight: 700;
+
+  strong {
+    color: $teal;
+  }
 }
 
-.time-slot__details {
+.slot-selection-label--empty {
+  color: $text-muted;
+}
+
+.slot-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0.125rem;
+}
+
+.slot-card {
+  --slot-accent: #22c55e;
+  --slot-glow: rgba(34, 197, 94, 0.35);
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  min-height: 7.25rem;
+  padding: 0.85rem 0.9rem 0.75rem 1rem;
+  border: 1px solid rgba(15, 118, 110, 0.12);
+  border-radius: 1rem;
+  background: linear-gradient(145deg, #f8fffe 0%, #f0f9f8 100%);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: $text;
+  overflow: hidden;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    color 150ms ease;
+  animation: slot-card-enter 0.45s ease both;
+
+  &:focus-visible {
+    outline: 2px solid $teal;
+    outline-offset: 2px;
+  }
+
+  &:active:not(:disabled) {
+    animation: slot-card-ripple 0.35s ease;
+  }
+
+  &:hover:not(:disabled):not(.slot-card--selected) {
+    transform: scale(1.02);
+    border-color: var(--slot-accent);
+    box-shadow:
+      0 0 0 1px var(--slot-accent),
+      0 8px 24px var(--slot-glow);
+  }
+
+  &--available {
+    --slot-accent: #22c55e;
+    --slot-glow: rgba(34, 197, 94, 0.28);
+  }
+
+  &--almost {
+    --slot-accent: #f59e0b;
+    --slot-glow: rgba(245, 158, 11, 0.28);
+  }
+
+  &--booked {
+    --slot-accent: #94a3b8;
+    --slot-glow: transparent;
+    opacity: 0.55;
+    cursor: not-allowed;
+    filter: grayscale(0.25);
+
+    .slot-card__time,
+    .slot-card__range-end {
+      text-decoration: line-through;
+      color: $text-muted;
+    }
+  }
+
+  &--selected {
+    --slot-accent: #{$teal};
+    --slot-glow: rgba(0, 128, 128, 0.35);
+    background: linear-gradient(145deg, $teal 0%, #006b6b 100%);
+    border-color: transparent;
+    color: #fff;
+    transform: scale(1.02);
+    box-shadow: 0 10px 28px var(--slot-glow);
+
+    .slot-card__icon,
+    .slot-card__date,
+    .slot-card__range-end,
+    .slot-card__price {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .slot-card__period {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .slot-card__accent {
+      opacity: 0;
+    }
+  }
+}
+
+.slot-card__accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--slot-accent);
+  border-radius: 1rem 0 0 1rem;
+  transition: background 150ms ease;
+}
+
+.slot-card__check {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
-.time-slot__duration {
-  color: $text-muted;
-  font-size: 0.875rem;
+.slot-card__time-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.35rem;
+  margin-top: 0.15rem;
+  min-height: 2rem;
 }
 
-.time-slot__price {
-  color: $teal;
+.slot-card__icon {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--slot-accent);
+  align-self: center;
+}
+
+.slot-card__time {
+  font-family: 'SF Mono', 'Cascadia Mono', 'Consolas', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+
+  &--muted {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $text-muted;
+  }
+}
+
+.slot-card__period {
+  margin-left: 0.2rem;
+  font-size: 0.65rem;
   font-weight: 600;
-}
-
-.time-slot__availability {
-  text-align: right;
-}
-
-.available-count {
-  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: $text-muted;
-  background: rgba(0, 128, 128, 0.1);
-  padding: 0.25rem 0.5rem;
-  border-radius: 999px;
+  vertical-align: super;
+}
+
+.slot-card__range-end {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: $text-muted;
+}
+
+.slot-card__date {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: $text-muted;
+
+  i {
+    font-size: 0.7rem;
+    opacity: 0.85;
+  }
+}
+
+.slot-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.15rem;
+}
+
+.slot-card__price {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: $teal;
+}
+
+@keyframes slot-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slot-card-ripple {
+  0% {
+    box-shadow: 0 0 0 0 var(--slot-glow);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 .booking-modal__footer {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.85rem;
   padding: 1.5rem;
   border-top: 1px solid rgba(0, 128, 128, 0.1);
 }
 
-.btn-primary {
+.booking-modal__footer-hint {
+  margin: 0 auto 0 0;
+  color: $text-muted;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.booking-modal__footer .btn-primary:not(.btn-appointment) {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -623,6 +1073,22 @@ input[type="search"] {
     opacity: 0.6;
     cursor: not-allowed;
   }
+}
+
+.booking-modal__footer .btn-appointment:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+  box-shadow: none !important;
+}
+
+.booking-modal__footer .btn-appointment.booking-confirm--ready:not(:disabled) {
+  opacity: 1 !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 100%) !important;
+  box-shadow: 0 12px 28px rgba(4, 158, 189, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+  filter: none !important;
+  cursor: pointer;
 }
 
 .btn-secondary {
@@ -1127,9 +1593,323 @@ input[type="search"] {
 .secondary-btn,
 .btn-primary,
 .btn-secondary,
-.time-slot-card,
+.slot-card,
+.slot-pill,
+.slot-more-btn,
 .info-block,
 .sidebar-block,
 .map-placeholder {
   border-radius: 10px;
+}
+
+/* Patient clinic-details polish */
+.clinic-details-page {
+  --patient-primary: #0d6e7b;
+  --patient-primary-deep: #075866;
+  --patient-accent: #049ebd;
+  --patient-mint: #14b8a6;
+  --patient-ink: #102331;
+  --patient-muted: #607384;
+  --patient-line: rgba(13, 110, 123, 0.12);
+  --patient-soft: #f6fafb;
+
+  color: var(--patient-ink);
+  background:
+    radial-gradient(820px 320px at 0% 0%, rgba(4, 158, 189, 0.09), transparent 60%),
+    radial-gradient(760px 340px at 100% 4%, rgba(20, 184, 166, 0.08), transparent 56%),
+    linear-gradient(180deg, #ffffff 0%, var(--patient-soft) 50%, #ffffff 100%);
+}
+
+.search-card,
+.clinic-card,
+.clinic-header,
+.services-panel,
+.sidebar-card,
+.booking-modal,
+.empty-state,
+.error-state,
+.loading-state {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: var(--patient-line);
+  box-shadow: 0 14px 34px rgba(15, 35, 49, 0.08);
+}
+
+.clinic-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(4, 158, 189, 0.24);
+  box-shadow: 0 18px 40px rgba(15, 35, 49, 0.11);
+}
+
+.clinic-header__titles h1,
+.clinic-card__name,
+.services-panel__head h2,
+.sidebar-card__title,
+.time-slots-section h5 {
+  color: var(--patient-ink);
+}
+
+.clinic-card__doctor,
+.info-item__text,
+.info-block__text,
+.services-panel__hint,
+.sidebar-block__text,
+.slot-card__date,
+.slot-card__range-end,
+.slot-pill__range-end {
+  color: var(--patient-muted);
+}
+
+.clinic-card__icon,
+.service-row__icon,
+.sidebar-card__title i,
+.sidebar-block__label,
+.info-block__label i,
+.clinic-header__doctor i {
+  color: var(--patient-primary);
+}
+
+.clinic-card__icon,
+.service-row__icon,
+.info-block,
+.selected-clinic-info {
+  background: rgba(4, 158, 189, 0.07);
+  border-color: rgba(4, 158, 189, 0.12);
+}
+
+.verified-badge {
+  color: var(--patient-primary);
+  background: rgba(4, 158, 189, 0.08);
+  border-color: rgba(4, 158, 189, 0.18);
+}
+
+.search-input-wrapper {
+  border-color: rgba(13, 110, 123, 0.18);
+  background: #ffffff;
+
+  &:focus-within {
+    border-color: var(--patient-accent);
+    box-shadow: 0 0 0 4px rgba(4, 158, 189, 0.13);
+  }
+}
+
+.booking-modal-overlay {
+  background: rgba(15, 35, 49, 0.46);
+  backdrop-filter: blur(3px);
+}
+
+.booking-modal {
+  border-radius: 16px;
+}
+
+.booking-modal__header,
+.booking-modal__footer {
+  border-color: rgba(13, 110, 123, 0.1);
+}
+
+.selected-slot-summary {
+  background: linear-gradient(135deg, rgba(4, 158, 189, 0.1), rgba(20, 184, 166, 0.08));
+  border-color: rgba(4, 158, 189, 0.16);
+}
+
+.selected-slot-summary--empty {
+  background: #f8fcfd;
+  border-style: dashed;
+
+  .selected-slot-summary__icon {
+    color: var(--patient-primary);
+    background: #ffffff;
+    border: 1px solid rgba(4, 158, 189, 0.18);
+    box-shadow: none;
+  }
+
+  strong {
+    color: var(--patient-ink);
+  }
+}
+
+.selected-slot-summary__icon {
+  background: linear-gradient(135deg, var(--patient-primary), var(--patient-accent));
+  box-shadow: 0 8px 18px rgba(4, 158, 189, 0.22);
+}
+
+.selected-slot-summary__label,
+.selected-clinic-info h4,
+.slot-card__price,
+.slot-selection-label strong {
+  color: var(--patient-primary);
+}
+
+.slot-pill {
+  border-color: rgba(13, 110, 123, 0.18);
+  background: #ffffff;
+
+  &:hover:not(:disabled):not(.slot-pill--selected) {
+    border-color: var(--patient-accent);
+    box-shadow: 0 8px 18px rgba(4, 158, 189, 0.16);
+  }
+
+  &:focus-visible {
+    outline-color: var(--patient-accent);
+  }
+
+  &--selected {
+    color: #ffffff !important;
+    background: var(--patient-primary) !important;
+    border-color: var(--patient-primary) !important;
+    box-shadow: 0 0 0 3px rgba(4, 158, 189, 0.18), 0 10px 24px rgba(4, 158, 189, 0.24);
+  }
+}
+
+.slot-more-btn {
+  color: var(--patient-primary);
+  border-color: rgba(13, 110, 123, 0.3);
+  background: rgba(4, 158, 189, 0.06);
+
+  &:hover {
+    border-color: var(--patient-accent);
+    background: rgba(4, 158, 189, 0.1);
+  }
+
+  &:focus-visible {
+    outline-color: var(--patient-accent);
+  }
+}
+
+.slot-card {
+  --slot-accent: var(--patient-primary);
+  --slot-glow: rgba(4, 158, 189, 0.22);
+  border-color: rgba(13, 110, 123, 0.12);
+  background: linear-gradient(145deg, #ffffff 0%, #f7fbfc 100%);
+  border-radius: 14px;
+  min-height: 8.1rem;
+  padding: 1rem 1rem 0.9rem 1.1rem;
+
+  &--available {
+    --slot-accent: var(--patient-primary);
+    --slot-glow: rgba(4, 158, 189, 0.22);
+  }
+
+  &--almost {
+    --slot-accent: #d97706;
+    --slot-glow: rgba(217, 119, 6, 0.18);
+  }
+
+  &--selected {
+    --slot-accent: var(--patient-accent);
+    --slot-glow: rgba(4, 158, 189, 0.3);
+    background: linear-gradient(135deg, var(--patient-primary) 0%, var(--patient-accent) 100%);
+    box-shadow: 0 14px 32px rgba(4, 158, 189, 0.28);
+  }
+}
+
+.slot-card__time {
+  font-size: 1.55rem;
+}
+
+.slot-card__period {
+  font-size: 0.68rem;
+}
+
+.slot-card__date {
+  font-size: 0.78rem;
+}
+
+.time-slots-section__count {
+  color: var(--patient-primary);
+  background: rgba(4, 158, 189, 0.08);
+  border-color: rgba(4, 158, 189, 0.16);
+}
+
+.booking-modal__footer {
+  gap: 1rem;
+  background: #f8fcfd;
+}
+
+.booking-modal__footer .btn-secondary,
+.booking-modal__footer .btn-appointment {
+  min-height: 2.9rem;
+}
+
+.booking-modal__footer .btn-secondary {
+  min-width: 7.5rem;
+  justify-content: center;
+}
+
+.booking-modal__footer .btn-appointment {
+  min-width: 13rem;
+}
+
+.btn-appointment.btn-primary,
+.btn-appointment.btn-appointment--inline,
+.clinic-card__cta.btn-appointment,
+.primary-btn.btn-appointment {
+  background: linear-gradient(135deg, var(--patient-primary) 0%, var(--patient-accent) 100%) !important;
+  box-shadow: 0 10px 24px rgba(4, 158, 189, 0.24);
+}
+
+.btn-secondary {
+  color: var(--patient-primary);
+  border-color: rgba(13, 110, 123, 0.22);
+
+  &:hover {
+    background: rgba(4, 158, 189, 0.07);
+    color: var(--patient-primary-deep);
+    border-color: rgba(4, 158, 189, 0.32);
+  }
+}
+
+@media (max-width: 640px) {
+  .time-slots-section__header,
+  .booking-modal__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .slot-pills-row {
+    gap: 0.5rem;
+  }
+
+  .slot-pill {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 7rem;
+  }
+
+  .slot-more-btn {
+    flex: 1 1 100%;
+  }
+
+  .time-slots-section__count {
+    width: fit-content;
+  }
+
+  .booking-modal__footer-hint {
+    margin: 0;
+    text-align: center;
+  }
+
+  .booking-modal__footer .btn-secondary,
+  .booking-modal__footer .btn-appointment {
+    width: 100%;
+  }
+}
+
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected,
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected:disabled {
+  opacity: 1 !important;
+  color: #ffffff !important;
+  background: #0d6e7b !important;
+  border-color: #0d6e7b !important;
+  box-shadow: 0 0 0 3px rgba(4, 158, 189, 0.2), 0 10px 24px rgba(13, 110, 123, 0.28) !important;
+  filter: none !important;
+  transform: scale(1.02);
+}
+
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected .slot-pill__check,
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected .slot-pill__icon,
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected .slot-pill__time,
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected .slot-pill__period,
+.clinic-details-page .booking-modal .slot-pill.slot-pill--selected .slot-pill__range-end {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }

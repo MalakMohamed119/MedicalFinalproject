@@ -13,6 +13,13 @@ import { ToastService } from '../../../core/services/toast.service';
 
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 import { TimeSlot } from '../../../shared/models/timeslot.interface';
+import {
+  formatSlotDateLabel,
+  formatTimeDisplay,
+  formatTimeRange,
+  getSlotAvailabilityStatus,
+  SlotAvailabilityStatus
+} from '../../../shared/utils/date-time.util';
 
 export interface ClinicServiceItem {
   id: number;
@@ -45,15 +52,35 @@ export class ClinicDetails implements OnInit {
   error: string | null = null;
 
   selectedClinic: ClinicResponse | null = null;
-  selectedTimeSlot: TimeSlot | null = null;
+  selectedSlotId: number | null = null;
 
   availableTimeSlots: TimeSlot[] = [];
+  showAllTimeSlots: boolean = false;
+  private readonly visibleSlotLimit = 6;
 
   showTimeSlotsModal: boolean = false;
 
   searchTerm: string = '';
 
   viewMode: 'list' | 'details' = 'list';
+
+  get selectedTimeSlot(): TimeSlot | null {
+    if (this.selectedSlotId == null) {
+      return null;
+    }
+
+    return this.availableTimeSlots.find((slot) => slot.id === this.selectedSlotId) ?? null;
+  }
+
+  get visibleTimeSlots(): TimeSlot[] {
+    return this.showAllTimeSlots
+      ? this.availableTimeSlots
+      : this.availableTimeSlots.slice(0, this.visibleSlotLimit);
+  }
+
+  get hiddenSlotCount(): number {
+    return Math.max(this.availableTimeSlots.length - this.visibleSlotLimit, 0);
+  }
 
   constructor(
     private clinicService: ClinicService,
@@ -271,6 +298,8 @@ export class ClinicDetails implements OnInit {
     }
 
     this.selectedClinic = clinic;
+    this.selectedSlotId = null;
+    this.showAllTimeSlots = false;
 
     this.showTimeSlotsModal = true;
 
@@ -281,7 +310,8 @@ export class ClinicDetails implements OnInit {
 
     this.showTimeSlotsModal = false;
 
-    this.selectedTimeSlot = null;
+    this.selectedSlotId = null;
+    this.showAllTimeSlots = false;
 
     this.availableTimeSlots = [];
   }
@@ -300,11 +330,11 @@ export class ClinicDetails implements OnInit {
 
         console.log('✅ Time slots loaded:', timeSlots);
 
-        this.availableTimeSlots = timeSlots.filter(
-          slot => (slot.availableCount ?? Math.max((slot.capacity ?? 0) - (slot.bookedCount ?? 0), 0)) > 0
-        );
-
-        this.selectedTimeSlot = this.availableTimeSlots[0] ?? null;
+        this.availableTimeSlots = timeSlots
+          .map((slot) => this.normalizeTimeSlot(slot))
+          .sort((a, b) => this.getSlotSortValue(a) - this.getSlotSortValue(b));
+        this.selectedSlotId = null;
+        this.showAllTimeSlots = false;
 
         this.cdr.detectChanges();
       },
@@ -326,11 +356,128 @@ export class ClinicDetails implements OnInit {
   // SELECT SLOT
   // =========================
 
-  selectTimeSlot(timeSlot: TimeSlot): void {
+  selectTimeSlot(timeSlot: TimeSlot, event?: Event): void {
+    event?.stopPropagation();
 
-    this.selectedTimeSlot = timeSlot;
+    if (this.isSlotDisabled(timeSlot)) {
+      return;
+    }
 
-    console.log('📅 Selected slot:', timeSlot);
+    this.selectedSlotId = this.selectedSlotId === timeSlot.id ? null : timeSlot.id;
+  }
+
+  isSlotSelected(slot: TimeSlot): boolean {
+    return this.selectedSlotId === slot.id;
+  }
+
+  isSlotDisabled(slot: TimeSlot): boolean {
+    return !this.canSelectSlot(slot) && !this.isSlotSelected(slot);
+  }
+
+  toggleShowAllTimeSlots(event: Event): void {
+    event.stopPropagation();
+    this.showAllTimeSlots = !this.showAllTimeSlots;
+  }
+
+  onSlotKeydown(event: KeyboardEvent, slot: TimeSlot): void {
+    const key = event.key;
+
+    if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
+      event.preventDefault();
+      this.selectTimeSlot(slot, event);
+      return;
+    }
+
+    const isForward = key === 'ArrowRight' || key === 'ArrowDown';
+    const isBackward = key === 'ArrowLeft' || key === 'ArrowUp';
+
+    if (!isForward && !isBackward) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const currentButton = event.currentTarget as HTMLButtonElement | null;
+    const slotGroup = currentButton?.closest('.slot-pills-row');
+    const slotButtons = Array.from(
+      slotGroup?.querySelectorAll<HTMLButtonElement>('.slot-pill:not(:disabled)') ?? []
+    );
+    const currentIndex = currentButton ? slotButtons.indexOf(currentButton) : -1;
+
+    if (currentIndex === -1 || slotButtons.length === 0) {
+      return;
+    }
+
+    const direction = isForward ? 1 : -1;
+    const nextIndex = (currentIndex + direction + slotButtons.length) % slotButtons.length;
+    slotButtons[nextIndex]?.focus();
+  }
+
+  trackBySlot(_index: number, slot: TimeSlot): number {
+    return slot.id;
+  }
+
+  slotButtonDelay(index: number): string {
+    return `${Math.min(index, 16) * 50}ms`;
+  }
+
+  getSlotAriaLabel(slot: TimeSlot): string {
+    const label = this.getSlotDisplayLabel(slot);
+    return label ? `Select ${label} slot` : 'Select time slot';
+  }
+
+  getSlotDisplayLabel(slot: TimeSlot): string | null {
+    const range = this.getSlotTimeRange(slot);
+    return range ? `${range.start} ${range.period}` : null;
+  }
+
+  getSlotDateLabel(slot: TimeSlot): string | null {
+    return formatSlotDateLabel(slot.date) ?? formatSlotDateLabel(slot.startTime);
+  }
+
+  getSlotTimeRange(slot: TimeSlot): { start: string; end: string; period: string } | null {
+    const range = formatTimeRange(slot.startTime, slot.endTime);
+    if (range) {
+      return range;
+    }
+
+    const start = formatTimeDisplay(slot.startTime);
+    if (!start) {
+      return null;
+    }
+
+    return { start: start.time, end: '', period: start.period };
+  }
+
+  getSlotStatus(slot: TimeSlot): SlotAvailabilityStatus {
+    const available =
+      slot.availableCount ?? Math.max((slot.capacity ?? 0) - (slot.bookedCount ?? 0), 0);
+    return getSlotAvailabilityStatus(available, slot.capacity ?? 0);
+  }
+
+  canSelectSlot(slot: TimeSlot): boolean {
+    return this.getSlotStatus(slot) !== 'booked';
+  }
+
+  private getSlotSortValue(slot: TimeSlot): number {
+    const parsed = new Date(slot.startTime);
+    const parsedTime = parsed.getTime();
+    return Number.isNaN(parsedTime) ? Number.MAX_SAFE_INTEGER : parsedTime;
+  }
+
+  private normalizeTimeSlot(slot: TimeSlot): TimeSlot {
+    const capacity = slot.capacity ?? 0;
+    const bookedCount = slot.bookedCount ?? 0;
+    const availableCount =
+      slot.availableCount ?? Math.max(capacity - bookedCount, 0);
+
+    return {
+      ...slot,
+      capacity,
+      bookedCount,
+      availableCount
+    };
   }
 
   // =========================
@@ -339,7 +486,9 @@ export class ClinicDetails implements OnInit {
 
   bookAppointment(): void {
 
-    if (!this.selectedTimeSlot) {
+    const selectedTimeSlot = this.selectedTimeSlot;
+
+    if (!selectedTimeSlot) {
 
       this.toastService.error(
         'Please select a time slot'
@@ -352,13 +501,13 @@ export class ClinicDetails implements OnInit {
 
     console.log(
       '🔄 Booking appointment:',
-      this.selectedTimeSlot.id
+      selectedTimeSlot.id
     );
 
     this.cdr.detectChanges();
 
     this.appointmentService
-      .bookAppointment(this.selectedTimeSlot.id)
+      .bookAppointment(selectedTimeSlot.id)
       .subscribe({
 
         next: (response) => {
@@ -400,28 +549,4 @@ export class ClinicDetails implements OnInit {
       });
   }
 
-  // =========================
-  // FORMAT DATE
-  // =========================
-
-  formatDateTime(date: string, time: string): string {
-
-    const dateObj = new Date(date);
-
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-
-    return (
-      dateObj
-        .toLocaleDateString('en-US', options)
-        .replace(',', '') +
-      ' - ' +
-      time
-    );
-  }
 }

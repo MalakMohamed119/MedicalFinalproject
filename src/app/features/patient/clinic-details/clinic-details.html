@@ -106,9 +106,9 @@
               </div>
 
               <div class="clinic-card__actions">
-                <button type="button" class="clinic-card__cta" (click)="openBookingModal(clinic); $event.stopPropagation()">
-                  Book an Appointment
-                  <i class="bi bi-calendar-check" aria-hidden="true"></i>
+                <button type="button" class="btn-appointment clinic-card__cta" (click)="openBookingModal(clinic); $event.stopPropagation()">
+                  <i class="bi bi-calendar-plus-fill btn-appointment__icon" aria-hidden="true"></i>
+                  <span class="btn-appointment__label">Book an appointment</span>
                 </button>
               </div>
             </div>
@@ -206,9 +206,9 @@
               </div>
 
               <div class="action-buttons">
-                <button type="button" class="primary-btn" (click)="openBookingModal(selectedClinic)">
-                  <i class="bi bi-calendar-check" aria-hidden="true"></i>
-                  Book Appointment
+                <button type="button" class="btn-appointment btn-appointment--inline primary-btn" (click)="openBookingModal(selectedClinic)">
+                  <i class="bi bi-calendar-plus-fill btn-appointment__icon" aria-hidden="true"></i>
+                  <span class="btn-appointment__label">Book appointment</span>
                 </button>
                 <button type="button" class="secondary-btn">
                   <i class="bi bi-telephone" aria-hidden="true"></i>
@@ -269,49 +269,119 @@
         <p>{{ selectedClinic.doctorName }} • {{ selectedClinic.clinicAddress }}</p>
       </div>
 
+      <div class="selected-slot-summary" *ngIf="selectedTimeSlot as slot">
+        <span class="selected-slot-summary__icon" aria-hidden="true">
+          <i class="bi bi-calendar-check"></i>
+        </span>
+        <div class="selected-slot-summary__body">
+          <span class="selected-slot-summary__label">Selected slot</span>
+          <strong *ngIf="getSlotDateLabel(slot) as dateLabel">
+            {{ dateLabel }}
+          </strong>
+          <small *ngIf="getSlotTimeRange(slot) as range">
+            {{ range.start }} {{ range.period }}<span *ngIf="range.end"> - {{ range.end }}</span>
+          </small>
+        </div>
+      </div>
+      <div class="selected-slot-summary selected-slot-summary--empty" *ngIf="!selectedTimeSlot">
+        <span class="selected-slot-summary__icon" aria-hidden="true">
+          <i class="bi bi-clock-history"></i>
+        </span>
+        <div class="selected-slot-summary__body">
+          <span class="selected-slot-summary__label">Choose a time</span>
+          <strong>Select the hour that works for you</strong>
+          <small>Confirmation will be available after you choose a slot.</small>
+        </div>
+      </div>
+
       <div class="time-slots-section">
-        <h5>Select a Time Slot</h5>
+        <div class="time-slots-section__header">
+          <div>
+            <h5>Select Appointment Time</h5>
+            <p>Tap one available slot below to book that exact hour.</p>
+          </div>
+          <span class="time-slots-section__count" *ngIf="availableTimeSlots.length > 0">
+            {{ availableTimeSlots.length }} options
+          </span>
+        </div>
         
         <div *ngIf="availableTimeSlots.length === 0" class="no-slots">
           <i class="bi bi-calendar-x" aria-hidden="true"></i>
           <p>No available time slots for this clinic</p>
         </div>
 
-        <div class="time-slots-grid">
-          <div 
-            *ngFor="let slot of availableTimeSlots" 
-            class="time-slot-card"
-            [class.selected]="selectedTimeSlot?.id === slot.id"
-            (click)="selectTimeSlot(slot)">
-            <div class="time-slot__datetime">
-              {{ formatDateTime(slot.date, slot.startTime) }}
+        <div class="slot-pills-row" role="group" aria-label="Available time slots">
+          <button
+            type="button"
+            *ngFor="let slot of visibleTimeSlots; trackBy: trackBySlot; let i = index"
+            class="slot-pill"
+            [class.slot-pill--selected]="isSlotSelected(slot)"
+            [class.slot-pill--almost]="getSlotStatus(slot) === 'almost-full'"
+            [class.slot-pill--booked]="isSlotDisabled(slot)"
+            [attr.aria-pressed]="isSlotSelected(slot)"
+            [attr.aria-label]="getSlotAriaLabel(slot)"
+            [disabled]="isSlotDisabled(slot)"
+            [style.animation-delay]="slotButtonDelay(i)"
+            [attr.title]="isSlotDisabled(slot) ? 'This slot is unavailable' : 'Choose this appointment time'"
+            (click)="selectTimeSlot(slot, $event)"
+            (keydown)="onSlotKeydown($event, slot)">
+            <span class="slot-pill__check" *ngIf="isSlotSelected(slot)" aria-hidden="true">
+              <i class="bi bi-check-lg"></i>
+            </span>
+
+            <div class="slot-pill__time-row">
+              <i class="bi bi-clock slot-pill__icon" aria-hidden="true"></i>
+              <ng-container *ngIf="getSlotTimeRange(slot) as range; else slotTimeFallback">
+                <span class="slot-pill__time">
+                  {{ range.start }}<span class="slot-pill__period">{{ range.period }}</span>
+                </span>
+                <span class="slot-pill__range-end" *ngIf="range.end">- {{ range.end }}</span>
+              </ng-container>
+              <ng-template #slotTimeFallback>
+                <span class="slot-pill__time slot-pill__time--muted">Time TBD</span>
+              </ng-template>
             </div>
-            <div class="time-slot__details">
-              <span class="time-slot__duration">{{ slot.startTime }} - {{ slot.endTime }}</span>
-              <span class="time-slot__price">{{ slot.price }} EGP</span>
-            </div>
-            <div class="time-slot__availability">
-              <span class="available-count">{{ slot.availableCount }} available</span>
-            </div>
-          </div>
+
+          </button>
+
+          <button
+            type="button"
+            class="slot-more-btn"
+            *ngIf="hiddenSlotCount > 0"
+            (click)="toggleShowAllTimeSlots($event)"
+            [attr.aria-expanded]="showAllTimeSlots">
+            {{ showAllTimeSlots ? 'Show less' : 'Show more' }}
+            <span *ngIf="!showAllTimeSlots">({{ hiddenSlotCount }})</span>
+          </button>
         </div>
+
+        <p class="slot-selection-label" *ngIf="selectedTimeSlot as slot">
+          Selected: <strong>{{ getSlotDisplayLabel(slot) || 'Time selected' }}</strong>
+          <span *ngIf="getSlotDateLabel(slot) as dateLabel"> on {{ dateLabel }}</span>
+        </p>
+        <p class="slot-selection-label slot-selection-label--empty" *ngIf="!selectedTimeSlot && availableTimeSlots.length > 0">
+          Select one slot to continue.
+        </p>
       </div>
     </div>
 
     <div class="booking-modal__footer">
+      <p class="booking-modal__footer-hint" *ngIf="!selectedTimeSlot">
+        Choose a time slot first.
+      </p>
       <button type="button" class="btn-secondary" (click)="closeBookingModal()">
         Cancel
       </button>
-      <button 
-        type="button" 
-        class="btn-primary" 
+      <button
+        type="button"
+        class="btn-appointment btn-appointment--inline btn-primary"
+        [class.btn-appointment--loading]="bookingLoading"
+        [class.booking-confirm--ready]="selectedTimeSlot && !bookingLoading"
         (click)="bookAppointment()"
         [disabled]="!selectedTimeSlot || bookingLoading">
-        <span *ngIf="!bookingLoading">Book Appointment</span>
-        <span *ngIf="bookingLoading">
-          <i class="bi bi-arrow-clockwise spinning" aria-hidden="true"></i>
-          Booking...
-        </span>
+        <i class="bi bi-calendar-check btn-appointment__icon" aria-hidden="true" *ngIf="!bookingLoading"></i>
+        <i class="bi bi-arrow-clockwise btn-appointment__icon" aria-hidden="true" *ngIf="bookingLoading"></i>
+        <span class="btn-appointment__label">{{ bookingLoading ? 'Booking…' : 'Confirm appointment' }}</span>
       </button>
     </div>
   </div>

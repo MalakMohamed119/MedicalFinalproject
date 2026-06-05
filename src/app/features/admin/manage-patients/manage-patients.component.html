@@ -1,0 +1,90 @@
+<div class="admin-page-shell">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <main class="admin-page-main">
+    <header class="page-header">
+      <div>
+        <h1>All Patients</h1>
+        <span class="page-count">
+          {{ rows().length }} registered · {{ bookingCount() }} with bookings
+        </span>
+      </div>
+    </header>
+
+    <div class="status-tabs" *ngIf="!loading() && !error() && rows().length > 0">
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="activeTab() === 'all'"
+        (click)="setTab('all')">
+        All Patients ({{ rows().length }})
+      </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="activeTab() === 'bookings'"
+        (click)="setTab('bookings')">
+        With Bookings ({{ bookingCount() }})
+      </button>
+    </div>
+
+    <div class="loading-state" *ngIf="loading()">
+      <div class="spinner"></div>
+      <p>Loading patients...</p>
+    </div>
+
+    <div class="error-state" *ngIf="error() as errMsg">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      {{ errMsg }}
+      <button type="button" (click)="loadPatients()">Retry</button>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading() && !error() && rows().length === 0">
+      <i class="fa-solid fa-users"></i>
+      <h3>No patients found</h3>
+    </div>
+
+    <div
+      class="empty-state"
+      *ngIf="!loading() && !error() && rows().length > 0 && visibleRows().length === 0">
+      <i class="fa-solid fa-calendar-check"></i>
+      <h3>No patients with bookings yet</h3>
+      <p>Patients who reserve appointments will appear in this tab.</p>
+    </div>
+
+    <div class="table-container" *ngIf="!loading() && !error() && visibleRows().length > 0">
+      <table class="doctors-table patients-table">
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Bookings</th>
+            <th>Latest Status</th>
+            <th>Last Booking</th>
+            <th>Clinic</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of visibleRows()">
+            <td><strong>{{ displayName(row.patient) }}</strong></td>
+            <td>{{ row.patient.email || '—' }}</td>
+            <td>{{ row.patient.phoneNumber || row.patient.phone || '—' }}</td>
+            <td>{{ row.appointmentCount }}</td>
+            <td>
+              <span
+                *ngIf="row.appointmentCount > 0; else noStatus"
+                class="status-badge"
+                [ngClass]="getRowStatusClass(row.latestStatus)">
+                {{ row.latestStatus }}
+              </span>
+              <ng-template #noStatus>—</ng-template>
+            </td>
+            <td>{{ row.latestDate }}</td>
+            <td>{{ row.latestClinic }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>

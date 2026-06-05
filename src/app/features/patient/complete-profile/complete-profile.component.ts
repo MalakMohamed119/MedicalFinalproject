@@ -7,6 +7,7 @@ import {
   Validators
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { PatientService } from '../../../core/services/patient.service';
 import {
   PatientAllergy,
@@ -23,6 +24,7 @@ import {
 })
 export class CompleteProfileComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
+  private authService = inject(AuthService);
   private patientService = inject(PatientService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -92,6 +94,10 @@ export class CompleteProfileComponent implements OnInit {
     }
 
     const payload = this.buildPayload();
+    if (!payload.userId) {
+      this.error.set('Your session is missing a user id. Please log out and sign in again.');
+      return;
+    }
 
     this.saving.set(true);
     this.error.set(null);
@@ -103,11 +109,16 @@ export class CompleteProfileComponent implements OnInit {
       },
       error: (error) => {
         this.saving.set(false);
-        this.error.set(
+        const detail = error.error?.detail as string | undefined;
+        const message =
           error.error?.message ||
-            error.error?.detail ||
-            error.error?.title ||
-            'Could not save your patient profile. Please try again.'
+          detail ||
+          error.error?.title ||
+          'Could not save your patient profile. Please try again.';
+        this.error.set(
+          detail?.includes('Connection refused')
+            ? 'Patient service cannot reach the auth service. Ensure Docker containers are running (especially Clinic-AuthV22).'
+            : message
         );
       }
     });
@@ -129,11 +140,13 @@ export class CompleteProfileComponent implements OnInit {
 
   private buildPayload(): PatientCreateRequest {
     const value = this.profileForm.getRawValue();
+    const userId = this.authService.getCurrentUserId();
 
     return {
       dateOfBirth: `${value.dateOfBirth}T00:00:00`,
       gender: Number(value.gender),
       address: String(value.address).trim(),
+      userId,
       allergies: this.cleanRows<PatientAllergy>(value.allergies),
       medicalRecords: this.cleanRows<PatientMedicalRecord>(value.medicalRecords)
     };

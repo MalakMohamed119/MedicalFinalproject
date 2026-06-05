@@ -35,7 +35,15 @@ export class AppointmentService {
 
   private emptyListOnNotFound(error: any): Observable<AppointmentResponse[]> {
     if (error.status === 404) {
-      return of([]);
+      const detail = String(error.error?.detail || error.error?.title || '').toLowerCase();
+      if (
+        !detail ||
+        detail.includes('appointment') ||
+        detail.includes('not found') ||
+        detail.includes('no appointments')
+      ) {
+        return of([]);
+      }
     }
 
     return throwError(() => error);
