@@ -1283,3 +1283,492 @@ select:focus,
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.92) inset, 0 10px 28px rgba(15, 23, 42, 0.07) !important;
   }
 }
+
+/* Final UI refactor layer: shared logos, patient CTAs, doctor theme, and admin polish */
+:root {
+  --doctor-primary: #0d6e7b;
+  --doctor-primary-dark: #075866;
+  --doctor-accent: #049ebd;
+  --doctor-success: #0f9f6e;
+  --doctor-warning: #b7791f;
+  --doctor-danger: #b4232f;
+  --doctor-ink: #102331;
+  --doctor-muted: #64748b;
+  --doctor-line: rgba(13, 110, 123, 0.13);
+  --doctor-page: #f6fafb;
+  --doctor-panel: #ffffff;
+  --doctor-soft: #eef7f9;
+  --doctor-radius: 10px;
+  --doctor-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 12px 30px rgba(15, 35, 49, 0.08);
+  --doctor-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.92) inset, 0 18px 42px rgba(15, 35, 49, 0.12);
+  --doctor-gradient: linear-gradient(135deg, var(--doctor-primary), var(--doctor-accent));
+}
+
+/* 1. Global logo shape: no square background edges */
+.relief-navbar .nav-brand img,
+.footer-logo img,
+.sidebar-logo img,
+.navbar-logo img,
+.brand-logo img,
+.logo img {
+  width: 46px;
+  height: 46px;
+  aspect-ratio: 1;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  object-fit: cover;
+  background: #ffffff;
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.12);
+  box-shadow: 0 6px 18px rgba(13, 110, 123, 0.16);
+}
+
+.relief-navbar .nav-brand {
+  border-radius: 999px;
+}
+
+/* 2. Patient primary booking buttons */
+.clinics-page .clinic-card__cta,
+.clinic-details-page .btn-appointment,
+.clinic-details-page .btn-appointment.btn-primary,
+.clinic-details-page .clinic-card__cta.btn-appointment,
+.clinic-details-page .primary-btn.btn-appointment,
+.my-appointments-page .btn-appointment,
+.my-appointments-page .state-card__btn {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 100%) !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(4, 158, 189, 0.24) !important;
+}
+
+.clinics-page .clinic-card__cta:hover,
+.clinic-details-page .btn-appointment:hover,
+.my-appointments-page .btn-appointment:hover,
+.my-appointments-page .state-card__btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 14px 30px rgba(4, 158, 189, 0.3) !important;
+}
+
+/* 3. Doctor navbar redesign */
+.relief-navbar--doctor {
+  --nav-ink: var(--doctor-ink);
+  --nav-muted: var(--doctor-muted);
+  min-height: 72px;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-bottom: 1px solid var(--doctor-line) !important;
+  box-shadow: 0 8px 28px rgba(15, 35, 49, 0.07) !important;
+}
+
+.relief-navbar--doctor .nav-container {
+  max-width: 1240px;
+}
+
+.relief-navbar--doctor .nav-primary {
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: #f3f8fa !important;
+  border: 1px solid var(--doctor-line) !important;
+  box-shadow: none !important;
+}
+
+.relief-navbar--doctor .nav-pill {
+  min-height: 40px;
+  padding: 0.35rem 0.9rem 0.35rem 0.4rem;
+  border-radius: 999px !important;
+  color: #40576a !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+
+.relief-navbar--doctor .nav-pill:hover {
+  color: var(--doctor-primary) !important;
+  background: #ffffff !important;
+  border-color: rgba(4, 158, 189, 0.18) !important;
+  transform: translateY(-1px);
+}
+
+.relief-navbar--doctor .nav-pill.active-link {
+  color: #ffffff !important;
+  background: var(--doctor-gradient) !important;
+  box-shadow: 0 8px 20px rgba(4, 158, 189, 0.24) !important;
+}
+
+.relief-navbar--doctor .nav-pill::before,
+.relief-navbar--doctor .nav-pill::after {
+  display: none !important;
+}
+
+.relief-navbar--doctor .nav-pill__icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% !important;
+  color: inherit !important;
+  background: rgba(13, 110, 123, 0.08) !important;
+  box-shadow: none !important;
+}
+
+.relief-navbar--doctor .nav-pill.active-link .nav-pill__icon {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.relief-navbar--doctor .nav-item {
+  border-radius: 50% !important;
+}
+
+/* 3. Doctor theme across appointments, clinics, and slots */
+.doctor-appointments-page,
+body .clinics-container {
+  color: var(--doctor-ink);
+  background:
+    radial-gradient(900px 320px at 0% 0%, rgba(4, 158, 189, 0.09), transparent 58%),
+    linear-gradient(180deg, #ffffff 0%, var(--doctor-page) 48%, #ffffff 100%) !important;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.doctor-appointments-page .page-container,
+body .clinics-container {
+  max-width: 1180px !important;
+}
+
+.appointments-hero,
+body .clinics-container .header {
+  padding: clamp(1.15rem, 2.5vw, 1.55rem) !important;
+  border-radius: var(--doctor-radius) !important;
+  color: var(--doctor-ink) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid var(--doctor-line) !important;
+  box-shadow: var(--doctor-shadow) !important;
+}
+
+.appointments-hero h1,
+body .clinics-container .header h1 {
+  margin: 0;
+  color: var(--doctor-ink) !important;
+  font-size: clamp(1.45rem, 3vw, 2rem) !important;
+  font-weight: 800;
+}
+
+.appointments-hero__eyebrow {
+  color: var(--doctor-primary) !important;
+}
+
+.appointments-hero p:last-child {
+  color: var(--doctor-muted) !important;
+}
+
+.appointments-hero__summary {
+  color: var(--doctor-primary);
+  background: var(--doctor-soft) !important;
+  border: 1px solid var(--doctor-line) !important;
+  border-radius: var(--doctor-radius) !important;
+}
+
+.appointments-hero__summary span {
+  color: var(--doctor-primary) !important;
+}
+
+.appointments-hero__summary small {
+  color: var(--doctor-muted) !important;
+}
+
+.appointment-metrics {
+  gap: 0.8rem !important;
+}
+
+.metric-card,
+.doctor-appointments-page .appointment-card,
+body .clinics-container .clinic-selector,
+body .clinics-container .form-card,
+body .clinics-container .clinic-card,
+body .clinics-container .no-clinics,
+body .clinics-container .clinic-view-modal__card {
+  background: var(--doctor-panel) !important;
+  border: 1px solid var(--doctor-line) !important;
+  border-radius: var(--doctor-radius) !important;
+  box-shadow: var(--doctor-shadow) !important;
+}
+
+.metric-card:hover,
+.doctor-appointments-page .appointment-card:hover,
+body .clinics-container .clinic-card:hover {
+  border-color: rgba(4, 158, 189, 0.24) !important;
+  box-shadow: var(--doctor-shadow-hover) !important;
+}
+
+.doctor-appointments-page .tab-navigation {
+  position: sticky;
+  top: 82px;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.3rem !important;
+  margin-bottom: 1.1rem !important;
+  border-radius: 999px !important;
+  background: #eef6f8 !important;
+  border: 1px solid var(--doctor-line) !important;
+  box-shadow: none !important;
+}
+
+.doctor-appointments-page .tab-navigation .tab-btn {
+  min-height: 38px !important;
+  border-radius: 999px !important;
+  color: var(--doctor-muted) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+.doctor-appointments-page .tab-navigation .tab-btn.active {
+  color: #ffffff !important;
+  background: var(--doctor-gradient) !important;
+  box-shadow: 0 8px 18px rgba(4, 158, 189, 0.22) !important;
+}
+
+.doctor-appointments-page .appointments-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)) !important;
+  gap: 0.9rem !important;
+}
+
+.doctor-appointments-page .appointment-card {
+  padding: 1.05rem !important;
+  gap: 1rem !important;
+  transform: none !important;
+}
+
+.doctor-appointments-page .appointment-card::after,
+.doctor-appointments-page .appointment-card::before {
+  width: 3px !important;
+  background: var(--doctor-gradient) !important;
+}
+
+.appointment-card__main {
+  align-items: flex-start;
+}
+
+.appointment-card__avatar,
+.detail-modal__avatar {
+  color: var(--doctor-primary) !important;
+  background: rgba(4, 158, 189, 0.09) !important;
+  border: 1px solid rgba(4, 158, 189, 0.16);
+}
+
+.doctor-appointments-page .status-badge {
+  border-radius: 999px !important;
+  border: 1px solid transparent;
+  box-shadow: none !important;
+}
+
+.doctor-appointments-page .status-pending {
+  color: #8a5a13 !important;
+  background: #fff8e6 !important;
+  border-color: #f3d28a !important;
+}
+
+.doctor-appointments-page .status-confirmed {
+  color: #087052 !important;
+  background: #e8f8f1 !important;
+  border-color: #b8ead6 !important;
+}
+
+.doctor-appointments-page .status-completed {
+  color: #2358a5 !important;
+  background: #eaf2ff !important;
+  border-color: #bed7ff !important;
+}
+
+.doctor-appointments-page .status-cancelled {
+  color: #a12a35 !important;
+  background: #fff0f2 !important;
+  border-color: #f6c8ce !important;
+}
+
+.doctor-appointments-page .appointment-actions .btn,
+body .clinics-container .btn {
+  min-height: 38px !important;
+  border-radius: var(--doctor-radius) !important;
+  box-shadow: none !important;
+  letter-spacing: 0 !important;
+}
+
+.doctor-appointments-page .appointment-actions .btn.btn-success,
+body .clinics-container .btn.btn-success,
+body .clinics-container .btn.btn-primary {
+  color: #ffffff !important;
+  background: var(--doctor-gradient) !important;
+  border: 1px solid transparent !important;
+}
+
+.doctor-appointments-page .appointment-actions .btn.btn-danger,
+body .clinics-container .btn.btn-outline-danger {
+  color: var(--doctor-danger) !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(180, 35, 47, 0.24) !important;
+}
+
+body .clinics-container .clinic-card__icon,
+body .clinics-container .info-item__icon-wrap,
+body .clinics-container .clinic-view-row__icon,
+body .clinics-container .clinic-view-modal__icon {
+  border-radius: 50% !important;
+  color: var(--doctor-primary) !important;
+  background: rgba(4, 158, 189, 0.08) !important;
+}
+
+body .clinics-container .clinic-info .info-item,
+body .clinics-container .clinic-view-row {
+  background: #f8fcfd !important;
+  border: 1px solid rgba(13, 110, 123, 0.1) !important;
+}
+
+body .clinics-container .clinic-actions {
+  gap: 0.45rem !important;
+}
+
+body .clinics-container .clinic-actions .btn-sm {
+  border-radius: 999px !important;
+}
+
+body .clinics-container .slot-card__time {
+  color: var(--doctor-ink) !important;
+}
+
+body .clinics-container .slot-card__accent {
+  background: var(--doctor-gradient) !important;
+}
+
+/* 4. Admin all appointments and global admin polish */
+.admin-page-shell,
+.admin-shell {
+  background:
+    radial-gradient(900px 320px at 100% 0%, rgba(4, 158, 189, 0.09), transparent 58%),
+    linear-gradient(180deg, #ffffff 0%, #f6fafb 48%, #ffffff 100%) !important;
+}
+
+.admin-fixed-sidebar,
+.admin-shell .sidebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right: 1px solid rgba(13, 110, 123, 0.12) !important;
+  box-shadow: 8px 0 28px rgba(15, 35, 49, 0.05) !important;
+}
+
+.admin-fixed-sidebar .logo-icon,
+.admin-shell .logo-icon,
+.admin-fixed-sidebar .user-avatar,
+.admin-shell .user-avatar {
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+
+.admin-fixed-sidebar .nav-item,
+.admin-shell .nav-item {
+  border-radius: 999px !important;
+}
+
+.admin-fixed-sidebar .nav-item.active,
+.admin-fixed-sidebar .nav-item:hover,
+.admin-shell .nav-item.active,
+.admin-shell .nav-item:hover {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6e7b, #049ebd) !important;
+  border-color: transparent !important;
+  transform: translateX(2px);
+}
+
+.admin-page-main .page-header,
+.admin-shell .welcome-header,
+.admin-shell .stat-card,
+.admin-shell .admin-card,
+.admin-page-main .table-container,
+.admin-page-main .status-tabs,
+.admin-page-main .loading-state,
+.admin-page-main .error-state,
+.admin-page-main .empty-state {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1px solid rgba(13, 110, 123, 0.12) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset, 0 12px 30px rgba(15, 35, 49, 0.08) !important;
+}
+
+.admin-shell .welcome-header {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #075866 0%, #0d6e7b 58%, #049ebd 100%) !important;
+}
+
+.admin-page-main {
+  padding: clamp(1rem, 2.4vw, 2rem);
+  gap: 1rem;
+}
+
+.admin-page-main .page-header,
+.admin-page-main .status-tabs {
+  margin: 0 !important;
+}
+
+.admin-page-main .table-container {
+  overflow: auto;
+}
+
+.appointments-table th,
+.appointments-table td {
+  padding: 0.95rem 1rem !important;
+  vertical-align: middle;
+}
+
+.appointments-table thead th {
+  background: #eef7f9 !important;
+  color: #0b3f49 !important;
+}
+
+.appointments-table tbody tr:hover {
+  background: rgba(4, 158, 189, 0.055) !important;
+}
+
+.admin-page-main .status-tabs {
+  padding: 0.35rem;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.admin-page-main .status-tab {
+  border-radius: 999px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.admin-page-main .status-tab--active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6e7b, #049ebd) !important;
+  box-shadow: 0 8px 18px rgba(4, 158, 189, 0.2) !important;
+}
+
+.admin-card .card-icon.appointments,
+.stat-card.appointments .stat-icon {
+  color: #0d6e7b;
+  background: #e8f7f9;
+}
+
+@media (max-width: 900px) {
+  .relief-navbar--doctor .nav-primary {
+    border-radius: 18px;
+  }
+
+  .relief-navbar--doctor .nav-pill {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+  }
+
+  .admin-page-main {
+    margin-left: 0;
+  }
+
+  .doctor-appointments-page .tab-navigation {
+    position: static;
+    border-radius: var(--doctor-radius) !important;
+  }
+}
