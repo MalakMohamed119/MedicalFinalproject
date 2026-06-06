@@ -173,14 +173,6 @@ export class AppointmentService {
     );
   }
 
-  getAdminAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/ShowAllAppointments`, {
-      headers: this.authHeaders()
-    }).pipe(
-      map((response) => this.normalizeAppointmentList(response))
-    );
-  }
-
   getPatientAppointments(): Observable<AppointmentResponse[]> {
     return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/ShowPatientAppointments`, {
       headers: this.authHeaders()

@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { PatientService } from '../../../core/services/patient.service';
@@ -97,19 +97,13 @@ export class ManageAppointmentsComponent implements OnInit {
         );
         const patientMap = this.buildPatientMap(this.toArray(patients));
 
-        this.appointmentService.getAdminAppointments().subscribe({
-          next: (appointments) => {
-            this.renderAppointments(appointments, clinicMap, patientMap);
-          },
-          error: (err) => {
-            this.error.set(
-              err?.status === 403
-                ? 'You are not allowed to view all appointments with this account.'
-                : 'Failed to load appointments.'
-            );
-            this.loading.set(false);
-          }
-        });
+        if (clinics.length === 0) {
+          this.appointments.set([]);
+          this.loading.set(false);
+          return;
+        }
+
+        this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
       },
       error: () => {
         this.error.set('Failed to load appointments.');
@@ -132,6 +126,41 @@ export class ManageAppointmentsComponent implements OnInit {
     }
 
     return value?.data ?? value?.Data ?? value?.items ?? value?.Items ?? value?.$values ?? [];
+  }
+
+  private loadAppointmentsFromClinics(
+    clinics: ClinicResponse[],
+    clinicMap: Map<number, ClinicResponse>,
+    patientMap: Map<string, PatientProfileResponse>
+  ): void {
+    const requests = clinics.map((clinic) =>
+      this.appointmentService.getClinicAppointments(clinic.id).pipe(
+        map((appointments) => ({ appointments, forbidden: false })),
+        catchError((error) => of({
+          appointments: [] as AppointmentResponse[],
+          forbidden: error?.status === 403
+        }))
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: (groups) => {
+        const appointments = groups.flatMap((group) => group.appointments);
+        const hasForbiddenClinicRequests = groups.some((group) => group.forbidden);
+
+        if (appointments.length === 0 && hasForbiddenClinicRequests) {
+          this.error.set('The current Admin API is not allowed to read clinic appointments. Backend needs an Admin GET endpoint for all appointments.');
+          this.loading.set(false);
+          return;
+        }
+
+        this.renderAppointments(appointments, clinicMap, patientMap);
+      },
+      error: () => {
+        this.error.set('Failed to load appointments.');
+        this.loading.set(false);
+      }
+    });
   }
 
   private renderAppointments(
