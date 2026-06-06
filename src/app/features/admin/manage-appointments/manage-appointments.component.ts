@@ -97,13 +97,19 @@ export class ManageAppointmentsComponent implements OnInit {
         );
         const patientMap = this.buildPatientMap(this.toArray(patients));
 
-        if (clinics.length === 0) {
-          this.appointments.set([]);
-          this.loading.set(false);
-          return;
-        }
-
-        this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
+        this.appointmentService.getAdminAppointments().subscribe({
+          next: (appointments) => {
+            this.renderAppointments(appointments, clinicMap, patientMap);
+          },
+          error: (err) => {
+            this.error.set(
+              err?.status === 403
+                ? 'You are not allowed to view all appointments with this account.'
+                : 'Failed to load appointments.'
+            );
+            this.loading.set(false);
+          }
+        });
       },
       error: () => {
         this.error.set('Failed to load appointments.');
@@ -126,26 +132,6 @@ export class ManageAppointmentsComponent implements OnInit {
     }
 
     return value?.data ?? value?.Data ?? value?.items ?? value?.Items ?? value?.$values ?? [];
-  }
-
-  private loadAppointmentsFromClinics(
-    clinics: ClinicResponse[],
-    clinicMap: Map<number, ClinicResponse>,
-    patientMap: Map<string, PatientProfileResponse>
-  ): void {
-    const requests = clinics.map((clinic) =>
-      this.appointmentService.getClinicAppointments(clinic.id).pipe(catchError(() => of([])))
-    );
-
-    forkJoin(requests).subscribe({
-      next: (groups) => {
-        this.renderAppointments(groups.flat(), clinicMap, patientMap);
-      },
-      error: () => {
-        this.error.set('Failed to load appointments.');
-        this.loading.set(false);
-      }
-    });
   }
 
   private renderAppointments(
