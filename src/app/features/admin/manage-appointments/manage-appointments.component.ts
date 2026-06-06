@@ -95,7 +95,7 @@ export class ManageAppointmentsComponent implements OnInit {
         const clinicMap = new Map<number, ClinicResponse>(
           clinics.map((clinic) => [clinic.id, clinic])
         );
-        const patientMap = this.buildPatientMap(patients);
+        const patientMap = this.buildPatientMap(this.toArray(patients));
 
         if (clinics.length === 0) {
           this.appointments.set([]);
@@ -119,6 +119,14 @@ export class ManageAppointmentsComponent implements OnInit {
   formatDate = formatAdminDate;
   formatTime = formatAdminTime;
   getStatusClass = getAppointmentStatusClass;
+
+  private toArray<T>(value: T[] | { data?: T[]; Data?: T[]; items?: T[]; Items?: T[]; $values?: T[] } | null | undefined): T[] {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    return value?.data ?? value?.Data ?? value?.items ?? value?.Items ?? value?.$values ?? [];
+  }
 
   private loadAppointmentsFromClinics(
     clinics: ClinicResponse[],
@@ -162,6 +170,10 @@ export class ManageAppointmentsComponent implements OnInit {
     const clinic = clinicMap.get(Number(appointment.clinicId));
     const patient = this.findPatient(appointment, patientMap);
     const statusLabel = normalizeAppointmentStatus(appointment.status);
+    const patientDisplayName = this.getPatientDisplayName(patient);
+    const appointmentPatientName = appointment.patientName && !this.isIdentifierLike(appointment.patientName)
+      ? appointment.patientName
+      : undefined;
 
     return {
       ...appointment,
@@ -169,13 +181,18 @@ export class ManageAppointmentsComponent implements OnInit {
       statusLabel,
       clinicName: appointment.clinicName || clinic?.clinicName,
       clinicNameResolved: appointment.clinicName || clinic?.clinicName || 'Clinic',
-      patientNameResolved:
-        appointment.patientName ||
-        patient?.displayName ||
-        patient?.fullName ||
-        patient?.name ||
-        'Patient'
+      patientNameResolved: patientDisplayName || appointmentPatientName || 'Patient'
     };
+  }
+
+  private getPatientDisplayName(patient: PatientProfileResponse | undefined): string {
+    return String(patient?.displayName || patient?.fullName || patient?.name || '').trim();
+  }
+
+  private isIdentifierLike(value: unknown): boolean {
+    const text = String(value || '').trim();
+
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text);
   }
 
   private buildPatientMap(patients: PatientProfileResponse[]): Map<string, PatientProfileResponse> {

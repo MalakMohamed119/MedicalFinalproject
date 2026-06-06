@@ -56,7 +56,26 @@ export class PatientService {
   }
 
   getAllPatients(): Observable<PatientProfileResponse[]> {
-    return this.http.get<PatientProfileResponse[]>(`${this.patientUrl}/All`);
+    return this.http.get<PatientProfileResponse[] | {
+      data?: PatientProfileResponse[];
+      Data?: PatientProfileResponse[];
+      items?: PatientProfileResponse[];
+      Items?: PatientProfileResponse[];
+      $values?: PatientProfileResponse[];
+    }>(`${this.patientUrl}/All`).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+
+        return response.data ??
+          response.Data ??
+          response.items ??
+          response.Items ??
+          response.$values ??
+          [];
+      })
+    );
   }
 
   saveMyMedicalData(data: PatientMedicalData): Observable<PatientProfileResponse> {
