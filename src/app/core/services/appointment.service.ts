@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AppointmentResponse } from '../../shared/models/appointment-response.interface';
 
@@ -47,6 +47,31 @@ export class AppointmentService {
     }
 
     return throwError(() => error);
+  }
+
+  private normalizeAppointmentsResponse(response: AppointmentResponse[] | { data?: AppointmentResponse[]; items?: AppointmentResponse[]; appointments?: AppointmentResponse[] }): AppointmentResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    return response?.data ?? response?.items ?? response?.appointments ?? [];
+  }
+
+  private getFirstAvailableAppointmentList(urls: string[], index = 0): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[] | { data?: AppointmentResponse[]; items?: AppointmentResponse[]; appointments?: AppointmentResponse[] }>(urls[index], {
+      headers: this.authHeaders()
+    }).pipe(
+      map((response) => this.normalizeAppointmentsResponse(response)),
+      catchError((error) => {
+        const nextIndex = index + 1;
+
+        if (nextIndex < urls.length && (error.status === 404 || error.status === 405)) {
+          return this.getFirstAvailableAppointmentList(urls, nextIndex);
+        }
+
+        return this.emptyListOnNotFound(error);
+      })
+    );
   }
 
   bookAppointment(timeSlotId: number): Observable<AppointmentResponse> {
@@ -133,6 +158,15 @@ export class AppointmentService {
     }).pipe(
       catchError(error => this.emptyListOnNotFound(error))
     );
+  }
+
+  getAllAppointments(): Observable<AppointmentResponse[]> {
+    return this.getFirstAvailableAppointmentList([
+      `${this.appointmentsUrl}/ShowAllAppointments`,
+      `${this.appointmentsUrl}/GetAllAppointments`,
+      `${this.appointmentsUrl}/all`,
+      this.appointmentsUrl
+    ]);
   }
 
   getPatientAppointments(): Observable<AppointmentResponse[]> {

@@ -97,29 +97,23 @@ export class ManageAppointmentsComponent implements OnInit {
         );
         const patientMap = this.buildPatientMap(patients);
 
-        if (clinics.length === 0) {
-          this.appointments.set([]);
-          this.loading.set(false);
-          return;
-        }
+        this.appointmentService.getAllAppointments().subscribe({
+          next: (appointments) => {
+            if (appointments.length > 0 || clinics.length === 0) {
+              this.renderAppointments(appointments, clinicMap, patientMap);
+              return;
+            }
 
-        const requests = clinics.map((clinic) =>
-          this.appointmentService.getClinicAppointments(clinic.id).pipe(catchError(() => of([])))
-        );
-
-        forkJoin(requests).subscribe({
-          next: (groups) => {
-            const rows = groups.flat().map((appointment) =>
-              this.enrichAppointment(appointment, clinicMap, patientMap)
-            );
-
-            rows.sort((a, b) => this.compareAppointments(a, b));
-            this.appointments.set(rows);
-            this.loading.set(false);
+            this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
           },
           error: () => {
-            this.error.set('Failed to load appointments.');
-            this.loading.set(false);
+            if (clinics.length === 0) {
+              this.error.set('Failed to load appointments.');
+              this.loading.set(false);
+              return;
+            }
+
+            this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
           }
         });
       },
@@ -137,6 +131,40 @@ export class ManageAppointmentsComponent implements OnInit {
   formatDate = formatAdminDate;
   formatTime = formatAdminTime;
   getStatusClass = getAppointmentStatusClass;
+
+  private loadAppointmentsFromClinics(
+    clinics: ClinicResponse[],
+    clinicMap: Map<number, ClinicResponse>,
+    patientMap: Map<string, PatientProfileResponse>
+  ): void {
+    const requests = clinics.map((clinic) =>
+      this.appointmentService.getClinicAppointments(clinic.id).pipe(catchError(() => of([])))
+    );
+
+    forkJoin(requests).subscribe({
+      next: (groups) => {
+        this.renderAppointments(groups.flat(), clinicMap, patientMap);
+      },
+      error: () => {
+        this.error.set('Failed to load appointments.');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private renderAppointments(
+    appointments: AppointmentResponse[],
+    clinicMap: Map<number, ClinicResponse>,
+    patientMap: Map<string, PatientProfileResponse>
+  ): void {
+    const rows = appointments.map((appointment) =>
+      this.enrichAppointment(appointment, clinicMap, patientMap)
+    );
+
+    rows.sort((a, b) => this.compareAppointments(a, b));
+    this.appointments.set(rows);
+    this.loading.set(false);
+  }
 
   private enrichAppointment(
     appointment: AppointmentResponse,

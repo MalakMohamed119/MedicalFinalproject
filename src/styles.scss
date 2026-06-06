@@ -2362,3 +2362,40 @@ body .clinics-container .clinic-actions .btn-outline-success {
     min-width: 0;
   }
 }
+
+/* Doctor clinics exact 2-column layout */
+body .clinics-container .clinics-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch;
+}
+
+body .clinics-container .clinic-card {
+  width: 100%;
+  min-width: 0;
+}
+
+body .clinics-container .clinic-header {
+  gap: 1rem !important;
+}
+
+body .clinics-container .clinic-actions {
+  grid-template-columns: repeat(2, minmax(140px, 1fr)) !important;
+}
+
+body .clinics-container .clinic-actions .btn-sm {
+  justify-content: center;
+}
+
+body .clinics-container .clinic-actions .btn-outline-success {
+  min-width: 150px;
+}
+
+@media (max-width: 900px) {
+  body .clinics-container .clinics-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .clinics-container .clinic-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
