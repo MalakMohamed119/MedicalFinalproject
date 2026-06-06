@@ -2399,3 +2399,45 @@ body .clinics-container .clinic-actions .btn-outline-success {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* Strict requested color fixes */
+.admin-shell .welcome-header,
+.admin-shell .welcome-header h1,
+.admin-shell .welcome-header p,
+.admin-shell .welcome-badge,
+.admin-shell .logout-btn {
+  color: #ffffff !important;
+}
+
+.auth-visual,
+.auth-visual h1,
+.auth-visual p,
+.auth-visual .visual-kicker,
+.auth-visual .visual-metrics strong,
+.auth-visual .visual-metrics span,
+.auth-visual .visual-list li {
+  color: #f3f6f7 !important;
+}
+
+.auth-card,
+.auth-card h2,
+.auth-card p,
+.auth-card label,
+.auth-card .tab-btn,
+.auth-card .auth-switch {
+  color: #4a4a4a !important;
+}
+
+.auth-card h2 {
+  color: #333333 !important;
+}
+
+.auth-card .card-eyebrow,
+.auth-card a,
+.auth-card .tab-btn.active {
+  color: var(--ch-primary) !important;
+}
+
+.auth-card input {
+  color: #333333 !important;
+}

@@ -97,25 +97,13 @@ export class ManageAppointmentsComponent implements OnInit {
         );
         const patientMap = this.buildPatientMap(patients);
 
-        this.appointmentService.getAllAppointments().subscribe({
-          next: (appointments) => {
-            if (appointments.length > 0 || clinics.length === 0) {
-              this.renderAppointments(appointments, clinicMap, patientMap);
-              return;
-            }
+        if (clinics.length === 0) {
+          this.appointments.set([]);
+          this.loading.set(false);
+          return;
+        }
 
-            this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
-          },
-          error: () => {
-            if (clinics.length === 0) {
-              this.error.set('Failed to load appointments.');
-              this.loading.set(false);
-              return;
-            }
-
-            this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
-          }
-        });
+        this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
       },
       error: () => {
         this.error.set('Failed to load appointments.');
