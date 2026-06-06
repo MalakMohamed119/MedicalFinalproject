@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AppointmentResponse } from '../../shared/models/appointment-response.interface';
 
@@ -47,6 +47,43 @@ export class AppointmentService {
     }
 
     return throwError(() => error);
+  }
+
+  private normalizeAppointment(raw: any): AppointmentResponse {
+    return {
+      id: Number(raw.id ?? raw.Id ?? raw.appointmentId ?? raw.AppointmentId ?? 0),
+      clinicId: Number(raw.clinicId ?? raw.ClinicId ?? 0),
+      clinicName: raw.clinicName ?? raw.ClinicName,
+      timeSlotId: Number(raw.timeSlotId ?? raw.TimeSlotId ?? 0),
+      patientId: String(raw.patientId ?? raw.PatientId ?? ''),
+      patientName: raw.patientName ?? raw.PatientName,
+      doctorName: raw.doctorName ?? raw.DoctorName,
+      status: raw.status ?? raw.Status ?? 'Unknown',
+      appointmentDate: raw.appointmentDate ?? raw.AppointmentDate,
+      date: String(raw.date ?? raw.Date ?? raw.appointmentDate ?? raw.AppointmentDate ?? ''),
+      startTime: String(raw.startTime ?? raw.StartTime ?? ''),
+      endTime: String(raw.endTime ?? raw.EndTime ?? ''),
+      priceAtBooking: Number(raw.priceAtBooking ?? raw.PriceAtBooking ?? raw.price ?? raw.Price ?? 0),
+      price: Number(raw.price ?? raw.Price ?? raw.priceAtBooking ?? raw.PriceAtBooking ?? 0)
+    };
+  }
+
+  private normalizeAppointmentList(response: any): AppointmentResponse[] {
+    const list =
+      Array.isArray(response)
+        ? response
+        : response?.data ??
+          response?.Data ??
+          response?.items ??
+          response?.Items ??
+          response?.appointments ??
+          response?.Appointments ??
+          response?.result ??
+          response?.Result ??
+          response?.$values ??
+          [];
+
+    return Array.isArray(list) ? list.map((item) => this.normalizeAppointment(item)) : [];
   }
 
   bookAppointment(timeSlotId: number): Observable<AppointmentResponse> {
@@ -128,9 +165,10 @@ export class AppointmentService {
   }
 
   getClinicAppointments(clinicId: number): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/ShowClinicAppointments?clinicId=${clinicId}`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/ShowClinicAppointments?clinicId=${clinicId}`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
