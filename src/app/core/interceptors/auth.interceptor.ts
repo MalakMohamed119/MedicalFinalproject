@@ -10,14 +10,21 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
   const router = inject(Router);
   const platformId = inject(PLATFORM_ID);
   const isAuthRequest =
+    req.url.includes('/auth/Clinic/Authentication/Login') ||
+    req.url.includes('/auth/Clinic/Authentication/Register') ||
+    req.url.includes('/auth/Clinic/Authentication/Refresh') ||
     req.url.includes('/Clinic/Authentication/Login') ||
     req.url.includes('/Clinic/Authentication/Register') ||
     req.url.includes('/Clinic/Authentication/Refresh');
 
+  const isChatbotRequest = req.url.includes('/api/chatbot/analyze');
+
   const token = isPlatformBrowser(platformId) ? normalizeToken(localStorage.getItem('token')) : null;
   const shouldAttachToken =
     !!token &&
-    (req.url.startsWith(environment.apiUrl) || req.url.startsWith(environment.timeSlotsApiUrl)) &&
+    (req.url.startsWith(environment.apiUrl) || 
+     req.url.startsWith(environment.timeSlotsApiUrl) ||
+     req.url.startsWith(environment.chatbotApiUrl)) &&
     !isAuthRequest;
 
   const modifiedReq = shouldAttachToken

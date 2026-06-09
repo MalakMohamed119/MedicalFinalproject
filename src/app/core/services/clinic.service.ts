@@ -74,9 +74,9 @@ export class ClinicService {
 
     return this.http.get(`${this.apiUrl}/api/api/Dashboard/Doctor/Dashboard`).pipe(
 
-      retry(2), // Retry up to 2 times on failure
+      retry(2),
 
-      timeout(30000), // Increased to 30 seconds
+      timeout(30000),
 
       tap((response) => {
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -8,15 +9,34 @@ import { environment } from '../../../environments/environment';
 })
 export class AuthService {
   private readonly authUrl = `${environment.apiUrl}/auth/Clinic/Authentication`;
+  private readonly doctorAuthUrl = `${environment.doctorAuthUrl}/Clinic/Authentication`;
 
   constructor(private http: HttpClient) {}
 
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.authUrl}/Login`, credentials);
+    // Try main auth service first (8082 with /auth/)
+    return this.http.post(`${this.authUrl}/Login`, credentials).pipe(
+      catchError((error) => {
+        // If main endpoint fails with connection error, try doctor endpoint (8080 without /auth/)
+        if (error.status === 0 || error.status >= 500) {
+          return this.http.post(`${this.doctorAuthUrl}/Login`, credentials);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   register(userData: any): Observable<any> {
-    return this.http.post(`${this.authUrl}/Register`, userData);
+    // Try main auth service first (8082 with /auth/)
+    return this.http.post(`${this.authUrl}/Register`, userData).pipe(
+      catchError((error) => {
+        // If main endpoint fails with connection error, try doctor endpoint (8080 without /auth/)
+        if (error.status === 0 || error.status >= 500) {
+          return this.http.post(`${this.doctorAuthUrl}/Register`, userData);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   emailExists(email: string): Observable<boolean> {
