@@ -30,6 +30,7 @@
         *ngFor="let item of manageNavItems"
         [routerLink]="item.route"
         routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
       >
         <i class="fa-solid {{ item.icon }}"></i>
@@ -60,7 +61,7 @@
           Admin Panel
         </div>
         <h1>Welcome back, Admin 👋</h1>
-        <p>Manage doctors, clinics, and appointments from here.</p>
+        <p>Manage doctors, patients, clinics, and appointments from here.</p>
       </div>
       <div class="welcome-actions">
         <button type="button" class="logout-btn" (click)="logout()" title="Logout">
@@ -123,6 +124,16 @@
             <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
           </a>
 
+          <a routerLink="/admin/manage-patients" class="stat-card patients">
+            <div class="stat-card-top">
+              <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+              <span class="stat-tag">Registered</span>
+            </div>
+            <span class="stat-number">{{ stats().patients }}</span>
+            <span class="stat-label">Total Patients</span>
+            <div class="stat-footer">View All <i class="fa-solid fa-arrow-right"></i></div>
+          </a>
+
           <a routerLink="/admin/manage-clinics" class="stat-card clinics">
             <div class="stat-card-top">
               <div class="stat-icon"><i class="fa-solid fa-hospital"></i></div>
@@ -156,6 +167,17 @@
           <div class="card-content">
             <h2>All Appointments</h2>
             <p>Review every patient booking across all clinics</p>
+          </div>
+          <i class="fa-solid fa-chevron-right card-arrow"></i>
+        </a>
+
+        <a routerLink="/admin/manage-patients" class="admin-card">
+          <div class="card-icon patients">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="card-content">
+            <h2>All Patients</h2>
+            <p>View registered patient profiles and booking activity</p>
           </div>
           <i class="fa-solid fa-chevron-right card-arrow"></i>
         </a>

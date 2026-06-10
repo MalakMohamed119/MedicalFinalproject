@@ -50,40 +50,80 @@ export class AppointmentService {
   }
 
   private normalizeAppointment(raw: any): AppointmentResponse {
+    const timeSlot = raw.timeSlot ?? raw.TimeSlot ?? raw.slot ?? raw.Slot ?? {};
+    const patient = raw.patient ?? raw.Patient ?? {};
+    const startTime = raw.startTime ?? raw.StartTime ?? timeSlot.startTime ?? timeSlot.StartTime ?? '';
+    const endTime = raw.endTime ?? raw.EndTime ?? timeSlot.endTime ?? timeSlot.EndTime ?? '';
+    const date =
+      raw.date ??
+      raw.Date ??
+      raw.appointmentDate ??
+      raw.AppointmentDate ??
+      timeSlot.date ??
+      timeSlot.Date ??
+      (String(startTime).includes('T') ? startTime : '');
+
     return {
       id: Number(raw.id ?? raw.Id ?? raw.appointmentId ?? raw.AppointmentId ?? 0),
       clinicId: Number(raw.clinicId ?? raw.ClinicId ?? 0),
       clinicName: raw.clinicName ?? raw.ClinicName,
-      timeSlotId: Number(raw.timeSlotId ?? raw.TimeSlotId ?? 0),
-      patientId: String(raw.patientId ?? raw.PatientId ?? ''),
-      patientName: raw.patientName ?? raw.PatientName,
+      timeSlotId: Number(raw.timeSlotId ?? raw.TimeSlotId ?? timeSlot.id ?? timeSlot.Id ?? 0),
+      patientId: String(raw.patientId ?? raw.PatientId ?? patient.id ?? patient.Id ?? ''),
+      patientName:
+        raw.patientName ??
+        raw.PatientName ??
+        patient.displayName ??
+        patient.DisplayName ??
+        patient.fullName ??
+        patient.FullName ??
+        patient.name ??
+        patient.Name,
       doctorName: raw.doctorName ?? raw.DoctorName,
       status: raw.status ?? raw.Status ?? 'Unknown',
-      appointmentDate: raw.appointmentDate ?? raw.AppointmentDate,
-      date: String(raw.date ?? raw.Date ?? raw.appointmentDate ?? raw.AppointmentDate ?? ''),
-      startTime: String(raw.startTime ?? raw.StartTime ?? ''),
-      endTime: String(raw.endTime ?? raw.EndTime ?? ''),
+      appointmentDate: raw.appointmentDate ?? raw.AppointmentDate ?? date,
+      date: String(date ?? ''),
+      startTime: String(startTime ?? ''),
+      endTime: String(endTime ?? ''),
       priceAtBooking: Number(raw.priceAtBooking ?? raw.PriceAtBooking ?? raw.price ?? raw.Price ?? 0),
       price: Number(raw.price ?? raw.Price ?? raw.priceAtBooking ?? raw.PriceAtBooking ?? 0)
     };
   }
 
   private normalizeAppointmentList(response: any): AppointmentResponse[] {
-    const list =
-      Array.isArray(response)
-        ? response
-        : response?.data ??
-          response?.Data ??
-          response?.items ??
-          response?.Items ??
-          response?.appointments ??
-          response?.Appointments ??
-          response?.result ??
-          response?.Result ??
-          response?.$values ??
-          [];
+    const list = this.extractArray(response);
 
-    return Array.isArray(list) ? list.map((item) => this.normalizeAppointment(item)) : [];
+    return list.map((item) => this.normalizeAppointment(item));
+  }
+
+  private extractArray(value: any): any[] {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (!value || typeof value !== 'object') {
+      return [];
+    }
+
+    const candidates = [
+      value.data,
+      value.Data,
+      value.items,
+      value.Items,
+      value.appointments,
+      value.Appointments,
+      value.result,
+      value.Result,
+      value.$values
+    ];
+
+    for (const candidate of candidates) {
+      const list = this.extractArray(candidate);
+      if (list.length > 0) {
+        return list;
+      }
+    }
+
+    return [];
   }
 
   bookAppointment(timeSlotId: number): Observable<AppointmentResponse> {
@@ -170,6 +210,14 @@ export class AppointmentService {
     }).pipe(
       map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
+    );
+  }
+
+  getAllAppointments(): Observable<AppointmentResponse[]> {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/all`, {
+      headers: this.authHeaders()
+    }).pipe(
+      map((response) => this.normalizeAppointmentList(response))
     );
   }
 

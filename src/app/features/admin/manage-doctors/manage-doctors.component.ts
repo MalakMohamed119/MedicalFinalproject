@@ -49,7 +49,6 @@ export class ManageDoctorsComponent implements OnInit {
   editForm: FormGroup = this.fb.group({
     displayName: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    phoneNumber: ['', Validators.required],
     specialty: ['', Validators.required],
     isActive: [true]
   });
@@ -233,7 +232,6 @@ export class ManageDoctorsComponent implements OnInit {
     this.editForm.patchValue({
       displayName: doctor.displayName,
       email: doctor.email,
-      phoneNumber: doctor.phoneNumber,
       specialty: doctor.specialty,
       isActive: doctor.isActive
     });

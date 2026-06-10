@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, finalize, map } from 'rxjs/operators';
 import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -26,6 +26,8 @@ export interface UpcomingAppointment {
   clinicName: string;
   dateLabel: string;
   timeLabel: string;
+  status: string;
+  sortValue: number;
 }
 
 export interface PastAppointment {
@@ -34,6 +36,7 @@ export interface PastAppointment {
   dateLabel: string;
   doctorName: string;
   status: string;
+  sortValue: number;
 }
 
 @Component({
@@ -195,13 +198,11 @@ export class PatientProfile implements OnInit {
     this.patientService.getMyDetails().pipe(catchError(() => of(null))).subscribe({
       next: (details) => {
         this.applyPatientData(profile, details as PatientProfileResponse | null);
-        this.applyAppointments([]);
-        this.loading.set(false);
+        this.loadPatientAppointmentsForProfile();
       },
       error: () => {
         this.applyPatientData(profile);
-        this.applyAppointments([]);
-        this.loading.set(false);
+        this.loadPatientAppointmentsForProfile();
       }
     });
   }
@@ -242,7 +243,7 @@ export class PatientProfile implements OnInit {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         this.applyPatientData(user as PatientProfileResponse);
-        this.applyAppointments([]);
+        this.loadPatientAppointmentsForProfile();
       },
       error: () => {
         this.error.set('Failed to load patient information');
@@ -252,20 +253,72 @@ export class PatientProfile implements OnInit {
   }
 
   private loadPatientAppointmentsForProfile(): void {
+    this.appointmentsLoaded = true;
+
     this.appointmentService
       .getPatientAppointments()
       .pipe(catchError(() => of([])))
       .subscribe({
         next: (appointments) => {
-          const { upcoming, past } = this.splitAppointments(appointments);
-          this.upcoming.set(upcoming);
-          this.past.set(past);
+          this.enrichPatientAppointments(appointments).subscribe({
+            next: (enrichedAppointments) => {
+              const { upcoming, past } = this.splitAppointments(enrichedAppointments);
+              this.upcoming.set(upcoming);
+              this.past.set(past);
+              this.loading.set(false);
+            },
+            error: () => {
+              const { upcoming, past } = this.splitAppointments(appointments);
+              this.upcoming.set(upcoming);
+              this.past.set(past);
+              this.loading.set(false);
+            }
+          });
         },
         error: () => {
           this.upcoming.set([]);
           this.past.set([]);
+          this.loading.set(false);
         }
       });
+  }
+
+  private enrichPatientAppointments(appointments: AppointmentResponse[]): Observable<AppointmentResponse[]> {
+    const clinicIds = Array.from(
+      new Set(
+        appointments
+          .map((appointment) => Number(appointment.clinicId))
+          .filter((id) => Number.isFinite(id) && id > 0)
+      )
+    );
+
+    if (clinicIds.length === 0) {
+      return of(appointments);
+    }
+
+    return forkJoin(
+      clinicIds.map((id) =>
+        this.clinicService.getClinicsById(id).pipe(catchError(() => of(null)))
+      )
+    ).pipe(
+      catchError(() => of([])),
+      map((clinics) => {
+        const clinicMap = new Map(
+          (clinics || [])
+            .filter(Boolean)
+            .map((clinic: any) => [Number(clinic.id), clinic])
+        );
+
+        return appointments.map((appointment): AppointmentResponse => {
+          const clinic = clinicMap.get(Number(appointment.clinicId));
+          return {
+            ...appointment,
+            clinicName: appointment.clinicName || clinic?.clinicName || `Clinic ${appointment.clinicId}`,
+            doctorName: appointment.doctorName || clinic?.doctorName || 'Doctor'
+          };
+        });
+      })
+    );
   }
 
   private applyAppointments(appointments: AppointmentResponse[]): void {
@@ -768,53 +821,78 @@ export class PatientProfile implements OnInit {
 
     const upcoming: UpcomingAppointment[] = [];
     const past: PastAppointment[] = [];
+    const today = this.startOfDay(new Date()).getTime();
 
     appointments.forEach(appt => {
 
-      const date = new Date(appt.date || appt.appointmentDate || '');
+      const date = this.getAppointmentDate(appt);
+      const sortValue = date?.getTime() ?? 0;
 
-      const dateLabel = date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
+      const dateLabel = date
+        ? date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })
+        : 'N/A';
 
       const timeLabel = `${this.formatTime(appt.startTime)} - ${this.formatTime(appt.endTime)}`;
 
       const status = this.getStatusString(appt.status);
       const normalizedStatus = status.toLowerCase();
       const clinicName = appt.clinicName || `Clinic ${appt.clinicId}`;
-      const doctorName = appt.doctorName || appt.patientName || 'Patient';
+      const doctorName = appt.doctorName || 'Doctor';
+      const isClosedStatus = ['cancelled', 'rejected', 'completed', 'noshow'].includes(normalizedStatus);
+      const isFutureOrToday = sortValue >= today;
 
-      if (normalizedStatus === 'pending' || normalizedStatus === 'confirmed') {
+      if (!isClosedStatus && isFutureOrToday) {
 
         upcoming.push({
           id: appt.id,
           clinicName,
           dateLabel,
-          timeLabel
+          timeLabel,
+          status,
+          sortValue
         });
       }
 
-      if (
-        normalizedStatus === 'cancelled' ||
-        normalizedStatus === 'rejected' ||
-        normalizedStatus === 'completed' ||
-        normalizedStatus === 'noshow'
-      ) {
+      if (isClosedStatus || !isFutureOrToday) {
 
         past.push({
           id: appt.id,
           clinicName,
           dateLabel,
           doctorName,
-          status
+          status,
+          sortValue
         });
       }
     });
 
-    return { upcoming, past };
+    return {
+      upcoming: upcoming.sort((a, b) => a.sortValue - b.sortValue),
+      past: past.sort((a, b) => b.sortValue - a.sortValue)
+    };
+  }
+
+  private getAppointmentDate(appointment: AppointmentResponse): Date | null {
+    const value = appointment.date || appointment.appointmentDate || appointment.startTime;
+
+    if (!value) {
+      return null;
+    }
+
+    const raw = String(value);
+    const date = raw.includes('T') ? new Date(raw) : new Date(`${raw}T00:00:00`);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private startOfDay(date: Date): Date {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
   }
 
   private getStatusString(status: number | string): string {
@@ -942,7 +1020,8 @@ export class PatientProfile implements OnInit {
               clinicName: cancelled.clinicName,
               dateLabel: cancelled.dateLabel,
               doctorName: 'Doctor Name',
-              status: 'Cancelled'
+              status: 'Cancelled',
+              sortValue: Date.now()
             }
           ]);
         }

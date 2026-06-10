@@ -253,14 +253,14 @@
             <p class="clinic-view-row__value">{{ c.phoneNumber }}</p>
           </div>
         </div>
-        <div class="clinic-view-row">
+        <div class="clinic-view-row clinic-view-row--description">
           <span class="clinic-view-row__icon"><i class="fas fa-align-left" aria-hidden="true"></i></span>
           <div>
             <span class="clinic-view-row__label">Description</span>
             <p class="clinic-view-row__value">{{ c.description || '—' }}</p>
           </div>
         </div>
-        <div class="clinic-view-row">
+        <div class="clinic-view-row" *ngIf="false">
           <span class="clinic-view-row__icon"><i class="fas fa-fingerprint" aria-hidden="true"></i></span>
           <div>
             <span class="clinic-view-row__label">Identifiers</span>
@@ -464,7 +464,7 @@
                   <i class="fas fa-calendar"></i>
                   <div>
                     <small>Date</small>
-                    <span>{{ formatDate(appointment.appointmentDate || appointment.date || '') }}</span>
+                    <span>{{ formatDate(appointment.appointmentDate || appointment.date || appointment.startTime || '') }}</span>
                   </div>
                 </div>
                 <div class="detail-item">
@@ -487,6 +487,25 @@
                     <small>Price</small>
                     <span>{{ appointment.priceAtBooking || appointment.price || 0 }} EGP</span>
                   </div>
+                </div>
+              </div>
+
+              <div class="appointment-patient-details" *ngIf="hasPatientDetails(appointment)">
+                <div *ngIf="getPatientDetail(appointment, 'address')">
+                  <small>Address</small>
+                  <span>{{ getPatientDetail(appointment, 'address') }}</span>
+                </div>
+                <div *ngIf="getPatientDateOfBirth(appointment)">
+                  <small>Date of Birth</small>
+                  <span>{{ getPatientDateOfBirth(appointment) }}</span>
+                </div>
+                <div *ngIf="getPatientDetail(appointment, 'gender')">
+                  <small>Gender</small>
+                  <span>{{ getPatientDetail(appointment, 'gender') }}</span>
+                </div>
+                <div *ngIf="getPatientAllergies(appointment)">
+                  <small>Allergies</small>
+                  <span>{{ getPatientAllergies(appointment) }}</span>
                 </div>
               </div>
 

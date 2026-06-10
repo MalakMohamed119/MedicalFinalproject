@@ -522,6 +522,7 @@ a.nav-item {
   flex-shrink: 0;
 
   &.doctors { background: #f0fdfa; color: #0d6e7b; }
+  &.patients { background: #dcfce7; color: #16a34a; }
   &.add-doctor  { background: #f3e8ff; color: #7c3aed; }
 }
 
@@ -631,5 +632,37 @@ a.nav-item {
 .card-icon,
 .stat-icon {
   border-radius: 10px;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-shell .stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+@media (max-width: 900px) {
+  .admin-shell .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-shell .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 

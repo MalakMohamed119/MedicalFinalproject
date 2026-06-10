@@ -1,4 +1,4 @@
-@import '../manage-doctors/manage-doctors.component.scss';
+@use '../manage-doctors/manage-doctors.component' as *;
 
 .page-header {
   display: flex;
@@ -50,45 +50,79 @@
 
 .appointments-table {
   .status-badge {
+    position: relative;
     display: inline-flex;
     align-items: center;
-    padding: 0.28rem 0.65rem;
-    border-radius: 999px;
+    gap: 0.38rem;
+    min-width: 92px;
+    justify-content: center;
+    padding: 0.42rem 0.72rem 0.42rem 0.9rem;
+    border-radius: 8px;
     font-size: 0.72rem;
-    font-weight: 800;
+    font-weight: 900;
     letter-spacing: 0.02em;
     text-transform: capitalize;
-    border: 1px solid transparent;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    background: #ffffff;
+  }
+
+  .status-badge::before {
+    content: '';
+    position: absolute;
+    left: 0.45rem;
+    top: 50%;
+    width: 3px;
+    height: 58%;
+    border-radius: 999px;
+    transform: translateY(-50%);
+    background: #94a3b8;
+    box-shadow: none;
   }
 
   .status-pending {
-    color: #92400e;
-    background: rgba(245, 158, 11, 0.18);
-    border-color: rgba(245, 158, 11, 0.35);
+    background: #fffdf7;
+    border-color: #eee4c8;
+  }
+
+  .status-pending::before {
+    background: #c7a95b;
   }
 
   .status-confirmed {
-    color: #166534;
-    background: rgba(22, 163, 74, 0.14);
-    border-color: rgba(22, 163, 74, 0.28);
+    background: #f8fbfa;
+    border-color: #d6e8e0;
+  }
+
+  .status-confirmed::before {
+    background: #6aa98f;
   }
 
   .status-completed {
-    color: #1d4ed8;
-    background: rgba(59, 130, 246, 0.12);
-    border-color: rgba(59, 130, 246, 0.28);
+    background: #f8fafc;
+    border-color: #d8e2ee;
+  }
+
+  .status-completed::before {
+    background: #7b9abb;
   }
 
   .status-cancelled {
-    color: #9f1239;
-    background: #fff1f2;
-    border-color: rgba(225, 29, 72, 0.24);
+    background: #fffafa;
+    border-color: #ead8da;
+  }
+
+  .status-cancelled::before {
+    background: #b8838b;
   }
 
   .status-default {
-    color: #475569;
-    background: #f1f5f9;
-    border-color: rgba(71, 85, 105, 0.18);
+    background: #ffffff;
+    border-color: #e2e8f0;
+  }
+
+  .status-default::before {
+    background: #94a3b8;
   }
 }
 

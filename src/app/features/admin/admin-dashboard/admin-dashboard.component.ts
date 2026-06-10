@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { AppointmentService } from '../../../core/services/appointment.service';
+import { PatientService } from '../../../core/services/patient.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
 
 interface NavItem {
@@ -14,6 +16,7 @@ interface NavItem {
 interface DashboardStats {
   appointments: number;
   clinics: number;
+  patients: number;
 }
 
 @Component({
@@ -27,11 +30,14 @@ interface DashboardStats {
 export class AdminDashboardComponent implements OnInit {
   private authService = inject(AuthService);
   private clinicService = inject(ClinicService);
+  private appointmentService = inject(AppointmentService);
+  private patientService = inject(PatientService);
   private router = inject(Router);
 
   readonly stats = signal<DashboardStats>({
     appointments: 0,
-    clinics: 0
+    clinics: 0,
+    patients: 0
   });
   readonly totalDoctors = signal<number>(0);
   readonly loading = signal(true);
@@ -45,6 +51,7 @@ export class AdminDashboardComponent implements OnInit {
     { label: 'Manage Doctors', icon: 'fa-user-doctor', route: '/admin/manage-doctors' },
     { label: 'All Clinics', icon: 'fa-hospital', route: '/admin/manage-clinics' },
     { label: 'All Appointments', icon: 'fa-calendar-days', route: '/admin/manage-appointments' },
+    { label: 'All Patients', icon: 'fa-users', route: '/admin/manage-patients' },
     { label: 'Add Doctor', icon: 'fa-user-plus', route: '/admin/add-doctor' }
   ];
 
@@ -55,6 +62,8 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
     this.loadDashboard();
+    this.loadAppointmentCount();
+    this.loadPatientCount();
 
     this.clinicService.getAllDoctors(0, 1000, '').subscribe({
       next: (data: any) => {
@@ -83,10 +92,9 @@ export class AdminDashboardComponent implements OnInit {
     this.error.set('');
 
     this.clinicService.getAdminDashboard().subscribe({
-      next: (data: DashboardResponse) => {
+      next: (_data: DashboardResponse) => {
         this.stats.update((current) => ({
-          ...current,
-          appointments: data.totalAppointments || 0
+          ...current
         }));
         this.loading.set(false);
       },
@@ -101,6 +109,34 @@ export class AdminDashboardComponent implements OnInit {
           this.error.set('Failed to load dashboard data. Please try again.');
         }
         this.loading.set(false);
+      }
+    });
+  }
+
+  private loadAppointmentCount(): void {
+    this.appointmentService.getAllAppointments().subscribe({
+      next: (appointments) => {
+        this.stats.update((current) => ({
+          ...current,
+          appointments: appointments.length
+        }));
+      },
+      error: () => {
+        this.stats.update((current) => ({ ...current, appointments: 0 }));
+      }
+    });
+  }
+
+  private loadPatientCount(): void {
+    this.patientService.getAllPatients().subscribe({
+      next: (patients) => {
+        this.stats.update((current) => ({
+          ...current,
+          patients: patients.length
+        }));
+      },
+      error: () => {
+        this.stats.update((current) => ({ ...current, patients: 0 }));
       }
     });
   }

@@ -3,6 +3,7 @@ import { PatientFooterComponent } from '../../shared/components/patient-footer/p
 import { Navbar } from '../../shared/components/navbar/navbar';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ClinicResponse } from '../../shared/models/clinic-response.interface';
 import { TimeSlot } from '../../shared/models/timeslot.interface';
 import { ClinicService } from '../../core/services/clinic.service';
@@ -34,6 +35,7 @@ export class HomeForPatient implements OnInit {
   private clinicService = inject(ClinicService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private sanitizer = inject(DomSanitizer);
 
   readonly starNumbers: number[] = [1, 2, 3, 4, 5];
   readonly specialtyFilters = ['All', 'General Practice', 'Specialized Care', 'Family Medicine', 'Diagnostics'];
@@ -210,6 +212,31 @@ export class HomeForPatient implements OnInit {
 
   toggleMapView(): void {
     this.mapView = !this.mapView;
+  }
+
+  getMapClinic(): ClinicCard | null {
+    return this.filteredClinics[0] ?? null;
+  }
+
+  getClinicMapUrl(clinic: ClinicCard | null = this.getMapClinic()): SafeResourceUrl {
+    const query = this.getClinicMapQuery(clinic);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=13&output=embed`
+    );
+  }
+
+  getClinicMapLink(clinic: ClinicCard | null): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.getClinicMapQuery(clinic))}`;
+  }
+
+  private getClinicMapQuery(clinic: ClinicCard | null): string {
+    return [
+      clinic?.clinicName,
+      clinic?.clinicAddress
+    ]
+      .map((part) => String(part || '').trim())
+      .filter(Boolean)
+      .join(', ') || this.locationFilter || 'clinics near me';
   }
 
   applyFilters(): void {

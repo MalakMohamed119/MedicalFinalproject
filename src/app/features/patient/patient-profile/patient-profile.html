@@ -299,6 +299,7 @@
               <li *ngFor="let a of upcoming()" class="upcoming-card">
                 <div class="upcoming-card__main">
                   <h3 class="upcoming-card__clinic">{{ a.clinicName }}</h3>
+                  <span class="upcoming-card__status">{{ a.status }}</span>
                   <p class="upcoming-card__when">
                     <span class="upcoming-card__line">
                       <i class="bi bi-calendar-event" aria-hidden="true"></i>

@@ -1,4 +1,4 @@
-@import '../manage-doctors/manage-doctors.component.scss';
+@use '../manage-doctors/manage-doctors.component' as *;
 
 .page-count {
   font-size: 0.875rem;

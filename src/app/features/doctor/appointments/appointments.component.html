@@ -116,6 +116,21 @@
                 </div>
               </div>
 
+              <div class="appointment-card__quick-info">
+                <span>
+                  <i class="fa-solid fa-calendar-day" aria-hidden="true"></i>
+                  {{ formatDate(appointment.date || appointment.appointmentDate || appointment.startTime) }}
+                </span>
+                <span *ngIf="getPatientDetail(appointment, 'gender')">
+                  <i class="fa-solid fa-user" aria-hidden="true"></i>
+                  {{ getPatientDetail(appointment, 'gender') }}
+                </span>
+                <span *ngIf="getPatientDateOfBirth(appointment)">
+                  <i class="fa-solid fa-cake-candles" aria-hidden="true"></i>
+                  {{ getPatientDateOfBirth(appointment) }}
+                </span>
+              </div>
+
               <div class="appointment-card__actions" (click)="$event.stopPropagation()">
                 <button
                   *ngIf="canConfirm(appointment.status)"
@@ -160,19 +175,16 @@
         <h2 id="detail-modal-title">{{ appointment.patientName || 'Patient' }}</h2>
         <p>{{ appointment.clinicName || 'Clinic' }}</p>
       </div>
-      <span class="status-badge detail-modal__status" [class]="getStatusClass(appointment.status)">
-        {{ appointment.status }}
-      </span>
     </header>
 
     <div class="detail-modal__body">
-      <section class="detail-modal__section">
+      <section class="detail-modal__section detail-modal__section--highlight">
         <h3>Date &amp; Time</h3>
-        <p>{{ formatDate(appointment.date) || 'N/A' }}</p>
-        <p>{{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}</p>
+        <p>{{ formatDate(appointment.date || appointment.appointmentDate || appointment.startTime) }}</p>
+        <p>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</p>
       </section>
 
-      <section class="detail-modal__section">
+      <section class="detail-modal__section detail-modal__section--highlight">
         <h3>Status</h3>
         <span class="status-badge" [class]="getStatusClass(appointment.status)">{{ appointment.status }}</span>
       </section>
@@ -180,6 +192,32 @@
       <section class="detail-modal__section">
         <h3>Clinic</h3>
         <p>{{ appointment.clinicName || 'Clinic' }}</p>
+      </section>
+
+      <section class="detail-modal__section detail-modal__section--patient" *ngIf="hasPatientDetails(appointment)">
+        <h3>Patient Details</h3>
+        <div class="patient-detail-grid">
+          <p *ngIf="getPatientDetail(appointment, 'address')">
+            <strong>Address</strong>
+            <span>{{ getPatientDetail(appointment, 'address') }}</span>
+          </p>
+          <p *ngIf="getPatientDateOfBirth(appointment)">
+            <strong>Date of Birth</strong>
+            <span>{{ getPatientDateOfBirth(appointment) }}</span>
+          </p>
+          <p *ngIf="getPatientDetail(appointment, 'gender')">
+            <strong>Gender</strong>
+            <span>{{ getPatientDetail(appointment, 'gender') }}</span>
+          </p>
+          <p *ngIf="getPatientAllergies(appointment)">
+            <strong>Allergies</strong>
+            <span>{{ getPatientAllergies(appointment) }}</span>
+          </p>
+          <p *ngIf="getPatientMedicalRecords(appointment)" class="patient-detail-grid__wide">
+            <strong>Medical Records</strong>
+            <span>{{ getPatientMedicalRecords(appointment) }}</span>
+          </p>
+        </div>
       </section>
 
       <section class="detail-modal__section" *ngIf="appointment.notes || appointment.patientNotes">
@@ -234,21 +272,21 @@
         [class.fa-xmark]="isRejectAction"
         aria-hidden="true"></i>
     </div>
-    <h2 id="confirm-title">Are you sure?</h2>
+    <h2 id="confirm-title">{{ isRejectAction ? 'Reject appointment?' : 'Confirm appointment?' }}</h2>
     <p>
-      This appointment will be marked as
+      This will update the appointment status to
       <strong>{{ isRejectAction ? 'Rejected' : pendingActionStatus }}</strong>.
     </p>
     <div class="confirm-modal__actions">
       <button type="button" class="confirm-modal__btn confirm-modal__btn--ghost" (click)="closeStatusConfirm()">
-        No, keep it
+        Keep current
       </button>
       <button
         type="button"
         class="confirm-modal__btn"
         [class.confirm-modal__btn--danger]="isRejectAction"
         (click)="confirmStatusUpdate()">
-        Yes, {{ isRejectAction ? 'reject' : 'confirm' }}
+        {{ isRejectAction ? 'Reject' : 'Confirm' }}
       </button>
     </div>
   </div>

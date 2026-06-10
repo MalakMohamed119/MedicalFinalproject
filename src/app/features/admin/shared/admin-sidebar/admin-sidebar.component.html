@@ -26,6 +26,7 @@
       *ngFor="let item of manageNav"
       [routerLink]="item.route"
       routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
       class="nav-item">
       <i class="fa-solid {{ item.icon }}"></i>
       <span>{{ item.label }}</span>

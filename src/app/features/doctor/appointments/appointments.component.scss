@@ -1282,7 +1282,7 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 .detail-modal__panel {
   position: relative;
-  width: min(100%, 520px);
+  width: min(100%, 640px);
   max-height: min(92vh, 760px);
   overflow: auto;
   background: #ffffff;
@@ -1409,5 +1409,289 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     align-items: flex-start;
     flex-direction: row;
     flex-wrap: wrap;
+  }
+
+  .patient-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-modal__section--patient {
+  grid-column: 1 / -1;
+}
+
+.patient-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+
+  p {
+    margin: 0;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: rgba(var(--ch-brand-rgb), 0.05);
+    border: 1px solid rgba(var(--ch-brand-rgb), 0.1);
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    margin-bottom: 0.25rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ch-ink-muted);
+  }
+
+  span {
+    color: var(--ch-ink);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+}
+
+.patient-detail-grid__wide {
+  grid-column: 1 / -1;
+}
+
+.confirm-modal {
+  padding: 1rem;
+}
+
+.confirm-modal__backdrop {
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(4px);
+}
+
+.confirm-modal__card {
+  width: min(100%, 360px);
+  padding: 1.15rem;
+  border-radius: 8px;
+  border: 1px solid rgba(13, 110, 123, 0.14);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+  text-align: left;
+}
+
+.confirm-modal__card h2 {
+  margin: 0 0 0.4rem;
+  color: #102331;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.confirm-modal__card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.confirm-modal__icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 0 0.8rem;
+  border-radius: 8px;
+  color: #047857;
+  background: #ecfdf5;
+  font-size: 1rem;
+}
+
+.confirm-modal__icon--danger {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.confirm-modal__actions {
+  justify-content: flex-end;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.confirm-modal__btn {
+  min-height: 38px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  background: #0d6e7b;
+  box-shadow: none;
+  font-size: 0.84rem;
+}
+
+.confirm-modal__btn--danger {
+  background: #b91c1c;
+}
+
+.confirm-modal__btn--ghost {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.doctor-appointments-page {
+  background:
+    radial-gradient(780px 300px at 12% 0%, rgba(14, 165, 183, 0.13), transparent 58%),
+    linear-gradient(180deg, #f7fbfc 0%, #eef7f8 42%, #ffffff 100%);
+}
+
+.doctor-appointments-page .page-container {
+  max-width: 1240px;
+}
+
+.appointments-hero {
+  align-items: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #06313a 0%, #0d6e7b 58%, #0891b2 100%);
+  box-shadow: 0 20px 48px rgba(13, 110, 123, 0.2);
+}
+
+.appointments-hero__summary {
+  min-width: 164px;
+  border-radius: 10px;
+}
+
+.appointment-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.doctor-appointments-page .appointments-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 390px), 1fr));
+}
+
+.doctor-appointments-page .appointment-card {
+  min-height: 190px;
+  padding: 1.15rem;
+  border-radius: 10px;
+  border-color: rgba(13, 110, 123, 0.14);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+}
+
+.doctor-appointments-page .appointment-card::before {
+  width: 5px;
+}
+
+.appointment-card__patient {
+  align-items: flex-start;
+}
+
+.appointment-card__patient h3 {
+  line-height: 1.25;
+}
+
+.appointment-card__avatar,
+.detail-modal__avatar {
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0d6e7b, #049ebd);
+  box-shadow: 0 10px 22px rgba(4, 158, 189, 0.18);
+}
+
+.appointment-card__quick-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: #f8fcfd;
+  border: 1px solid rgba(13, 110, 123, 0.1);
+}
+
+.appointment-card__quick-info span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.appointment-card__quick-info i {
+  width: 18px;
+  color: #0d6e7b;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.appointment-card__actions .btn {
+  border-radius: 9px;
+}
+
+.detail-modal {
+  padding: 1.25rem;
+}
+
+.detail-modal__backdrop {
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.detail-modal__panel {
+  width: min(100%, 760px);
+  border-radius: 12px;
+  border: 1px solid rgba(13, 110, 123, 0.14);
+  box-shadow: 0 30px 90px rgba(15, 23, 42, 0.32);
+}
+
+.detail-modal__header {
+  padding: 1.35rem 3.25rem 1.15rem 1.35rem;
+  background: linear-gradient(180deg, #f8fcfd 0%, #ffffff 100%);
+}
+
+.detail-modal__body {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  padding: 1.1rem 1.35rem;
+}
+
+.detail-modal__section {
+  padding: 0.85rem;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid rgba(13, 110, 123, 0.1);
+}
+
+.detail-modal__section--highlight,
+.patient-detail-grid p {
+  background: #f8fcfd;
+}
+
+.detail-modal__actions {
+  padding: 0 1.35rem 1.35rem;
+}
+
+.detail-modal__actions .btn {
+  min-height: 40px;
+  border-radius: 9px;
+}
+
+@media (max-width: 760px) {
+  .appointment-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-modal__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .appointments-hero {
+    align-items: flex-start;
+  }
+
+  .detail-modal {
+    padding: 0;
+  }
+
+  .detail-modal__panel {
+    border-radius: 0;
   }
 }

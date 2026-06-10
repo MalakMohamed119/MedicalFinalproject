@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import {
@@ -62,20 +62,63 @@ export class PatientService {
       items?: PatientProfileResponse[];
       Items?: PatientProfileResponse[];
       $values?: PatientProfileResponse[];
-    }>(`${this.patientUrl}/All`).pipe(
-      map((response) => {
-        if (Array.isArray(response)) {
-          return response;
+    }>(`${environment.apiUrl}/Patiant/All`).pipe(
+      catchError((error) => {
+        if (error.status === 404) {
+          return this.http.get<PatientProfileResponse[] | {
+            data?: PatientProfileResponse[];
+            Data?: PatientProfileResponse[];
+            items?: PatientProfileResponse[];
+            Items?: PatientProfileResponse[];
+            $values?: PatientProfileResponse[];
+          }>(`${this.patientUrl}/All`);
         }
 
-        return response.data ??
-          response.Data ??
-          response.items ??
-          response.Items ??
-          response.$values ??
-          [];
-      })
+        throw error;
+      }),
+      map((response) => this.normalizePatientList(response))
     );
+  }
+
+  private normalizePatientList(response: PatientProfileResponse[] | {
+    data?: PatientProfileResponse[];
+    Data?: PatientProfileResponse[];
+    items?: PatientProfileResponse[];
+    Items?: PatientProfileResponse[];
+    $values?: PatientProfileResponse[];
+  }): PatientProfileResponse[] {
+    return this.extractArray(response);
+  }
+
+  private extractArray(value: any): PatientProfileResponse[] {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (!value || typeof value !== 'object') {
+      return [];
+    }
+
+    const candidates = [
+      value.data,
+      value.Data,
+      value.items,
+      value.Items,
+      value.patients,
+      value.Patients,
+      value.result,
+      value.Result,
+      value.$values
+    ];
+
+    for (const candidate of candidates) {
+      const list = this.extractArray(candidate);
+      if (list.length > 0) {
+        return list;
+      }
+    }
+
+    return [];
   }
 
   saveMyMedicalData(data: PatientMedicalData): Observable<PatientProfileResponse> {
@@ -84,7 +127,17 @@ export class PatientService {
 
   getDetailsByIdentityUserId(identityUserId: string): Observable<PatientProfileResponse> {
     return this.http.get<PatientProfileResponse>(
-      `${this.patientUrl}/DetailsByIdentityUserId/${identityUserId}`
+      `${environment.apiUrl}/Patiant/DetailsByIdentityUserId/${identityUserId}`
+    ).pipe(
+      catchError((error) => {
+        if (error.status === 404) {
+          return this.http.get<PatientProfileResponse>(
+            `${this.patientUrl}/DetailsByIdentityUserId/${identityUserId}`
+          );
+        }
+
+        return throwError(() => error);
+      })
     );
   }
 }

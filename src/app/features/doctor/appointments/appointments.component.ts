@@ -7,9 +7,10 @@ import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/
 
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { PatientService } from '../../../core/services/patient.service';
 
 import { forkJoin, of, TimeoutError } from 'rxjs';
-import { catchError, timeout } from 'rxjs/operators';
+import { catchError, map, timeout } from 'rxjs/operators';
 
 @Component({
   selector: 'app-doctor-appointments',
@@ -51,6 +52,7 @@ export class DoctorAppointments implements OnInit {
   constructor(
     private appointmentService: AppointmentService,
     private clinicService: ClinicService,
+    private patientService: PatientService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -216,13 +218,16 @@ export class DoctorAppointments implements OnInit {
   }
 
   private getAppointmentDate(appointment: any): Date | null {
-    if (!appointment?.date) {
+    const dateValue = appointment?.date || appointment?.appointmentDate || appointment?.startTime;
+
+    if (!dateValue) {
       return null;
     }
 
-    const date = appointment.date.includes('T')
-      ? new Date(appointment.date)
-      : new Date(`${appointment.date}T00:00:00`);
+    const rawDate = String(dateValue);
+    const date = rawDate.includes('T')
+      ? new Date(rawDate)
+      : new Date(`${rawDate}T00:00:00`);
 
     return Number.isNaN(date.getTime()) ? null : date;
   }
@@ -325,19 +330,47 @@ export class DoctorAppointments implements OnInit {
 
           forkJoin(appointmentRequests).subscribe({
             next: (groups) => {
-              this.appointments = groups.flat().map((appointment: any) => {
+              const basicAppointments = groups.flat().map((appointment: any) => {
                 const clinic = clinics.find((item) => item.id === Number(appointment.clinicId));
 
                 return {
                   ...appointment,
                   status: this.getStatusString(appointment.status),
                   clinicName: appointment.clinicName || clinic?.clinicName || `Clinic ${appointment.clinicId}`,
-                  patientName: appointment.patientName || 'Patient'
+                  patientName: this.getDisplayPatientName(appointment.patientName) || 'Patient'
                 };
               });
 
-              this.loading = false;
-              this.cdr.detectChanges();
+              if (basicAppointments.length === 0) {
+                this.appointments = [];
+                this.loading = false;
+                this.cdr.detectChanges();
+                return;
+              }
+
+              const patientNameRequests = basicAppointments.map((appointment) => {
+                if (!this.shouldLoadPatientDetails(appointment)) {
+                  return of(appointment);
+                }
+
+                return this.getPatientForAppointment(appointment).pipe(
+                  map((patient) => ({
+                    ...appointment,
+                    patientName: this.extractPatientName(patient) || appointment.patientName,
+                    patientDetails: this.extractPatientDetails(patient)
+                  })),
+                  catchError(() => of(appointment))
+                );
+              });
+
+              forkJoin(patientNameRequests).subscribe({
+                next: (appointments) => {
+                  this.appointments = appointments;
+                  this.loading = false;
+                  this.cdr.detectChanges();
+                },
+                error: (err: any) => this.setLoadError(err)
+              });
             },
             error: (err: any) => this.setLoadError(err)
           });
@@ -496,11 +529,12 @@ export class DoctorAppointments implements OnInit {
 
     if (!dateString) return 'N/A';
 
-    const date = dateString.includes('T')
-      ? new Date(dateString)
-      : new Date(dateString + 'T00:00:00');
+    const rawDate = String(dateString);
+    const date = rawDate.includes('T')
+      ? new Date(rawDate)
+      : new Date(rawDate + 'T00:00:00');
 
-    if (isNaN(date.getTime())) return '';
+    if (isNaN(date.getTime())) return 'N/A';
 
     return date.toLocaleDateString('en-US', {
       weekday: 'short',
@@ -561,5 +595,138 @@ export class DoctorAppointments implements OnInit {
 
       default: return 'status-default';
     }
+  }
+
+  private needsPatientNameLookup(appointment: any): boolean {
+    const name = this.getDisplayPatientName(appointment.patientName);
+    return Boolean(appointment?.patientId || appointment?.id) && (!name || name === 'Patient' || this.isIdentifierLike(name));
+  }
+
+  private shouldLoadPatientDetails(appointment: any): boolean {
+    return Boolean(appointment?.patientId || this.needsPatientNameLookup(appointment));
+  }
+
+  private getPatientForAppointment(appointment: any) {
+    const identityUserId = this.getDisplayPatientName(appointment?.patientId);
+
+    if (identityUserId) {
+      return this.patientService.getDetailsByIdentityUserId(identityUserId).pipe(
+        catchError(() => this.appointmentService.getAppointmentPatient(appointment.id))
+      );
+    }
+
+    return this.appointmentService.getAppointmentPatient(appointment.id);
+  }
+
+  private extractPatientName(patient: any): string {
+    const source = patient?.data ?? patient?.Data ?? patient;
+
+    if (typeof source === 'string') {
+      return this.getDisplayPatientName(source);
+    }
+
+    const user = source?.user ?? source?.User ?? source?.applicationUser ?? source?.ApplicationUser ?? {};
+    const fullName = [
+      source?.firstName ?? source?.FirstName,
+      source?.lastName ?? source?.LastName
+    ]
+      .map((part) => String(part || '').trim())
+      .filter(Boolean)
+      .join(' ');
+
+    return this.getDisplayPatientName(
+      source?.displayName ??
+      source?.DisplayName ??
+      source?.fullName ??
+      source?.FullName ??
+      source?.name ??
+      source?.Name ??
+      source?.patientName ??
+      source?.PatientName ??
+      user?.displayName ??
+      user?.DisplayName ??
+      user?.fullName ??
+      user?.FullName ??
+      user?.name ??
+      user?.Name ??
+      fullName
+    );
+  }
+
+  private extractPatientDetails(patient: any): any {
+    const source = patient?.data ?? patient?.Data ?? patient;
+
+    if (!source || typeof source !== 'object') {
+      return null;
+    }
+
+    return source;
+  }
+
+  getPatientDetail(appointment: any, key: string): string {
+    const details = appointment?.patientDetails ?? {};
+    const pascalKey = key.charAt(0).toUpperCase() + key.slice(1);
+    return this.getDisplayPatientName(details[key] ?? details[pascalKey]);
+  }
+
+  getPatientDateOfBirth(appointment: any): string {
+    const value = this.getPatientDetail(appointment, 'dateOfBirth');
+    return value ? this.formatDate(value) : '';
+  }
+
+  getPatientAllergies(appointment: any): string {
+    const details = appointment?.patientDetails ?? {};
+    const allergies = details.allergies ?? details.Allergies;
+
+    if (typeof allergies === 'string') {
+      return allergies.trim();
+    }
+
+    if (Array.isArray(allergies)) {
+      return allergies
+        .map((item) => item?.name ?? item?.Name)
+        .filter(Boolean)
+        .join(', ');
+    }
+
+    return '';
+  }
+
+  getPatientMedicalRecords(appointment: any): string {
+    const details = appointment?.patientDetails ?? {};
+    const records = details.medicalRecords ?? details.MedicalRecords;
+
+    if (!Array.isArray(records)) {
+      return '';
+    }
+
+    return records
+      .map((item) => [item?.diagnosis ?? item?.Diagnosis, item?.notes ?? item?.Notes].filter(Boolean).join(': '))
+      .filter(Boolean)
+      .join(' | ');
+  }
+
+  hasPatientDetails(appointment: any): boolean {
+    return Boolean(
+      this.getPatientDetail(appointment, 'address') ||
+      this.getPatientDateOfBirth(appointment) ||
+      this.getPatientDetail(appointment, 'gender') ||
+      this.getPatientAllergies(appointment) ||
+      this.getPatientMedicalRecords(appointment)
+    );
+  }
+
+  private getDisplayPatientName(value: unknown): string {
+    const name = String(value || '').trim();
+
+    if (!name || /^unknown patient$/i.test(name)) {
+      return '';
+    }
+
+    return name;
+  }
+
+  private isIdentifierLike(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value) || /^\d+$/.test(value);
   }
 }

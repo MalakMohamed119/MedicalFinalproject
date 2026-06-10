@@ -668,7 +668,7 @@ textarea.form-control {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 28rem;
+  max-width: 34rem;
   max-height: min(90vh, 640px);
   overflow: hidden;
   display: flex;
@@ -814,6 +814,53 @@ textarea.form-control {
   line-height: 1.5;
   color: var(--ch-ink);
   word-wrap: break-word;
+}
+
+.clinic-view-row--description {
+  min-height: 140px;
+
+  > div {
+    flex: 1;
+  }
+
+  .clinic-view-row__value {
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+}
+
+.appointment-patient-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+
+  div {
+    padding: 0.7rem;
+    border-radius: 10px;
+    background: rgba(var(--ch-brand-rgb), 0.05);
+    border: 1px solid rgba(var(--ch-brand-rgb), 0.1);
+  }
+
+  small,
+  span {
+    display: block;
+  }
+
+  small {
+    margin-bottom: 0.25rem;
+    color: var(--ch-ink-muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  span {
+    color: var(--ch-ink);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
 }
 
 .clinic-view-row__sub {
@@ -1084,5 +1131,9 @@ textarea.form-control {
 @media (max-width: 540px) {
   .clinics-container .clinic-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .appointment-patient-details {
+    grid-template-columns: 1fr;
   }
 }

@@ -90,14 +90,14 @@
               <strong>{{ appointment.patientNameResolved }}</strong>
             </td>
             <td>{{ appointment.clinicNameResolved }}</td>
-            <td>{{ formatDate(appointment.date || appointment.appointmentDate) }}</td>
-            <td>{{ formatTime(appointment.startTime) }} – {{ formatTime(appointment.endTime) }}</td>
+            <td>{{ formatDate(appointment.date || appointment.appointmentDate || appointment.startTime) }}</td>
+            <td>{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</td>
             <td>
               <span class="status-badge" [ngClass]="getStatusClass(appointment.statusLabel)">
                 {{ appointment.statusLabel }}
               </span>
             </td>
-            <td>{{ appointment.priceAtBooking || appointment.price ? (appointment.priceAtBooking || appointment.price) + ' EGP' : '—' }}</td>
+            <td>{{ appointment.priceAtBooking || appointment.price ? (appointment.priceAtBooking || appointment.price) + ' EGP' : '-' }}</td>
           </tr>
         </tbody>
       </table>

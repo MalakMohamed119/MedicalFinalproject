@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -88,6 +89,7 @@ export class ClinicDetails implements OnInit {
     private toastService: ToastService,
     private route: ActivatedRoute,
     private router: Router,
+    private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -269,6 +271,27 @@ export class ClinicDetails implements OnInit {
     this.searchTerm = '';
 
     this.filteredClinics = [...this.clinics];
+  }
+
+  getClinicMapUrl(clinic: ClinicResponse | null): SafeResourceUrl {
+    const query = this.getClinicMapQuery(clinic);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`
+    );
+  }
+
+  getClinicMapLink(clinic: ClinicResponse | null): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(this.getClinicMapQuery(clinic))}`;
+  }
+
+  private getClinicMapQuery(clinic: ClinicResponse | null): string {
+    return [
+      clinic?.clinicName,
+      clinic?.clinicAddress
+    ]
+      .map((part) => String(part || '').trim())
+      .filter(Boolean)
+      .join(', ') || 'clinic';
   }
 
   // =========================

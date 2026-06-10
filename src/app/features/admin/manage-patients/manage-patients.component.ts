@@ -8,29 +8,19 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { PatientService } from '../../../core/services/patient.service';
-import { ClinicService } from '../../../core/services/clinic.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { PatientProfileResponse } from '../../../shared/models/patient.interface';
 import { AppointmentResponse } from '../../../shared/models/appointment-response.interface';
-import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
-import {
-  AppointmentStatusLabel,
-  formatAdminDate,
-  getAppointmentStatusClass,
-  normalizeAppointmentStatus
-} from '../shared/admin-appointment.util';
+import { formatAdminDate } from '../shared/admin-appointment.util';
 
 type PatientViewTab = 'all' | 'bookings';
 
 interface PatientBookingRow {
   patient: PatientProfileResponse;
   appointmentCount: number;
-  latestStatus: AppointmentStatusLabel | '—';
-  latestDate: string;
-  latestClinic: string;
 }
 
 @Component({
@@ -43,7 +33,6 @@ interface PatientBookingRow {
 })
 export class ManagePatientsComponent implements OnInit {
   private patientService = inject(PatientService);
-  private clinicService = inject(ClinicService);
   private appointmentService = inject(AppointmentService);
 
   readonly rows = signal<PatientBookingRow[]>([]);
@@ -76,43 +65,17 @@ export class ManagePatientsComponent implements OnInit {
 
     forkJoin({
       patients: this.patientService.getAllPatients().pipe(catchError(() => of([] as PatientProfileResponse[]))),
-      clinics: this.clinicService.getAllClinics({ pageIndex: 0, pageSize: 1000 }).pipe(
-        catchError(() => of([] as ClinicResponse[]))
-      )
+      appointments: this.appointmentService.getAllAppointments().pipe(catchError(() => of([] as AppointmentResponse[])))
     }).subscribe({
-      next: ({ patients, clinics: clinicsResponse }) => {
-        const clinicList = Array.isArray(clinicsResponse)
-          ? clinicsResponse
-          : ((clinicsResponse as { data?: ClinicResponse[] })?.data ?? []);
-
-        if (clinicList.length === 0) {
-          this.rows.set(
-            (Array.isArray(patients) ? patients : []).map((patient) => this.createRow(patient, []))
-          );
-          this.loading.set(false);
-          return;
-        }
-
-        const requests = clinicList.map((clinic) =>
-          this.appointmentService.getClinicAppointments(clinic.id).pipe(catchError(() => of([])))
-        );
-
-        forkJoin(requests).subscribe({
-          next: (groups) => {
-            const appointments = groups.flat().map((appointment) => {
-              const clinic = clinicList.find((item) => item.id === Number(appointment.clinicId));
-              return {
-                ...appointment,
-                clinicName: appointment.clinicName || clinic?.clinicName || 'Clinic'
-              };
-            });
-
-            const patientList = Array.isArray(patients) ? patients : [];
-            this.rows.set(patientList.map((patient) => this.createRow(patient, appointments)));
+      next: ({ patients, appointments }) => {
+        const patientList = Array.isArray(patients) ? patients : [];
+        this.enrichPatients(patientList, appointments).subscribe({
+          next: (enrichedPatients) => {
+            this.rows.set(enrichedPatients.map((patient) => this.createRow(patient, appointments)));
             this.loading.set(false);
           },
           error: () => {
-            this.error.set('Failed to load patient bookings.');
+            this.rows.set(patientList.map((patient) => this.createRow(patient, appointments)));
             this.loading.set(false);
           }
         });
@@ -129,17 +92,103 @@ export class ManagePatientsComponent implements OnInit {
   }
 
   displayName(patient: PatientProfileResponse): string {
-    return patient.displayName || patient.fullName || patient.name || 'Patient';
+    const user = (patient['user'] ?? patient['User'] ?? patient['applicationUser'] ?? patient['ApplicationUser'] ?? {}) as Record<string, unknown>;
+
+    return String(
+      patient.displayName ||
+      patient.fullName ||
+      patient.name ||
+      user['displayName'] ||
+      user['DisplayName'] ||
+      user['fullName'] ||
+      user['FullName'] ||
+      user['name'] ||
+      user['Name'] ||
+      'Patient'
+    );
+  }
+
+  patientEmail(patient: PatientProfileResponse): string {
+    return this.getPatientText(patient, ['email', 'Email']);
+  }
+
+  patientPhone(patient: PatientProfileResponse): string {
+    return this.getPatientText(patient, ['phoneNumber', 'PhoneNumber', 'phone', 'Phone']);
   }
 
   formatDate = formatAdminDate;
 
-  getRowStatusClass(status: AppointmentStatusLabel | '—'): string {
-    if (status === '—') {
-      return 'status-default';
+  patientDateOfBirth(patient: PatientProfileResponse): string {
+    return formatAdminDate(this.getPatientText(patient, ['dateOfBirth', 'DateOfBirth']));
+  }
+
+  patientAge(patient: PatientProfileResponse): string {
+    const dateOfBirth = this.getPatientText(patient, ['dateOfBirth', 'DateOfBirth']);
+
+    if (!dateOfBirth) {
+      return '-';
     }
 
-    return getAppointmentStatusClass(status);
+    const birthDate = new Date(dateOfBirth);
+    if (Number.isNaN(birthDate.getTime())) {
+      return '-';
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDelta = today.getMonth() - birthDate.getMonth();
+
+    if (monthDelta < 0 || (monthDelta === 0 && today.getDate() < birthDate.getDate())) {
+      age -= 1;
+    }
+
+    return `${age} years`;
+  }
+
+  patientGender(patient: PatientProfileResponse): string {
+    return this.getPatientText(patient, ['gender', 'Gender']) || '-';
+  }
+
+  patientAddress(patient: PatientProfileResponse): string {
+    return this.getPatientText(patient, ['address', 'Address']) || '-';
+  }
+
+  patientAllergies(patient: PatientProfileResponse): string {
+    const allergies = patient.allergies ?? patient['Allergies'];
+
+    if (typeof allergies === 'string') {
+      return allergies.trim();
+    }
+
+    if (Array.isArray(allergies)) {
+      return allergies
+        .map((item) => {
+          const allergy = item as Record<string, unknown>;
+          return allergy['name'] ?? allergy['Name'];
+        })
+        .filter(Boolean)
+        .join(', ');
+    }
+
+    return '';
+  }
+
+  patientMedicalRecords(patient: PatientProfileResponse): string {
+    const records = patient.medicalRecords ?? patient['MedicalRecords'];
+
+    if (!Array.isArray(records)) {
+      return '';
+    }
+
+    return records
+      .map((item) => {
+        const record = item as Record<string, unknown>;
+        return [record['diagnosis'] ?? record['Diagnosis'], record['notes'] ?? record['Notes']]
+          .filter(Boolean)
+          .join(': ');
+      })
+      .filter(Boolean)
+      .join(' | ');
   }
 
   private createRow(
@@ -150,20 +199,96 @@ export class ManagePatientsComponent implements OnInit {
       this.matchesPatient(patient, appointment)
     );
 
-    patientAppointments.sort((a, b) => this.compareAppointments(a, b));
-    const latest = patientAppointments[0];
-
     return {
       patient,
-      appointmentCount: patientAppointments.length,
-      latestStatus: latest ? normalizeAppointmentStatus(latest.status) : '—',
-      latestDate: latest ? formatAdminDate(latest.date) : '—',
-      latestClinic: latest?.clinicName || '—'
+      appointmentCount: patientAppointments.length
     };
   }
 
+  private enrichPatients(patients: PatientProfileResponse[], appointments: AppointmentResponse[]) {
+    if (patients.length === 0) {
+      return of([] as PatientProfileResponse[]);
+    }
+
+    return forkJoin(
+      patients.map((patient) => {
+        const identityUserId = this.getPatientIdentityUserId(patient, appointments);
+
+        if (!identityUserId) {
+          return of(patient);
+        }
+
+        return this.patientService.getDetailsByIdentityUserId(identityUserId).pipe(
+          map((details) => ({ ...patient, ...details })),
+          catchError(() => of(patient))
+        );
+      })
+    );
+  }
+
+  private getPatientIdentityUserId(
+    patient: PatientProfileResponse,
+    appointments: AppointmentResponse[]
+  ): string {
+    const user = (patient['user'] ?? patient['User'] ?? patient['applicationUser'] ?? patient['ApplicationUser'] ?? {}) as Record<string, unknown>;
+    const value =
+      patient.identityUserId ??
+      patient['IdentityUserId'] ??
+      user['identityUserId'] ??
+      user['IdentityUserId'] ??
+      user['id'] ??
+      user['Id'] ??
+      patient.id;
+
+    const directValue = String(value || '').trim();
+    if (this.isUuidLike(directValue)) {
+      return directValue;
+    }
+
+    const matchedAppointment = appointments.find((appointment) => this.matchesPatient(patient, appointment));
+    return String(matchedAppointment?.patientId || directValue || '').trim();
+  }
+
+  private getPatientText(patient: PatientProfileResponse, keys: string[]): string {
+    const user = (patient['user'] ?? patient['User'] ?? patient['applicationUser'] ?? patient['ApplicationUser'] ?? {}) as Record<string, unknown>;
+
+    for (const key of keys) {
+      const value = patient[key] ?? user[key];
+      if (value !== null && value !== undefined && value !== '') {
+        return String(value).trim();
+      }
+    }
+
+    return '';
+  }
+
+  private isUuidLike(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(value);
+  }
+
   private matchesPatient(patient: PatientProfileResponse, appointment: AppointmentResponse): boolean {
-    const patientKeys = [patient.id, patient.patientId, patient.identityUserId, patient.userName]
+    const user = (patient['user'] ?? patient['User'] ?? patient['applicationUser'] ?? patient['ApplicationUser'] ?? {}) as Record<string, unknown>;
+    const patientKeys = [
+      patient.id,
+      patient.patientId,
+      patient.identityUserId,
+      patient.userName,
+      patient.displayName,
+      patient.fullName,
+      patient.name,
+      user['id'],
+      user['Id'],
+      user['identityUserId'],
+      user['IdentityUserId'],
+      user['userName'],
+      user['UserName'],
+      user['displayName'],
+      user['DisplayName'],
+      user['fullName'],
+      user['FullName'],
+      user['name'],
+      user['Name']
+    ]
       .filter((value) => value !== null && value !== undefined && value !== '')
       .map((value) => String(value));
 
@@ -174,9 +299,4 @@ export class ManagePatientsComponent implements OnInit {
     return patientKeys.some((key) => appointmentKeys.includes(key));
   }
 
-  private compareAppointments(a: AppointmentResponse, b: AppointmentResponse): number {
-    const dateA = a.date ? new Date(a.date.includes('T') ? a.date : `${a.date}T00:00:00`).getTime() : 0;
-    const dateB = b.date ? new Date(b.date.includes('T') ? b.date : `${b.date}T00:00:00`).getTime() : 0;
-    return dateB - dateA;
-  }
 }

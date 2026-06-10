@@ -13,7 +13,6 @@ import { AppointmentService } from '../../../core/services/appointment.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { AppointmentResponse } from '../../../shared/models/appointment-response.interface';
-import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
 import { PatientProfileResponse } from '../../../shared/models/patient.interface';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
 import {
@@ -81,29 +80,9 @@ export class ManageAppointmentsComponent implements OnInit {
     this.loading.set(true);
     this.error.set('');
 
-    forkJoin({
-      clinics: this.clinicService.getAllClinics({ pageIndex: 0, pageSize: 1000 }).pipe(
-        catchError(() => of([] as ClinicResponse[]))
-      ),
-      patients: this.patientService.getAllPatients().pipe(catchError(() => of([] as PatientProfileResponse[])))
-    }).subscribe({
-      next: ({ clinics: clinicsResponse, patients }) => {
-        const clinics = Array.isArray(clinicsResponse)
-          ? clinicsResponse
-          : ((clinicsResponse as { data?: ClinicResponse[] })?.data ?? []);
-
-        const clinicMap = new Map<number, ClinicResponse>(
-          clinics.map((clinic) => [clinic.id, clinic])
-        );
-        const patientMap = this.buildPatientMap(this.toArray(patients));
-
-        if (clinics.length === 0) {
-          this.appointments.set([]);
-          this.loading.set(false);
-          return;
-        }
-
-        this.loadAppointmentsFromClinics(clinics, clinicMap, patientMap);
+    this.appointmentService.getAllAppointments().subscribe({
+      next: (appointments) => {
+        this.renderAppointments(appointments);
       },
       error: () => {
         this.error.set('Failed to load appointments.');
@@ -120,72 +99,26 @@ export class ManageAppointmentsComponent implements OnInit {
   formatTime = formatAdminTime;
   getStatusClass = getAppointmentStatusClass;
 
-  private toArray<T>(value: T[] | { data?: T[]; Data?: T[]; items?: T[]; Items?: T[]; $values?: T[] } | null | undefined): T[] {
-    if (Array.isArray(value)) {
-      return value;
-    }
-
-    return value?.data ?? value?.Data ?? value?.items ?? value?.Items ?? value?.$values ?? [];
-  }
-
-  private loadAppointmentsFromClinics(
-    clinics: ClinicResponse[],
-    clinicMap: Map<number, ClinicResponse>,
-    patientMap: Map<string, PatientProfileResponse>
-  ): void {
-    const requests = clinics.map((clinic) =>
-      this.appointmentService.getClinicAppointments(clinic.id).pipe(
-        map((appointments) => ({ appointments, forbidden: false })),
-        catchError((error) => of({
-          appointments: [] as AppointmentResponse[],
-          forbidden: error?.status === 403
-        }))
-      )
+  private renderAppointments(appointments: AppointmentResponse[]): void {
+    const rows = appointments.map((appointment) =>
+      this.enrichAppointment(appointment)
     );
 
-    forkJoin(requests).subscribe({
-      next: (groups) => {
-        const appointments = groups.flatMap((group) => group.appointments);
-        const hasForbiddenClinicRequests = groups.some((group) => group.forbidden);
-
-        if (appointments.length === 0 && hasForbiddenClinicRequests) {
-          this.error.set('The current Admin API is not allowed to read clinic appointments. Backend needs an Admin GET endpoint for all appointments.');
-          this.loading.set(false);
-          return;
-        }
-
-        this.renderAppointments(appointments, clinicMap, patientMap);
+    rows.sort((a, b) => this.compareAppointments(a, b));
+    this.resolveAppointmentNames(rows).subscribe({
+      next: (resolvedRows) => {
+        this.appointments.set(resolvedRows);
+        this.loading.set(false);
       },
       error: () => {
-        this.error.set('Failed to load appointments.');
+        this.appointments.set(rows);
         this.loading.set(false);
       }
     });
   }
 
-  private renderAppointments(
-    appointments: AppointmentResponse[],
-    clinicMap: Map<number, ClinicResponse>,
-    patientMap: Map<string, PatientProfileResponse>
-  ): void {
-    const rows = appointments.map((appointment) =>
-      this.enrichAppointment(appointment, clinicMap, patientMap)
-    );
-
-    rows.sort((a, b) => this.compareAppointments(a, b));
-    this.appointments.set(rows);
-    this.loading.set(false);
-  }
-
-  private enrichAppointment(
-    appointment: AppointmentResponse,
-    clinicMap: Map<number, ClinicResponse>,
-    patientMap: Map<string, PatientProfileResponse>
-  ): AdminAppointmentRow {
-    const clinic = clinicMap.get(Number(appointment.clinicId));
-    const patient = this.findPatient(appointment, patientMap);
+  private enrichAppointment(appointment: AppointmentResponse): AdminAppointmentRow {
     const statusLabel = normalizeAppointmentStatus(appointment.status);
-    const patientDisplayName = this.getPatientDisplayName(patient);
     const appointmentPatientName = appointment.patientName && !this.isIdentifierLike(appointment.patientName)
       ? appointment.patientName
       : undefined;
@@ -194,14 +127,112 @@ export class ManageAppointmentsComponent implements OnInit {
       ...appointment,
       status: statusLabel,
       statusLabel,
-      clinicName: appointment.clinicName || clinic?.clinicName,
-      clinicNameResolved: appointment.clinicName || clinic?.clinicName || 'Clinic',
-      patientNameResolved: patientDisplayName || appointmentPatientName || 'Patient'
+      clinicName: appointment.clinicName,
+      clinicNameResolved: appointment.clinicName || 'Clinic',
+      patientNameResolved: appointmentPatientName || 'Patient'
     };
   }
 
-  private getPatientDisplayName(patient: PatientProfileResponse | undefined): string {
-    return String(patient?.displayName || patient?.fullName || patient?.name || '').trim();
+  private resolveAppointmentNames(rows: AdminAppointmentRow[]) {
+    return forkJoin({
+      patients: this.resolvePatientNameMap(rows),
+      clinics: this.resolveClinicNameMap(rows)
+    }).pipe(
+      map(({ patients, clinics }) =>
+        rows.map((row) => ({
+          ...row,
+          patientNameResolved: patients.get(row.patientId) || row.patientNameResolved,
+          clinicNameResolved: clinics.get(row.clinicId) || row.clinicNameResolved
+        }))
+      )
+    );
+  }
+
+  private resolvePatientNameMap(rows: AdminAppointmentRow[]) {
+    const patientIds = Array.from(
+      new Set(
+        rows
+          .filter((row) => row.patientNameResolved === 'Patient' && this.isIdentifierLike(row.patientId))
+          .map((row) => row.patientId)
+      )
+    );
+
+    if (patientIds.length === 0) {
+      return of(new Map<string, string>());
+    }
+
+    return forkJoin(
+      patientIds.map((patientId) =>
+        this.patientService.getDetailsByIdentityUserId(patientId).pipe(
+          map((patient) => ({ patientId, name: this.extractPatientName(patient) })),
+          catchError(() => of({ patientId, name: '' }))
+        )
+      )
+    ).pipe(
+      map((patients) =>
+        new Map(
+          patients
+            .filter((patient) => patient.name)
+            .map((patient) => [patient.patientId, patient.name])
+        )
+      )
+    );
+  }
+
+  private resolveClinicNameMap(rows: AdminAppointmentRow[]) {
+    const clinicIds = Array.from(
+      new Set(
+        rows
+          .filter((row) => row.clinicNameResolved === 'Clinic' && Number(row.clinicId) > 0)
+          .map((row) => Number(row.clinicId))
+      )
+    );
+
+    if (clinicIds.length === 0) {
+      return of(new Map<number, string>());
+    }
+
+    return forkJoin(
+      clinicIds.map((clinicId) =>
+        this.clinicService.getClinicsById(clinicId).pipe(
+          map((clinic) => ({ clinicId, name: String(clinic.clinicName || '').trim() })),
+          catchError(() => of({ clinicId, name: '' }))
+        )
+      )
+    ).pipe(
+      map((clinics) =>
+        new Map(
+          clinics
+            .filter((clinic) => clinic.name)
+            .map((clinic) => [clinic.clinicId, clinic.name])
+        )
+      )
+    );
+  }
+
+  private extractPatientName(patient: PatientProfileResponse): string {
+    const user = (patient['user'] ?? patient['User'] ?? patient['applicationUser'] ?? patient['ApplicationUser'] ?? {}) as Record<string, unknown>;
+    const fullName = [
+      patient['firstName'] ?? patient['FirstName'],
+      patient['lastName'] ?? patient['LastName']
+    ]
+      .map((part) => String(part || '').trim())
+      .filter(Boolean)
+      .join(' ');
+
+    return String(
+      patient.fullName ||
+      patient.displayName ||
+      patient.name ||
+      user['fullName'] ||
+      user['FullName'] ||
+      user['displayName'] ||
+      user['DisplayName'] ||
+      user['name'] ||
+      user['Name'] ||
+      fullName ||
+      ''
+    ).trim();
   }
 
   private isIdentifierLike(value: unknown): boolean {
@@ -210,48 +241,11 @@ export class ManageAppointmentsComponent implements OnInit {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(text);
   }
 
-  private buildPatientMap(patients: PatientProfileResponse[]): Map<string, PatientProfileResponse> {
-    const map = new Map<string, PatientProfileResponse>();
-
-    for (const patient of patients) {
-      const keys = [
-        patient.id,
-        patient.patientId,
-        patient.identityUserId,
-        patient.userName
-      ]
-        .filter((value) => value !== null && value !== undefined && value !== '')
-        .map((value) => String(value));
-
-      for (const key of keys) {
-        map.set(key, patient);
-      }
-    }
-
-    return map;
-  }
-
-  private findPatient(
-    appointment: AppointmentResponse,
-    patientMap: Map<string, PatientProfileResponse>
-  ): PatientProfileResponse | undefined {
-    const keys = [appointment.patientId, appointment.patientName]
-      .filter(Boolean)
-      .map((value) => String(value));
-
-    for (const key of keys) {
-      const patient = patientMap.get(key);
-      if (patient) {
-        return patient;
-      }
-    }
-
-    return undefined;
-  }
-
   private compareAppointments(a: AdminAppointmentRow, b: AdminAppointmentRow): number {
-    const dateA = a.date ? new Date(a.date.includes('T') ? a.date : `${a.date}T00:00:00`).getTime() : 0;
-    const dateB = b.date ? new Date(b.date.includes('T') ? b.date : `${b.date}T00:00:00`).getTime() : 0;
+    const valueA = a.date || a.appointmentDate || a.startTime;
+    const valueB = b.date || b.appointmentDate || b.startTime;
+    const dateA = valueA ? new Date(String(valueA).includes('T') ? valueA : `${valueA}T00:00:00`).getTime() : 0;
+    const dateB = valueB ? new Date(String(valueB).includes('T') ? valueB : `${valueB}T00:00:00`).getTime() : 0;
 
     if (dateA !== dateB) {
       return dateB - dateA;
