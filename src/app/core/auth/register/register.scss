@@ -542,3 +542,99 @@
   margin-top: 0.1rem;
   font-size: 0.95rem;
 }
+
+@media (max-width: 980px) {
+  .auth-shell {
+    min-height: 100svh;
+    justify-content: flex-start;
+  }
+
+  .auth-layout {
+    width: min(600px, 100%);
+    grid-template-columns: 1fr;
+    min-height: auto;
+    margin: 0 auto;
+  }
+
+  .auth-card {
+    border-left: 0;
+  }
+
+  .auth-visual {
+    min-height: 280px;
+    padding: 1.5rem;
+  }
+
+  .visual-content h1 {
+    font-size: clamp(1.65rem, 5vw, 2.35rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-shell {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .auth-brand {
+    font-size: 1rem;
+
+    img {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
+  .auth-layout {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 16px 42px rgba(15, 23, 42, 0.1);
+  }
+
+  .auth-visual {
+    display: none;
+  }
+
+  .auth-card {
+    padding: 1rem;
+  }
+
+  .card-header {
+    margin-bottom: 0.85rem;
+
+    h2 {
+      font-size: 1.45rem;
+    }
+
+    p {
+      font-size: 0.85rem;
+    }
+  }
+
+  .tab-container {
+    margin-bottom: 0.85rem;
+  }
+
+  .tab-btn {
+    min-height: 36px;
+    font-size: 0.84rem;
+  }
+
+  .auth-form {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .input-group {
+    grid-column: 1 / -1;
+  }
+
+  .input-group input {
+    min-height: 42px;
+    font-size: 0.88rem;
+  }
+
+  .sign-in-btn {
+    min-height: 42px;
+  }
+}

@@ -13,4 +13,13 @@ import { ADMIN_MAIN_NAV, ADMIN_MANAGE_NAV } from '../admin-nav.config';
 export class AdminSidebarComponent {
   readonly mainNav = ADMIN_MAIN_NAV;
   readonly manageNav = ADMIN_MANAGE_NAV;
+  menuOpen = false;
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
+  }
 }

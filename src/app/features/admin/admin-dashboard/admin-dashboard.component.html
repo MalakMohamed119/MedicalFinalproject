@@ -1,8 +1,21 @@
 <div class="admin-shell">
+  <button
+    type="button"
+    class="dashboard-mobile-toggle"
+    [class.dashboard-mobile-toggle--open]="sidebarOpen()"
+    [attr.aria-expanded]="sidebarOpen()"
+    aria-label="Toggle admin navigation"
+    (click)="toggleSidebar()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="dashboard-sidebar-backdrop" *ngIf="sidebarOpen()" (click)="closeSidebar()"></div>
 
   <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
+  <aside class="sidebar" [class.sidebar--open]="sidebarOpen()">
+    <div class="sidebar-logo" (click)="closeSidebar()">
       <div class="logo-icon">
         <i class="fa-solid fa-shield-halved"></i>
       </div>
@@ -20,6 +33,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
+        (click)="closeSidebar()"
       >
         <i class="fa-solid {{ item.icon }}"></i>
         <span>{{ item.label }}</span>
@@ -32,6 +46,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
         class="nav-item"
+        (click)="closeSidebar()"
       >
         <i class="fa-solid {{ item.icon }}"></i>
         <span>{{ item.label }}</span>
@@ -44,7 +59,7 @@
         <span class="user-name">Admin</span>
         <span class="user-role">Super Admin</span>
       </div>
-      <button class="logout-side-btn" (click)="logout()" title="Logout">
+      <button class="logout-side-btn" (click)="logout(); closeSidebar()" title="Logout">
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
       </button>
     </div>

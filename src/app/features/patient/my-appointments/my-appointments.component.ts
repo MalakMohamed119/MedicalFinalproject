@@ -248,7 +248,7 @@ export class MyAppointments implements OnInit {
       switch (status) {
         case 0: return 'Pending';
         case 1: return 'Confirmed';
-        case 2: return 'Rejected';
+        case 2: return 'Cancelled';
         case 3: return 'Completed';
         case 4: return 'NoShow';
         default: return 'Unknown';

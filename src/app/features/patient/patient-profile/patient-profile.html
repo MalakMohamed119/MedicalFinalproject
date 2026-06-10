@@ -6,17 +6,21 @@
   <div class="page-inner">
     <header class="profile-hero">
       <p class="profile-hero__eyebrow">{{ isDoctor() ? 'Doctor workspace' : 'Your health profile' }}</p>
-      <h1 class="profile-hero__title">Profile</h1>
+      <h1 class="profile-hero__title">{{ isDoctor() ? 'Doctor profile' : 'Patient profile' }}</h1>
       <p class="profile-hero__lede">
         {{
           isDoctor()
-            ? 'Review your account and patient appointments in one place.'
-            : 'Keep your details and visits organized in one calm view.'
+            ? 'Review your account and jump to the doctor tools you use most.'
+            : 'Keep personal details, medical notes, and visits organized in one clean view.'
         }}
       </p>
     </header>
 
-    <div class="profile-summary">
+    <section
+      class="profile-overview"
+      [class.profile-overview--single]="!isDoctor()"
+      aria-label="Profile overview">
+      <div class="profile-summary">
       <div class="profile-summary__avatar" aria-hidden="true">
         <span>{{ patientInitials() }}</span>
       </div>
@@ -57,7 +61,18 @@
           </li>
         </ul>
 
-        <nav *ngIf="isDoctor()" class="profile-quick-nav" aria-label="Quick links">
+      </div>
+      </div>
+
+      <aside *ngIf="isDoctor()" class="profile-side-panel profile-side-panel--doctor" aria-label="Doctor quick links">
+        <div class="profile-side-panel__header">
+          <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+          <div>
+            <p>Workspace</p>
+            <h2>Quick actions</h2>
+          </div>
+        </div>
+        <nav class="profile-quick-nav" aria-label="Quick links">
           <a routerLink="/doctor/dashboard" class="profile-quick-nav__link">
             <i class="fa-solid fa-gauge-high" aria-hidden="true"></i>
             Dashboard
@@ -71,8 +86,8 @@
             Time slots
           </a>
         </nav>
-      </div>
-    </div>
+      </aside>
+    </section>
 
     <div
       *ngIf="notice()"
@@ -91,10 +106,10 @@
       <form class="profile-form-panel" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <div class="profile-form-panel__header">
           <div>
-            <p class="profile-form-panel__eyebrow">Patient API</p>
+            <p class="profile-form-panel__eyebrow">Profile details</p>
             <h2>Personal details</h2>
           </div>
-          <span class="profile-form-panel__tag">Update profile</span>
+          <span class="profile-form-panel__tag">Editable</span>
         </div>
 
         <div class="profile-form-grid">
@@ -155,7 +170,7 @@
             <p class="profile-form-panel__eyebrow">Medical data</p>
             <h2>Health record</h2>
           </div>
-          <span class="profile-form-panel__tag">Same profile update</span>
+          <span class="profile-form-panel__tag">Optional</span>
         </div>
 
         <div class="medical-editor-block" formArrayName="allergies">
@@ -256,7 +271,9 @@
         <div class="appointments-block__header">
           <div class="appointments-block__intro">
             <h2 class="appointments-block__title">Appointments</h2>
-            <p class="appointments-block__subtitle">Upcoming visits and your history</p>
+            <p class="appointments-block__subtitle">
+              {{ isDoctor() ? 'Clinic bookings and visit history' : 'Upcoming visits and your history' }}
+            </p>
           </div>
           <div class="tabs" role="tablist" aria-label="Appointment history">
             <button
@@ -292,14 +309,22 @@
               <li *ngIf="upcoming().length === 0" class="empty-state">
                 <i class="bi bi-calendar2-check" aria-hidden="true"></i>
                 <p class="empty-state__title">No upcoming visits</p>
-                <p class="empty-state__text">When you book a clinic, it will show up here.</p>
+                <p class="empty-state__text">
+                  {{
+                    isDoctor()
+                      ? 'Bookings for your clinics will show up here.'
+                      : 'When you book a clinic, it will show up here.'
+                  }}
+                </p>
                 <a *ngIf="!isDoctor()" routerLink="/home-for-patient" class="empty-state__cta">Browse clinics</a>
                 <a *ngIf="isDoctor()" routerLink="/doctor/dashboard" class="empty-state__cta">Open dashboard</a>
               </li>
               <li *ngFor="let a of upcoming()" class="upcoming-card">
                 <div class="upcoming-card__main">
                   <h3 class="upcoming-card__clinic">{{ a.clinicName }}</h3>
-                  <span class="upcoming-card__status">{{ a.status }}</span>
+                  <span class="profile-status" [ngClass]="getProfileStatusClass(a.status)">
+                    {{ displayProfileAppointmentStatus(a.status) }}
+                  </span>
                   <p class="upcoming-card__when">
                     <span class="upcoming-card__line">
                       <i class="bi bi-calendar-event" aria-hidden="true"></i>
@@ -311,7 +336,7 @@
                     </span>
                   </p>
                 </div>
-                <button type="button" class="btn-cancel" (click)="cancelAppointment(a.id)">Cancel</button>
+                <button *ngIf="!isDoctor()" type="button" class="btn-cancel" (click)="cancelAppointment(a.id)">Cancel</button>
               </li>
             </ul>
           </div>
@@ -322,28 +347,29 @@
               <p class="empty-state__title">No past appointments yet</p>
               <p class="empty-state__text">Completed or cancelled visits will appear in this list.</p>
             </div>
-            <div *ngIf="past().length > 0" class="past-table-wrap">
-              <table class="past-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Clinic</th>
-                    <th scope="col">Date</th>
-                    <th scope="col">{{ isDoctor() ? 'Patient' : 'Doctor' }}</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let p of past()">
-                    <td data-label="Clinic">{{ p.clinicName }}</td>
-                    <td data-label="Date">{{ p.dateLabel }}</td>
-                    <td [attr.data-label]="isDoctor() ? 'Patient' : 'Doctor'">{{ p.doctorName }}</td>
-                    <td data-label="Status">
-                      <span class="badge-completed">{{ p.status }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <ul *ngIf="past().length > 0" class="past-list">
+              <li *ngFor="let p of past()" class="past-card">
+                              <div class="past-card__icon" aria-hidden="true">
+                                <i class="fa-solid fa-file-medical"></i>
+                              </div>
+                              <div class="past-card__main">
+                                <h3>{{ p.clinicName }}</h3>
+                                <p>
+                                  <span>
+                                    <i class="bi bi-calendar-event" aria-hidden="true"></i>
+                                    {{ p.dateLabel }}
+                                  </span>
+                                  <span>
+                                    <i class="bi bi-person-badge" aria-hidden="true"></i>
+                                    {{ p.doctorName }}
+                                  </span>
+                                </p>
+                              </div>
+                              <span class="profile-status" [ngClass]="getProfileStatusClass(p.status)">
+                                {{ displayProfileAppointmentStatus(p.status) }}
+                              </span>
+                            </li>
+            </ul>
           </div>
         </div>
       </ng-container>

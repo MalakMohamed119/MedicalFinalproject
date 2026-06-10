@@ -4,64 +4,76 @@
   role="navigation"
   aria-label="Main">
   <div class="nav-container">
-    <a class="nav-brand" [routerLink]="brandLink" aria-label="MedGuid home">
+    <a class="nav-brand" [routerLink]="brandLink" aria-label="MedGuid home" (click)="closeMenu()">
       <img src="/assets/logo.png" alt="MedGuid logo" width="48" height="48" />
       <span>MedGuid</span>
     </a>
 
-    <div class="nav-primary">
+    <button
+      type="button"
+      class="nav-toggle"
+      [class.nav-toggle--open]="menuOpen"
+      [attr.aria-expanded]="menuOpen"
+      aria-label="Toggle navigation"
+      (click)="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="nav-primary" [class.nav-primary--open]="menuOpen">
       <ng-container *ngIf="userRole; else signedOut">
         <ng-container [ngSwitch]="userRole">
           <ng-container *ngSwitchCase="'Admin'">
-            <a routerLink="/admin-dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Admin dashboard">
+            <a routerLink="/admin-dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Admin dashboard" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-chart-pie"></i></span>
               <span class="nav-pill__text">Admin</span>
             </a>
-            <a routerLink="/admin/manage-doctors" routerLinkActive="active-link" class="nav-pill" title="Doctors">
+            <a routerLink="/admin/manage-doctors" routerLinkActive="active-link" class="nav-pill" title="Doctors" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-user-doctor"></i></span>
               <span class="nav-pill__text">Doctors</span>
             </a>
-            <a routerLink="/admin/add-doctor" routerLinkActive="active-link" class="nav-pill" title="Add doctor">
+            <a routerLink="/admin/add-doctor" routerLinkActive="active-link" class="nav-pill" title="Add doctor" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-user-plus"></i></span>
               <span class="nav-pill__text">Add doctor</span>
             </a>
           </ng-container>
           <ng-container *ngSwitchCase="'Doctor'">
-            <a routerLink="/doctor/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Dashboard">
+            <a routerLink="/doctor/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Dashboard" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-gauge-high"></i></span>
               <span class="nav-pill__text">Dashboard</span>
             </a>
-            <a routerLink="/doctor/appointments" routerLinkActive="active-link" class="nav-pill" title="Appointments">
+            <a routerLink="/doctor/appointments" routerLinkActive="active-link" class="nav-pill" title="Appointments" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-calendar-check"></i></span>
               <span class="nav-pill__text">Appointments</span>
             </a>
-            <a routerLink="/doctor/my-clinics" routerLinkActive="active-link" class="nav-pill" title="My clinics">
+            <a routerLink="/doctor/my-clinics" routerLinkActive="active-link" class="nav-pill" title="My clinics" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-hospital"></i></span>
               <span class="nav-pill__text">Clinics</span>
             </a>
-            <a routerLink="/doctor/manage-slots" routerLinkActive="active-link" class="nav-pill" title="Time slots">
+            <a routerLink="/doctor/manage-slots" routerLinkActive="active-link" class="nav-pill" title="Time slots" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-clock"></i></span>
               <span class="nav-pill__text">Slots</span>
             </a>
-            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile">
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
               <span class="nav-pill__text">Profile</span>
             </a>
           </ng-container>
           <ng-container *ngSwitchDefault>
-            <a routerLink="/home-for-patient" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Home">
+            <a routerLink="/home-for-patient" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }" class="nav-pill" title="Home" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-house-medical"></i></span>
               <span class="nav-pill__text">Home</span>
             </a>
-            <a routerLink="/clinic-details" routerLinkActive="active-link" class="nav-pill" title="Clinics">
+            <a routerLink="/clinic-details" routerLinkActive="active-link" class="nav-pill" title="Clinics" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-hospital-user"></i></span>
               <span class="nav-pill__text">Clinics</span>
             </a>
-            <a routerLink="/my-appointments" routerLinkActive="active-link" class="nav-pill" title="My Appointments">
+            <a routerLink="/my-appointments" routerLinkActive="active-link" class="nav-pill" title="My Appointments" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-calendar-check"></i></span>
               <span class="nav-pill__text">My Appointments</span>
             </a>
-            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile">
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-pill" title="Profile" (click)="closeMenu()">
               <span class="nav-pill__icon" aria-hidden="true"><i class="fa-solid fa-id-card"></i></span>
               <span class="nav-pill__text">Profile</span>
             </a>
@@ -69,13 +81,13 @@
         </ng-container>
       </ng-container>
       <ng-template #signedOut>
-        <a routerLink="/login" class="nav-pill nav-pill--muted" title="Sign in">
+        <a routerLink="/login" class="nav-pill nav-pill--muted" title="Sign in" (click)="closeMenu()">
           <span class="nav-pill__icon" aria-hidden="true">
             <i class="fa-solid fa-right-to-bracket"></i>
           </span>
           <span class="nav-pill__text">Sign in</span>
         </a>
-        <a routerLink="/register" class="nav-pill nav-pill--cta" title="Create account">
+        <a routerLink="/register" class="nav-pill nav-pill--cta" title="Create account" (click)="closeMenu()">
           <span class="nav-pill__icon" aria-hidden="true">
             <i class="fa-solid fa-user-plus"></i>
           </span>
@@ -86,12 +98,12 @@
 
     <div class="nav-actions">
       <ng-container *ngIf="userRole">
-        <a routerLink="/logout" class="nav-item nav-item--logout" title="Sign out" aria-label="Sign out">
+        <a routerLink="/logout" class="nav-item nav-item--logout" title="Sign out" aria-label="Sign out" (click)="closeMenu()">
           <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
         </a>
       </ng-container>
       <ng-container *ngIf="!userRole">
-        <a routerLink="/login" class="nav-item" title="Sign in" aria-label="Sign in">
+        <a routerLink="/login" class="nav-item" title="Sign in" aria-label="Sign in" (click)="closeMenu()">
           <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
         </a>
       </ng-container>

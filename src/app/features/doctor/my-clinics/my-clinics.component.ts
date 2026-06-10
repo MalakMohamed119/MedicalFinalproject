@@ -188,7 +188,7 @@ export class MyClinics implements OnInit, OnDestroy {
     this.appointmentsError.set(null);
 
     forkJoin({
-      appointments: this.appointmentService.getClinicAppointments(clinicId),
+      appointments: this.appointmentService.getClinicAppointmentsWithResolvedStatuses(clinicId),
       patients: this.patientService.getAllPatients().pipe(catchError(() => of([] as PatientProfileResponse[])))
     }).subscribe({
       next: ({ appointments, patients }) => {

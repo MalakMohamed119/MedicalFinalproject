@@ -23,8 +23,9 @@ export function normalizeAppointmentStatus(status: number | string | undefined):
         return 'Confirmed';
       case 'cancelled':
       case 'canceled':
-      case 'rejected':
         return 'Cancelled';
+      case 'rejected':
+        return 'Rejected';
       case 'completed':
         return 'Completed';
       case 'noshow':

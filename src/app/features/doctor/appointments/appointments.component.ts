@@ -24,7 +24,6 @@ import { catchError, map, timeout } from 'rxjs/operators';
   styleUrls: ['./appointments.component.scss']
 })
 export class DoctorAppointments implements OnInit {
-
   appointments: any[] = [];
 
   loading: boolean = false;
@@ -323,7 +322,7 @@ export class DoctorAppointments implements OnInit {
           }
 
           const appointmentRequests = clinics.map((clinic) =>
-            this.appointmentService.getClinicAppointments(clinic.id).pipe(
+            this.appointmentService.getClinicAppointmentsWithResolvedStatuses(clinic.id).pipe(
               catchError(() => of([]))
             )
           );
@@ -416,15 +415,6 @@ export class DoctorAppointments implements OnInit {
   }
 
   updateAppointmentStatus(appointmentId: number, newStatus: string): void {
-    const current = this.appointments.find(a => a.id === appointmentId);
-
-    if (newStatus === 'Completed' && current?.status !== 'Confirmed') {
-      this.error = 'Appointment must be confirmed before it can be completed.';
-      this.pendingStatusAction = null;
-      this.cdr.detectChanges();
-      return;
-    }
-
     this.updatingAppointmentId = appointmentId;
     this.pendingStatusAction = null;
     this.cdr.detectChanges();
@@ -434,18 +424,7 @@ export class DoctorAppointments implements OnInit {
 
         next: () => {
 
-          // Update the appointment status in the local array
-          this.appointments = this.appointments.map(a => {
-
-            if (a.id === appointmentId) {
-              return {
-                ...a,
-                status: newStatus
-              };
-            }
-
-            return a;
-          });
+          this.applyLocalAppointmentStatus(appointmentId, newStatus);
 
           this.updatingAppointmentId = null;
           if (this.selectedAppointment?.id === appointmentId) {
@@ -509,12 +488,27 @@ export class DoctorAppointments implements OnInit {
     return status;
   }
 
+  private applyLocalAppointmentStatus(appointmentId: number, status: string): void {
+    this.appointments = this.appointments.map((appointment) =>
+      appointment.id === appointmentId
+        ? { ...appointment, status }
+        : appointment
+    );
+
+    if (this.selectedAppointment?.id === appointmentId) {
+      this.selectedAppointment = this.appointments.find((item) => item.id === appointmentId) ?? {
+        ...this.selectedAppointment,
+        status
+      };
+    }
+  }
+
   canConfirm(status: string): boolean {
     return status === 'Pending';
   }
 
   canComplete(status: string): boolean {
-    return status === 'Confirmed';
+    return status === 'Pending' || status === 'Confirmed';
   }
 
   canReject(status: string): boolean {

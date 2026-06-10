@@ -73,7 +73,13 @@ export class PatientProfile implements OnInit {
   address = signal<string>('');
 
   userRole = signal<string | null>(null);
-  readonly isDoctor = computed(() => this.userRole() === 'Doctor');
+  readonly normalizedRole = computed(() =>
+    String(this.userRole() || '')
+      .trim()
+      .replace(/^["']|["']$/g, '')
+      .toLowerCase()
+  );
+  readonly isDoctor = computed(() => this.normalizedRole().includes('doctor'));
 
   activeTab = signal<'upcoming' | 'past'>('upcoming');
   loading = signal<boolean>(true);
@@ -168,7 +174,7 @@ export class PatientProfile implements OnInit {
 
         forkJoin(
           clinics.map((clinic) =>
-            this.appointmentService.getClinicAppointments(clinic.id).pipe(
+            this.appointmentService.getClinicAppointmentsWithResolvedStatuses(clinic.id).pipe(
               catchError(() => of([]))
             )
           )
@@ -839,12 +845,15 @@ export class PatientProfile implements OnInit {
 
       const timeLabel = `${this.formatTime(appt.startTime)} - ${this.formatTime(appt.endTime)}`;
 
-      const status = this.getStatusString(appt.status);
-      const normalizedStatus = status.toLowerCase();
+      const rawStatus = this.getStatusString(appt.status);
       const clinicName = appt.clinicName || `Clinic ${appt.clinicId}`;
-      const doctorName = appt.doctorName || 'Doctor';
-      const isClosedStatus = ['cancelled', 'rejected', 'completed', 'noshow'].includes(normalizedStatus);
+      const doctorName = this.isDoctor()
+        ? (appt.patientName || 'Patient')
+        : (appt.doctorName || 'Doctor');
       const isFutureOrToday = sortValue >= today;
+      const status = this.resolveProfileAppointmentStatus(rawStatus);
+      const normalizedStatus = status.toLowerCase();
+      const isClosedStatus = ['cancelled', 'rejected', 'completed', 'noshow'].includes(normalizedStatus);
 
       if (!isClosedStatus && isFutureOrToday) {
 
@@ -875,6 +884,35 @@ export class PatientProfile implements OnInit {
       upcoming: upcoming.sort((a, b) => a.sortValue - b.sortValue),
       past: past.sort((a, b) => b.sortValue - a.sortValue)
     };
+  }
+
+  private resolveProfileAppointmentStatus(status: string): string {
+    return status;
+  }
+
+  displayProfileAppointmentStatus(status: string): string {
+    return this.resolveProfileAppointmentStatus(this.getStatusString(status));
+  }
+
+  getProfileStatusClass(status: string): string {
+    const normalizedStatus = this
+      .resolveProfileAppointmentStatus(this.getStatusString(status))
+      .toLowerCase();
+
+    switch (normalizedStatus) {
+      case 'pending':
+        return 'profile-status--pending';
+      case 'confirmed':
+        return 'profile-status--confirmed';
+      case 'completed':
+        return 'profile-status--completed';
+      case 'cancelled':
+      case 'rejected':
+      case 'noshow':
+        return 'profile-status--cancelled';
+      default:
+        return 'profile-status--default';
+    }
   }
 
   private getAppointmentDate(appointment: AppointmentResponse): Date | null {

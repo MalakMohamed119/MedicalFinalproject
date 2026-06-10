@@ -141,6 +141,14 @@
                   Confirm
                 </button>
                 <button
+                  *ngIf="canComplete(appointment.status)"
+                  type="button"
+                  class="btn btn-primary btn--compact"
+                  (click)="updateAppointmentStatus(appointment.id, 'Completed')"
+                  [disabled]="updatingAppointmentId === appointment.id">
+                  Complete
+                </button>
+                <button
                   *ngIf="canReject(appointment.status)"
                   type="button"
                   class="btn btn-danger btn--compact"

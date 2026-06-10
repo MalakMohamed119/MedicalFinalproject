@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -63,8 +63,18 @@ export class AppointmentService {
       timeSlot.Date ??
       (String(startTime).includes('T') ? startTime : '');
 
+    const id = Number(raw.id ?? raw.Id ?? raw.appointmentId ?? raw.AppointmentId ?? 0);
+    const status =
+      raw.status ??
+      raw.Status ??
+      raw.appointmentStatus ??
+      raw.AppointmentStatus ??
+      raw.statusId ??
+      raw.StatusId ??
+      'Unknown';
+
     return {
-      id: Number(raw.id ?? raw.Id ?? raw.appointmentId ?? raw.AppointmentId ?? 0),
+      id,
       clinicId: Number(raw.clinicId ?? raw.ClinicId ?? 0),
       clinicName: raw.clinicName ?? raw.ClinicName,
       timeSlotId: Number(raw.timeSlotId ?? raw.TimeSlotId ?? timeSlot.id ?? timeSlot.Id ?? 0),
@@ -79,7 +89,7 @@ export class AppointmentService {
         patient.name ??
         patient.Name,
       doctorName: raw.doctorName ?? raw.DoctorName,
-      status: raw.status ?? raw.Status ?? 'Unknown',
+      status,
       appointmentDate: raw.appointmentDate ?? raw.AppointmentDate ?? date,
       date: String(date ?? ''),
       startTime: String(startTime ?? ''),
@@ -171,11 +181,17 @@ export class AppointmentService {
   }
 
   updateAppointmentStatus(appointmentId: number, status: number | string): Observable<any> {
+    const statusValue = this.toStatusValue(status);
+    const params = new HttpParams()
+      .set('appointmentId', String(appointmentId))
+      .set('status', String(statusValue));
+
     return this.http.put(`${this.appointmentsUrl}/updatestatus`, {
       appointmentId,
-      status: this.toStatusValue(status)
+      status: statusValue
     }, {
-      headers: this.authHeaders()
+      headers: this.authHeaders(),
+      params
     });
   }
 
@@ -213,6 +229,10 @@ export class AppointmentService {
     );
   }
 
+  getClinicAppointmentsWithResolvedStatuses(clinicId: number): Observable<AppointmentResponse[]> {
+    return this.getClinicAppointments(clinicId);
+  }
+
   getAllAppointments(): Observable<AppointmentResponse[]> {
     return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/all`, {
       headers: this.authHeaders()
@@ -222,17 +242,19 @@ export class AppointmentService {
   }
 
   getPatientAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/ShowPatientAppointments`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/ShowPatientAppointments`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getAllPatientAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/ShowPatientAppointments`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/ShowPatientAppointments`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
@@ -244,49 +266,55 @@ export class AppointmentService {
   }
 
   getClinicConfirmedAppointments(clinicId: number): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/clinic/${clinicId}/confirmed`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/clinic/${clinicId}/confirmed`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getClinicPendingAppointments(clinicId: number): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/clinic/${clinicId}/pending`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/clinic/${clinicId}/pending`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getClinicCancelledAppointments(clinicId: number): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/clinic/${clinicId}/cancelled`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/clinic/${clinicId}/cancelled`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getPatientConfirmedAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/patient/confirmed`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/patient/confirmed`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getPatientPendingAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/patient/pending`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/patient/pending`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }
 
   getPatientCancelledAppointments(): Observable<AppointmentResponse[]> {
-    return this.http.get<AppointmentResponse[]>(`${this.appointmentsUrl}/patient/cancelled`, {
+    return this.http.get<AppointmentResponse[] | Record<string, unknown>>(`${this.appointmentsUrl}/patient/cancelled`, {
       headers: this.authHeaders()
     }).pipe(
+      map((response) => this.normalizeAppointmentList(response)),
       catchError(error => this.emptyListOnNotFound(error))
     );
   }

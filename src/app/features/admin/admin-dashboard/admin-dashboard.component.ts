@@ -42,6 +42,7 @@ export class AdminDashboardComponent implements OnInit {
   readonly totalDoctors = signal<number>(0);
   readonly loading = signal(true);
   readonly error = signal('');
+  readonly sidebarOpen = signal(false);
 
   readonly mainNavItems: NavItem[] = [
     { label: 'Dashboard', icon: 'fa-gauge-high', route: '/admin-dashboard' }
@@ -139,6 +140,14 @@ export class AdminDashboardComponent implements OnInit {
         this.stats.update((current) => ({ ...current, patients: 0 }));
       }
     });
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update((open) => !open);
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
   }
 
   logout(): void {

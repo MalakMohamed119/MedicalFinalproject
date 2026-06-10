@@ -1,5 +1,19 @@
-<aside class="admin-fixed-sidebar">
-  <a class="sidebar-logo" routerLink="/admin-dashboard">
+<button
+  type="button"
+  class="admin-mobile-toggle"
+  [class.admin-mobile-toggle--open]="menuOpen"
+  [attr.aria-expanded]="menuOpen"
+  aria-label="Toggle admin navigation"
+  (click)="toggleMenu()">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<div class="admin-sidebar-backdrop" *ngIf="menuOpen" (click)="closeMenu()"></div>
+
+<aside class="admin-fixed-sidebar" [class.admin-fixed-sidebar--open]="menuOpen">
+  <a class="sidebar-logo" routerLink="/admin-dashboard" (click)="closeMenu()">
     <div class="logo-icon">
       <i class="fa-solid fa-shield-halved"></i>
     </div>
@@ -16,7 +30,8 @@
       [routerLink]="item.route"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: !!item.exact }"
-      class="nav-item">
+      class="nav-item"
+      (click)="closeMenu()">
       <i class="fa-solid {{ item.icon }}"></i>
       <span>{{ item.label }}</span>
     </a>
@@ -27,7 +42,8 @@
       [routerLink]="item.route"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-item">
+      class="nav-item"
+      (click)="closeMenu()">
       <i class="fa-solid {{ item.icon }}"></i>
       <span>{{ item.label }}</span>
     </a>
@@ -39,7 +55,7 @@
       <span class="user-name">Admin</span>
       <span class="user-role">Super Admin</span>
     </div>
-    <a routerLink="/logout" class="logout-side-btn" title="Logout">
+    <a routerLink="/logout" class="logout-side-btn" title="Logout" (click)="closeMenu()">
       <i class="fa-solid fa-arrow-right-from-bracket"></i>
     </a>
   </div>

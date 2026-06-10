@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Navbar implements OnInit {
   userRole: string | null = null;
+  menuOpen = false;
 
   get brandLink(): string {
     if (this.userRole === 'Admin') return '/admin-dashboard';
@@ -22,5 +23,13 @@ export class Navbar implements OnInit {
   ngOnInit(): void {
     if (typeof localStorage === 'undefined') return;
     this.userRole = localStorage.getItem('role');
+  }
+
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
   }
 }

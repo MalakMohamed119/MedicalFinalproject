@@ -2169,6 +2169,32 @@ body .clinics-container .slot-card__accent {
   transform: translateY(-1px);
 }
 
+.doctor-appointments-page .appointment-card__actions .btn-primary,
+.doctor-appointments-page .appointment-actions .btn-primary,
+.doctor-appointments-page .appointment-card__actions .btn--compact.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  min-width: 96px;
+  min-height: 38px !important;
+  padding: 0.5rem 0.95rem !important;
+  color: #0d6e7b !important;
+  background: #eefaf9 !important;
+  border: 1px solid rgba(13, 110, 123, 0.22) !important;
+  border-radius: 999px !important;
+  line-height: 1 !important;
+  box-shadow: none !important;
+}
+
+.doctor-appointments-page .appointment-card__actions .btn-primary:hover,
+.doctor-appointments-page .appointment-actions .btn-primary:hover {
+  color: #ffffff !important;
+  background: #0d6e7b !important;
+  border-color: #0d6e7b !important;
+  transform: translateY(-1px);
+}
+
 body .clinics-container .clinic-actions .btn-outline-success {
   color: #0d6e7b !important;
   background: #eefaf9 !important;
@@ -2440,4 +2466,41 @@ body .clinics-container .clinic-actions .btn-outline-success {
 
 .auth-card input {
   color: #333333 !important;
+}
+
+/* Doctor appointment modal buttons */
+.detail-modal__actions .btn {
+  min-height: 42px;
+  padding: 0.62rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.detail-modal__actions .btn-success {
+  color: #ffffff;
+  background: #059669;
+}
+
+.detail-modal__actions .btn-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 100%);
+}
+
+.detail-modal__actions .btn-danger {
+  color: #b91c1c;
+  background: #ffffff;
+  border-color: rgba(185, 28, 28, 0.28);
+}
+
+.detail-modal__actions .btn-secondary {
+  color: #334155;
+  background: #f8fafc;
+  border-color: rgba(71, 85, 105, 0.2);
 }
