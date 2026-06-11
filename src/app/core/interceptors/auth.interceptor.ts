@@ -37,10 +37,8 @@ export function authInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn) 
 
   return next(modifiedReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isAuthRequest) {
-        if (isPlatformBrowser(platformId)) {
-          localStorage.clear();
-        }
+      if (error.status === 401 && !isAuthRequest && isPlatformBrowser(platformId)) {
+        localStorage.clear();
         router.navigate(['/login']);
       }
 

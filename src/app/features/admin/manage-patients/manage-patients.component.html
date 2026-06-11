@@ -26,6 +26,13 @@
         (click)="setTab('bookings')">
         With Bookings ({{ bookingCount() }})
       </button>
+      <button
+        type="button"
+        class="status-tab"
+        [class.status-tab--active]="(activeTab() + '') === 'withoutBookings'"
+        (click)="setTab('withoutBookings')">
+        Without Bookings ({{ withoutBookingCount() }})
+      </button>
     </div>
 
     <div class="loading-state" *ngIf="loading()">
@@ -48,8 +55,8 @@
       class="empty-state"
       *ngIf="!loading() && !error() && rows().length > 0 && visibleRows().length === 0">
       <i class="fa-solid fa-calendar-check"></i>
-      <h3>No patients with bookings yet</h3>
-      <p>Patients who reserve appointments will appear in this view.</p>
+      <h3>No patients in this view</h3>
+      <p>Try another patient filter to see more records.</p>
     </div>
 
     <section class="patients-card-grid" *ngIf="!loading() && !error() && visibleRows().length > 0">
@@ -60,56 +67,122 @@
           </div>
           <div class="patient-card__title">
             <h2>{{ displayName(row.patient) }}</h2>
-            <span>{{ patientAge(row.patient) }} - {{ patientGender(row.patient) }}</span>
+            <span>Patient profile</span>
           </div>
+        </header>
+
+        <div class="patient-card__stats" aria-label="Patient summary">
+          <span>
+            <small>Age</small>
+            {{ patientAge(row.patient) }}
+          </span>
+          <span>
+            <small>Gender</small>
+            {{ patientGender(row.patient) }}
+          </span>
+          <span>
+            <small>Bookings</small>
+            {{ row.appointmentCount }}
+          </span>
+        </div>
+
+        <div class="patient-card__summary" *ngIf="patientEmail(row.patient) || patientPhone(row.patient)">
+          <span *ngIf="patientEmail(row.patient)">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            {{ patientEmail(row.patient) }}
+          </span>
+          <span *ngIf="patientPhone(row.patient)">
+            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            {{ patientPhone(row.patient) }}
+          </span>
+        </div>
+
+        <button type="button" class="patient-card__view-btn" (click)="openPatientDetails(row)">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i>
+          View
+        </button>
+      </article>
+    </section>
+
+    <div
+      class="patient-modal"
+      *ngIf="selectedPatientRow() as selectedRow"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="patient-details-title">
+      <button
+        type="button"
+        class="patient-modal__backdrop"
+        aria-label="Close patient details"
+        (click)="closePatientDetails()"></button>
+
+      <article class="patient-modal__card">
+        <header class="patient-modal__header">
+          <div class="patient-card__avatar" aria-hidden="true">
+            {{ displayName(selectedRow.patient).slice(0, 2).toUpperCase() }}
+          </div>
+          <div class="patient-card__title">
+            <h2 id="patient-details-title">{{ displayName(selectedRow.patient) }}</h2>
+            <span>{{ patientAge(selectedRow.patient) }} - {{ patientGender(selectedRow.patient) }}</span>
+          </div>
+          <button type="button" class="patient-modal__close" aria-label="Close patient details" (click)="closePatientDetails()">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
         </header>
 
         <div class="patient-card__body">
           <div class="patient-card__detail patient-card__detail--wide">
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+            <div>
+              <small>Bookings</small>
+              <span>{{ selectedRow.appointmentCount }} appointments</span>
+            </div>
+          </div>
+          <div class="patient-card__detail patient-card__detail--wide">
             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
             <div>
               <small>Address</small>
-              <span>{{ patientAddress(row.patient) }}</span>
+              <span>{{ patientAddress(selectedRow.patient) }}</span>
             </div>
           </div>
           <div class="patient-card__detail patient-card__detail--wide">
             <i class="fa-solid fa-cake-candles" aria-hidden="true"></i>
             <div>
               <small>Date of birth</small>
-              <span>{{ patientDateOfBirth(row.patient) }}</span>
+              <span>{{ patientDateOfBirth(selectedRow.patient) }}</span>
             </div>
           </div>
-          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientEmail(row.patient)">
+          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientEmail(selectedRow.patient)">
             <i class="fa-solid fa-envelope" aria-hidden="true"></i>
             <div>
               <small>Email</small>
-              <span>{{ patientEmail(row.patient) }}</span>
+              <span>{{ patientEmail(selectedRow.patient) }}</span>
             </div>
           </div>
-          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientPhone(row.patient)">
+          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientPhone(selectedRow.patient)">
             <i class="fa-solid fa-phone" aria-hidden="true"></i>
             <div>
               <small>Phone</small>
-              <span>{{ patientPhone(row.patient) }}</span>
+              <span>{{ patientPhone(selectedRow.patient) }}</span>
             </div>
           </div>
-          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientAllergies(row.patient)">
+          <div class="patient-card__detail patient-card__detail--wide" *ngIf="patientAllergies(selectedRow.patient)">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
             <div>
               <small>Allergies</small>
-              <span>{{ patientAllergies(row.patient) }}</span>
+              <span>{{ patientAllergies(selectedRow.patient) }}</span>
             </div>
           </div>
         </div>
 
-        <section class="patient-card__medical" *ngIf="patientMedicalRecords(row.patient)">
+        <section class="patient-card__medical" *ngIf="patientMedicalRecords(selectedRow.patient)">
           <div class="patient-card__medical-head">
             <i class="fa-solid fa-notes-medical" aria-hidden="true"></i>
             <span>Medical records</span>
           </div>
-          <p>{{ patientMedicalRecords(row.patient) }}</p>
+          <p>{{ patientMedicalRecords(selectedRow.patient) }}</p>
         </section>
       </article>
-    </section>
+    </div>
   </main>
 </div>

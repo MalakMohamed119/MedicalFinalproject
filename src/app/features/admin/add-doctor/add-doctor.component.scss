@@ -809,3 +809,206 @@ select.form-control {
     padding-top: 3.75rem;
   }
 }
+
+/* Add doctor page polish */
+.add-doctor-page {
+  flex: 1;
+  padding: clamp(1rem, 2.4vw, 2rem);
+  background: transparent;
+}
+
+.form-container {
+  width: min(980px, 100%);
+  max-width: 980px;
+}
+
+.form-card {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(13, 110, 123, 0.12);
+  box-shadow: 0 1px 0 rgba(13, 110, 123, 0.08), 0 18px 44px rgba(15, 23, 42, 0.08);
+
+  &::before {
+    height: 3px;
+    background: linear-gradient(90deg, #0d6e7b, #049ebd);
+  }
+}
+
+.form-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid rgba(13, 110, 123, 0.1);
+
+  h1 {
+    margin: 0 0 0.35rem;
+    text-align: left;
+    color: #102331;
+    font-size: clamp(1.45rem, 3vw, 2rem);
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .subtitle {
+    max-width: none;
+    margin: 0;
+    text-align: left;
+    color: #64748b;
+    font-size: 0.92rem;
+  }
+}
+
+.form-card__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  color: #0d6e7b;
+  background: #ecfeff;
+  border: 1px solid #cffafe;
+}
+
+.form-card__eyebrow,
+.form-section-title {
+  margin: 0 0 0.35rem;
+  color: #0d6e7b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.form-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1.35rem 0 0.85rem;
+
+  i {
+    color: #049ebd;
+  }
+}
+
+.form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 0;
+}
+
+.form-group {
+  min-width: 0;
+}
+
+label {
+  margin-bottom: 0.45rem;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  &::after {
+    content: '';
+  }
+}
+
+.form-control {
+  min-height: 46px;
+  padding: 0.78rem 0.9rem;
+  border: 1px solid #dbe7ea;
+  border-radius: 10px;
+  background: #fbfdfe;
+  color: #102331;
+  font-size: 0.92rem;
+  box-shadow: none;
+
+  &:focus {
+    border-color: #0d6e7b;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(4, 158, 189, 0.12);
+    transform: none;
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: #dc2626;
+    animation: none;
+  }
+}
+
+select.form-control {
+  color: #102331;
+  padding-right: 2.75rem;
+}
+
+.hint-text {
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.error-message {
+  align-items: center;
+  margin-bottom: 1.2rem;
+  padding: 0.8rem 0.95rem;
+  border-radius: 10px;
+  background: #fff1f2;
+}
+
+.error-text {
+  margin-top: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.password-input-wrapper .toggle-password {
+  right: 0.45rem;
+  color: #64748b;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  margin-top: 1.35rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(13, 110, 123, 0.1);
+}
+
+.submit-btn {
+  min-height: 44px;
+  padding: 0.72rem 1.15rem;
+  border-radius: 10px;
+  background: #0d6e7b;
+  font-size: 0.9rem;
+  font-weight: 850;
+  box-shadow: 0 10px 22px rgba(13, 110, 123, 0.18);
+
+  &:hover:not(:disabled) {
+    background: #095f6e;
+    box-shadow: 0 12px 26px rgba(13, 110, 123, 0.22);
+    transform: translateY(-1px);
+  }
+
+  &::before {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .form-card__header {
+    flex-direction: column;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    justify-content: stretch;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
+}

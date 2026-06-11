@@ -224,10 +224,18 @@
                 <footer class="clinic-card__footer">
                   <button
                     type="button"
-                    class="clinic-card__cta"
+                    class="clinic-card__cta clinic-card__cta--secondary"
+                    (click)="bookClinic(clinic.id)"
+                    [attr.aria-label]="'View clinic details for ' + clinic.clinicName">
+                    <span>View Clinic</span>
+                    <i class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="clinic-card__cta clinic-card__cta--primary"
                     (click)="bookClinic(clinic.id)"
                     [attr.aria-label]="'Book now at ' + clinic.clinicName">
-                    Book Now
+                    <span>Book Now</span>
                     <i class="bi bi-arrow-right" aria-hidden="true"></i>
                   </button>
                 </footer>

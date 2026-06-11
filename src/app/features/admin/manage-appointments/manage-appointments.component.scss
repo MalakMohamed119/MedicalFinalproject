@@ -56,68 +56,71 @@
     gap: 0.38rem;
     min-width: 92px;
     justify-content: center;
-    padding: 0.42rem 0.72rem 0.42rem 0.9rem;
-    border-radius: 8px;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 0.02em;
+    padding: 0.42rem 0.72rem;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0;
     text-transform: capitalize;
     border: 1px solid #e2e8f0;
-    color: #ffffff !important;
-    background: #ffffff;
+    color: #334155 !important;
+    background: #ffffff !important;
+    white-space: nowrap;
   }
 
   .status-badge::before {
     content: '';
-    position: absolute;
-    left: 0.45rem;
-    top: 50%;
-    width: 3px;
-    height: 58%;
+    flex: 0 0 auto;
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: 999px;
-    transform: translateY(-50%);
     background: #94a3b8;
-    box-shadow: none;
   }
 
   .status-pending {
-    background: #fffdf7;
-    border-color: #eee4c8;
+    color: #8a4f00 !important;
+    background: #fff4d6 !important;
+    border-color: #f2c15f;
   }
 
   .status-pending::before {
-    background: #c7a95b;
+    background: #d97706;
   }
 
   .status-confirmed {
-    background: #f8fbfa;
-    border-color: #d6e8e0;
+    color: #087052 !important;
+    background: #e8f8f1 !important;
+    border-color: #b8ead6;
   }
 
   .status-confirmed::before {
-    background: #6aa98f;
+    background: #059669;
   }
 
   .status-completed {
-    background: #f8fafc;
-    border-color: #d8e2ee;
+    color: #2358a5 !important;
+    background: #eaf2ff !important;
+    border-color: #bed7ff;
   }
 
   .status-completed::before {
-    background: #7b9abb;
+    background: #2563eb;
   }
 
   .status-cancelled {
-    background: #fffafa;
-    border-color: #ead8da;
+    color: #a12a35 !important;
+    background: #fff0f2 !important;
+    border-color: #f6c8ce;
   }
 
   .status-cancelled::before {
-    background: #b8838b;
+    background: #dc2626;
   }
 
   .status-default {
-    background: #ffffff;
+    color: #334155 !important;
+    background: #f8fafc !important;
     border-color: #e2e8f0;
   }
 

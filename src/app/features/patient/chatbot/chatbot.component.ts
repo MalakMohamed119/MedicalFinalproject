@@ -365,13 +365,13 @@ export class ChatbotComponent implements OnInit {
 
   ngOnInit(): void {
     // 1. Recover active unique session ID across component loads
-    this.currentChatSessionId = sessionStorage.getItem('active_chat_session_id');
+    this.currentChatSessionId = this.getSessionItem('active_chat_session_id');
     
     // 2. Load sidebar recents trace
     this.loadChatHistory();
 
     // 3. Rehydrate messages or create initial welcome screen
-    const savedActiveMessages = sessionStorage.getItem('active_chat_messages');
+    const savedActiveMessages = this.getSessionItem('active_chat_messages');
     if (savedActiveMessages && this.currentChatSessionId) {
       this.messages = JSON.parse(savedActiveMessages);
       this.scrollToBottom();
@@ -413,7 +413,7 @@ export class ChatbotComponent implements OnInit {
     // Initialize session identity on very first message match
     if (!this.currentChatSessionId) {
       this.currentChatSessionId = 'session_' + Date.now().toString();
-      sessionStorage.setItem('active_chat_session_id', this.currentChatSessionId);
+      this.setSessionItem('active_chat_session_id', this.currentChatSessionId);
     }
 
     const userMessage: ChatMessage = {
@@ -457,7 +457,7 @@ export class ChatbotComponent implements OnInit {
   }
 
   private saveCurrentSessionState(): void {
-    sessionStorage.setItem('active_chat_messages', JSON.stringify(this.messages));
+    this.setSessionItem('active_chat_messages', JSON.stringify(this.messages));
   }
 
   private updateRecentChatsSidebar(): void {
@@ -493,7 +493,7 @@ export class ChatbotComponent implements OnInit {
 
   loadChat(chatItem: ChatSession): void {
     this.currentChatSessionId = chatItem.id;
-    sessionStorage.setItem('active_chat_session_id', this.currentChatSessionId);
+    this.setSessionItem('active_chat_session_id', this.currentChatSessionId);
     
     this.messages = [...chatItem.messages];
     this.saveCurrentSessionState();
@@ -501,8 +501,8 @@ export class ChatbotComponent implements OnInit {
   }
 
   startNewChat(): void {
-    sessionStorage.removeItem('active_chat_session_id');
-    sessionStorage.removeItem('active_chat_messages');
+    this.removeSessionItem('active_chat_session_id');
+    this.removeSessionItem('active_chat_messages');
     this.currentChatSessionId = null;
     
     this.userInput = '';
@@ -590,5 +590,21 @@ export class ChatbotComponent implements OnInit {
     }
 
     return 'Chat';
+  }
+
+  private getSessionItem(key: string): string | null {
+    return typeof sessionStorage === 'undefined' ? null : sessionStorage.getItem(key);
+  }
+
+  private setSessionItem(key: string, value: string): void {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(key, value);
+    }
+  }
+
+  private removeSessionItem(key: string): void {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(key);
+    }
   }
 }

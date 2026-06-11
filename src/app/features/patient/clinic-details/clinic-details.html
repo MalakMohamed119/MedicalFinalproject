@@ -106,9 +106,21 @@
               </div>
 
               <div class="clinic-card__actions">
-                <button type="button" class="btn-appointment clinic-card__cta" (click)="openBookingModal(clinic); $event.stopPropagation()">
-                  <i class="bi bi-calendar-plus-fill btn-appointment__icon" aria-hidden="true"></i>
-                  <span class="btn-appointment__label">Book an appointment</span>
+                <button
+                  type="button"
+                  class="clinic-card__cta clinic-card__cta--secondary"
+                  (click)="viewClinicDetails(clinic); $event.stopPropagation()"
+                  [attr.aria-label]="'View clinic details for ' + clinic.clinicName">
+                  <span>View Clinic</span>
+                  <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="clinic-card__cta clinic-card__cta--primary"
+                  (click)="openBookingModal(clinic); $event.stopPropagation()"
+                  [attr.aria-label]="'Book now at ' + clinic.clinicName">
+                  <span>Book Now</span>
+                  <i class="bi bi-arrow-right" aria-hidden="true"></i>
                 </button>
               </div>
             </div>

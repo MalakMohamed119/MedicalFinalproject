@@ -9,28 +9,52 @@
         <p>Review patient bookings, confirm visits, and manage your schedule.</p>
       </div>
       <div class="appointments-hero__summary" *ngIf="!loading && !error">
-        <span>{{ allAppointments.length }}</span>
+        <span>{{ visibleAppointments.length }}</span>
         <small>{{ appointmentSummaryLabel }}</small>
       </div>
     </header>
 
     <div *ngIf="!loading && !error && appointments.length > 0" class="appointment-metrics" aria-label="Appointment summary">
-      <article class="metric-card metric-card--pending">
+      <button
+        type="button"
+        class="metric-card metric-card--all"
+        [class.metric-card--active]="activeStatusFilter === 'all'"
+        (click)="setStatusFilter('all')">
+        <span>{{ allAppointments.length }}</span>
+        <small>All</small>
+      </button>
+      <button
+        type="button"
+        class="metric-card metric-card--pending"
+        [class.metric-card--active]="activeStatusFilter === 'pending'"
+        (click)="setStatusFilter('pending')">
         <span>{{ pendingAppointments.length }}</span>
         <small>Pending</small>
-      </article>
-      <article class="metric-card metric-card--confirmed">
+      </button>
+      <button
+        type="button"
+        class="metric-card metric-card--confirmed"
+        [class.metric-card--active]="activeStatusFilter === 'confirmed'"
+        (click)="setStatusFilter('confirmed')">
         <span>{{ confirmedAppointments.length }}</span>
         <small>Confirmed</small>
-      </article>
-      <article class="metric-card metric-card--completed">
+      </button>
+      <button
+        type="button"
+        class="metric-card metric-card--completed"
+        [class.metric-card--active]="activeStatusFilter === 'completed'"
+        (click)="setStatusFilter('completed')">
         <span>{{ completedAppointments.length }}</span>
         <small>Completed</small>
-      </article>
-      <article class="metric-card metric-card--rejected">
+      </button>
+      <button
+        type="button"
+        class="metric-card metric-card--rejected"
+        [class.metric-card--active]="activeStatusFilter === 'rejected'"
+        (click)="setStatusFilter('rejected')">
         <span>{{ cancelledAppointments.length }}</span>
-        <small>Cancelled</small>
-      </article>
+        <small>Rejected / Cancelled</small>
+      </button>
     </div>
 
     <div *ngIf="loading" class="loading-state">
@@ -53,17 +77,17 @@
     </div>
 
     <div *ngIf="!loading && !error && appointments.length > 0" class="tab-navigation">
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">
-        All ({{ allAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeDateFilter === 'today'" (click)="setDateFilter('today')">
+        Today ({{ todayTabAppointments.length }})
       </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'today'" (click)="setTab('today')">
-        Today ({{ todayAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeDateFilter === 'tomorrow'" (click)="setDateFilter('tomorrow')">
+        Tomorrow ({{ tomorrowTabAppointments.length }})
       </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'upcoming'" (click)="setTab('upcoming')">
-        Upcoming ({{ upcomingAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeDateFilter === 'upcoming'" (click)="setDateFilter('upcoming')">
+        Upcoming ({{ upcomingTabAppointments.length }})
       </button>
-      <button type="button" class="tab-btn" [class.active]="activeTab === 'cancelled'" (click)="setTab('cancelled')">
-        Cancelled ({{ cancelledAppointments.length }})
+      <button type="button" class="tab-btn" [class.active]="activeDateFilter === 'others'" (click)="setDateFilter('others')">
+        Others ({{ otherTabAppointments.length }})
       </button>
     </div>
 
@@ -132,6 +156,12 @@
               </div>
 
               <div class="appointment-card__actions" (click)="$event.stopPropagation()">
+                <button
+                  type="button"
+                  class="btn btn-secondary btn--compact"
+                  (click)="openAppointmentDetail(appointment)">
+                  View Details
+                </button>
                 <button
                   *ngIf="canConfirm(appointment.status)"
                   type="button"

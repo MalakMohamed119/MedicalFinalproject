@@ -1893,6 +1893,81 @@ input[type="search"] {
   }
 }
 
+.clinic-details-page .clinic-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+}
+
+.clinic-details-page .clinic-card__cta {
+  width: 100% !important;
+  min-height: 44px !important;
+  padding: 0.68rem 0.95rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-family: inherit;
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease !important;
+
+  i {
+    font-size: 1rem;
+    transition: transform 0.22s ease;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+
+    i {
+      transform: translateX(3px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--patient-accent);
+    outline-offset: 2px;
+  }
+}
+
+.clinic-details-page .clinic-card__cta--primary {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #0d6e7b 0%, #049ebd 100%) !important;
+  border-color: rgba(4, 158, 189, 0.24) !important;
+  box-shadow: 0 10px 22px rgba(4, 158, 189, 0.22) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #075866 0%, #0d91aa 100%) !important;
+    box-shadow: 0 14px 28px rgba(4, 158, 189, 0.28) !important;
+  }
+}
+
+.clinic-details-page .clinic-card__cta--secondary {
+  color: #0d6e7b !important;
+  background: #ffffff !important;
+  border-color: rgba(13, 110, 123, 0.22) !important;
+  box-shadow: 0 8px 20px rgba(15, 35, 49, 0.06) !important;
+
+  &:hover {
+    color: #075866 !important;
+    background: rgba(4, 158, 189, 0.07) !important;
+    border-color: rgba(4, 158, 189, 0.36) !important;
+    box-shadow: 0 12px 24px rgba(15, 35, 49, 0.08) !important;
+  }
+}
+
 @media (max-width: 640px) {
   .time-slots-section__header,
   .booking-modal__footer {
@@ -1925,6 +2000,10 @@ input[type="search"] {
   .booking-modal__footer .btn-secondary,
   .booking-modal__footer .btn-appointment {
     width: 100%;
+  }
+
+  .clinic-details-page .clinic-card__actions {
+    grid-template-columns: 1fr;
   }
 }
 

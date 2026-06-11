@@ -16,7 +16,7 @@ import { AppointmentResponse } from '../../../shared/models/appointment-response
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
 import { formatAdminDate } from '../shared/admin-appointment.util';
 
-type PatientViewTab = 'all' | 'bookings';
+type PatientViewTab = 'all' | 'bookings' | 'withoutBookings';
 
 interface PatientBookingRow {
   patient: PatientProfileResponse;
@@ -39,6 +39,7 @@ export class ManagePatientsComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal('');
   readonly activeTab = signal<PatientViewTab>('all');
+  readonly selectedPatientRow = signal<PatientBookingRow | null>(null);
 
   readonly visibleRows = computed(() => {
     const tab = this.activeTab();
@@ -48,11 +49,19 @@ export class ManagePatientsComponent implements OnInit {
       return allRows.filter((row) => row.appointmentCount > 0);
     }
 
+    if (tab === 'withoutBookings') {
+      return allRows.filter((row) => row.appointmentCount === 0);
+    }
+
     return allRows;
   });
 
   readonly bookingCount = computed(() =>
     this.rows().filter((row) => row.appointmentCount > 0).length
+  );
+
+  readonly withoutBookingCount = computed(() =>
+    this.rows().filter((row) => row.appointmentCount === 0).length
   );
 
   ngOnInit(): void {
@@ -89,6 +98,14 @@ export class ManagePatientsComponent implements OnInit {
 
   setTab(tab: PatientViewTab): void {
     this.activeTab.set(tab);
+  }
+
+  openPatientDetails(row: PatientBookingRow): void {
+    this.selectedPatientRow.set(row);
+  }
+
+  closePatientDetails(): void {
+    this.selectedPatientRow.set(null);
   }
 
   displayName(patient: PatientProfileResponse): string {

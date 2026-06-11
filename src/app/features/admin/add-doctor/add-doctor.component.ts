@@ -18,6 +18,52 @@ export class AddDoctorComponent {
   private clinicService = inject(ClinicService);
   private router = inject(Router);
 
+  readonly specialties = [
+    'Dermatology',
+    'Dentistry',
+    'Psychiatry',
+    'Pediatrics and Neonatology',
+    'Neurology',
+    'Orthopedics',
+    'Obstetrics and Gynecology',
+    'ENT',
+    'Cardiology and Vascular Diseases',
+    'Interventional Radiology',
+    'Hematology',
+    'Oncology',
+    'Internal Medicine',
+    'Nutrition and Weight Loss',
+    'Pediatric Surgery',
+    'Surgical Oncology',
+    'Vascular Surgery',
+    'Plastic Surgery',
+    'Bariatric and Laparoscopic Surgery',
+    'General Surgery',
+    'Spine Surgery',
+    'Cardiothoracic Surgery',
+    'Neurosurgery',
+    'Gastroenterology and Endoscopy',
+    'Allergy and Immunology',
+    'IVF and Infertility',
+    'Andrology and Infertility',
+    'Rheumatology',
+    'Endocrinology and Diabetes',
+    'Audiology',
+    'Chest and Respiratory Medicine',
+    'Family Medicine',
+    'Geriatrics',
+    'Veterinary Medicine',
+    'Chiropractic',
+    'Pain Management',
+    'Physical Therapy and Sports Injuries',
+    'Ophthalmology',
+    'Hepatology',
+    'Nephrology',
+    'Urology',
+    'General Practice',
+    'Speech Therapy'
+  ];
+
   showPassword = false;
   readonly isLoading = signal(false);
   readonly errorMessage = signal('');

@@ -12,6 +12,9 @@ import { PatientService } from '../../../core/services/patient.service';
 import { forkJoin, of, TimeoutError } from 'rxjs';
 import { catchError, map, timeout } from 'rxjs/operators';
 
+type AppointmentStatusFilter = 'all' | 'pending' | 'confirmed' | 'completed' | 'rejected';
+type AppointmentDateFilter = 'today' | 'tomorrow' | 'upcoming' | 'others';
+
 @Component({
   selector: 'app-doctor-appointments',
   standalone: true,
@@ -32,7 +35,9 @@ export class DoctorAppointments implements OnInit {
 
   updatingAppointmentId: number | null = null;
 
-  activeTab: 'all' | 'today' | 'upcoming' | 'cancelled' = 'all';
+  activeStatusFilter: AppointmentStatusFilter = 'all';
+
+  activeDateFilter: AppointmentDateFilter = 'today';
 
   pendingStatusAction: { appointmentId: number; status: string } | null = null;
 
@@ -77,7 +82,7 @@ export class DoctorAppointments implements OnInit {
   }
 
   get cancelledAppointments(): any[] {
-    return this.appointments.filter(a => a.status === 'Rejected' || a.status === 'Cancelled');
+    return this.appointments.filter(a => a.status === 'Rejected' || a.status === 'Cancelled' || a.status === 'NoShow');
   }
 
   get todayAppointments(): any[] {
@@ -95,34 +100,80 @@ export class DoctorAppointments implements OnInit {
       }
 
       const today = this.startOfDay(new Date());
-      return date >= this.addDays(today, 1);
+      return date >= this.addDays(today, 2);
     });
   }
 
-  get appointmentSummaryLabel(): string {
-    if (this.activeTab === 'today') {
-      return 'Today';
-    }
-    if (this.activeTab === 'upcoming') {
-      return 'Upcoming';
-    }
-    if (this.activeTab === 'cancelled') {
-      return 'Cancelled';
-    }
-    return 'Total appointments';
+  get tomorrowAppointments(): any[] {
+    return this.appointments.filter((appointment) => {
+      const date = this.getAppointmentDate(appointment);
+      return date ? this.isTomorrow(date) : false;
+    });
   }
 
-  get visibleAppointments(): any[] {
-    switch (this.activeTab) {
-      case 'today':
-        return this.todayAppointments;
-      case 'upcoming':
-        return this.upcomingAppointments;
-      case 'cancelled':
+  get otherAppointments(): any[] {
+    return this.appointments.filter((appointment) => this.getDateGroupLabel(appointment) === 'Other');
+  }
+
+  get appointmentSummaryLabel(): string {
+    switch (this.activeStatusFilter) {
+      case 'pending':
+        return 'Pending appointments';
+      case 'confirmed':
+        return 'Confirmed appointments';
+      case 'completed':
+        return 'Completed appointments';
+      case 'rejected':
+        return 'Rejected / cancelled';
+      default:
+        return 'Total appointments';
+    }
+  }
+
+  get statusFilteredAppointments(): any[] {
+    switch (this.activeStatusFilter) {
+      case 'pending':
+        return this.pendingAppointments;
+      case 'confirmed':
+        return this.confirmedAppointments;
+      case 'completed':
+        return this.completedAppointments;
+      case 'rejected':
         return this.cancelledAppointments;
       default:
         return this.allAppointments;
     }
+  }
+
+  get visibleAppointments(): any[] {
+    return this.statusFilteredAppointments.filter((appointment) => {
+      switch (this.activeDateFilter) {
+        case 'today':
+          return this.getDateGroupLabel(appointment) === 'Today';
+        case 'tomorrow':
+          return this.getDateGroupLabel(appointment) === 'Tomorrow';
+        case 'upcoming':
+          return this.getDateGroupLabel(appointment) === 'Upcoming';
+        case 'others':
+          return this.getDateGroupLabel(appointment) === 'Other';
+      }
+    });
+  }
+
+  get todayTabAppointments(): any[] {
+    return this.statusFilteredAppointments.filter((appointment) => this.getDateGroupLabel(appointment) === 'Today');
+  }
+
+  get tomorrowTabAppointments(): any[] {
+    return this.statusFilteredAppointments.filter((appointment) => this.getDateGroupLabel(appointment) === 'Tomorrow');
+  }
+
+  get upcomingTabAppointments(): any[] {
+    return this.statusFilteredAppointments.filter((appointment) => this.getDateGroupLabel(appointment) === 'Upcoming');
+  }
+
+  get otherTabAppointments(): any[] {
+    return this.statusFilteredAppointments.filter((appointment) => this.getDateGroupLabel(appointment) === 'Other');
   }
 
   get groupedVisibleAppointments(): Array<{ label: string; appointments: any[] }> {
@@ -142,28 +193,47 @@ export class DoctorAppointments implements OnInit {
   }
 
   get emptyTabTitle(): string {
-    switch (this.activeTab) {
-      case 'today':
-        return 'No appointments today';
-      case 'upcoming':
-        return 'No upcoming appointments';
-      case 'cancelled':
-        return 'No cancelled appointments';
+    const dateLabel = this.activeDateFilterLabel.toLowerCase();
+
+    switch (this.activeStatusFilter) {
+      case 'pending':
+        return `No pending appointments for ${dateLabel}`;
+      case 'confirmed':
+        return `No confirmed appointments for ${dateLabel}`;
+      case 'completed':
+        return `No completed appointments for ${dateLabel}`;
+      case 'rejected':
+        return `No rejected appointments for ${dateLabel}`;
       default:
-        return 'No appointments found';
+        return `No appointments for ${dateLabel}`;
     }
   }
 
   get emptyTabMessage(): string {
-    switch (this.activeTab) {
-      case 'today':
-        return 'You have a clear schedule for today.';
-      case 'upcoming':
-        return 'New bookings will appear here once patients schedule visits.';
-      case 'cancelled':
-        return 'Cancelled and rejected appointments will show up in this tab.';
+    switch (this.activeStatusFilter) {
+      case 'pending':
+        return 'New patient requests will appear here before you confirm or reject them.';
+      case 'confirmed':
+        return 'Confirmed visits will appear here until they are completed or cancelled.';
+      case 'completed':
+        return 'Completed visits will appear here after you mark appointments as done.';
+      case 'rejected':
+        return 'Rejected, cancelled, and no-show appointments will appear here.';
       default:
         return 'No patient appointments have been scheduled yet.';
+    }
+  }
+
+  get activeDateFilterLabel(): string {
+    switch (this.activeDateFilter) {
+      case 'today':
+        return 'Today';
+      case 'tomorrow':
+        return 'Tomorrow';
+      case 'upcoming':
+        return 'Upcoming';
+      case 'others':
+        return 'Others';
     }
   }
 
@@ -171,16 +241,31 @@ export class DoctorAppointments implements OnInit {
   // TAB NAVIGATION
   // =========================================
 
-  setTab(tab: 'all' | 'today' | 'upcoming' | 'cancelled'): void {
-    if (this.activeTab === tab) {
+  setStatusFilter(filter: AppointmentStatusFilter): void {
+    if (this.activeStatusFilter === filter) {
       return;
     }
 
     this.tabAnimating = true;
-    this.activeTab = tab;
+    this.activeStatusFilter = filter;
     this.cdr.detectChanges();
 
-    window.setTimeout(() => {
+    setTimeout(() => {
+      this.tabAnimating = false;
+      this.cdr.detectChanges();
+    }, 220);
+  }
+
+  setDateFilter(filter: AppointmentDateFilter): void {
+    if (this.activeDateFilter === filter) {
+      return;
+    }
+
+    this.tabAnimating = true;
+    this.activeDateFilter = filter;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
       this.tabAnimating = false;
       this.cdr.detectChanges();
     }, 220);
