@@ -89,9 +89,13 @@ export class PatientProfile implements OnInit {
   noticeType = signal<'success' | 'error'>('success');
   savingProfile = signal<boolean>(false);
   savingMedical = signal<boolean>(false);
-  private hasSavedPatientProfile = signal<boolean>(false);
+  hasSavedPatientProfile = signal<boolean>(false);
+  readonly profileActionLabel = computed(() =>
+    this.hasSavedPatientProfile() ? 'Update profile' : 'Save profile'
+  );
   private appointmentsLoaded = false;
   private deletedMedicalRecordIds = new Set<number>();
+  private deletedAllergyIds = new Set<number>();
 
   upcoming = signal<UpcomingAppointment[]>([]);
   past = signal<PastAppointment[]>([]);
@@ -401,8 +405,12 @@ export class PatientProfile implements OnInit {
     this.savingMedical.set(true);
 
     if (this.hasSavedPatientProfile()) {
-      const deletedIds = Array.from(this.deletedMedicalRecordIds);
-      const deleteRequests = deletedIds.map((id) => this.patientService.deleteMedicalRecord(id));
+      const deletedMedicalRecordIds = Array.from(this.deletedMedicalRecordIds);
+      const deletedAllergyIds = Array.from(this.deletedAllergyIds);
+      const deleteRequests = [
+        ...deletedMedicalRecordIds.map((id) => this.patientService.deleteMedicalRecord(id)),
+        ...deletedAllergyIds.map((id) => this.patientService.deleteAllergy(id))
+      ];
       const deleteRecords$ = deleteRequests.length > 0 ? forkJoin(deleteRequests) : of([]);
 
       deleteRecords$
@@ -413,6 +421,7 @@ export class PatientProfile implements OnInit {
         .subscribe({
           next: (profile) => {
             this.deletedMedicalRecordIds.clear();
+            this.deletedAllergyIds.clear();
             this.applyPatientData(this.currentPatient(), profile, payload);
             this.showNotice('Medical data saved successfully.', 'success');
           },
@@ -517,6 +526,30 @@ export class PatientProfile implements OnInit {
   }
 
   removeAllergy(index: number): void {
+    if (index < 0 || index >= this.allergies.length) {
+      return;
+    }
+
+    const allergyId = Number(this.allergies.at(index).get('id')?.value);
+    if (Number.isFinite(allergyId) && allergyId > 0 && this.hasSavedPatientProfile()) {
+      this.savingMedical.set(true);
+      this.patientService.deleteAllergy(allergyId).pipe(
+        finalize(() => this.savingMedical.set(false))
+      ).subscribe({
+        next: () => {
+          this.allergies.removeAt(index);
+          if (this.allergies.length === 0) {
+            this.allergies.push(this.createAllergyGroup());
+          }
+          this.showNotice('Allergy deleted successfully.', 'success');
+        },
+        error: () => {
+          this.showNotice('Failed to delete the allergy. Please try again.', 'error');
+        }
+      });
+      return;
+    }
+
     if (this.allergies.length > 1) {
       this.allergies.removeAt(index);
     }
@@ -532,6 +565,25 @@ export class PatientProfile implements OnInit {
     }
 
     const recordId = Number(this.medicalRecords.at(index).get('id')?.value);
+    if (Number.isFinite(recordId) && recordId > 0 && this.hasSavedPatientProfile()) {
+      this.savingMedical.set(true);
+      this.patientService.deleteMedicalRecord(recordId).pipe(
+        finalize(() => this.savingMedical.set(false))
+      ).subscribe({
+        next: () => {
+          this.medicalRecords.removeAt(index);
+          if (this.medicalRecords.length === 0) {
+            this.medicalRecords.push(this.createMedicalRecordGroup());
+          }
+          this.showNotice('Medical record deleted successfully.', 'success');
+        },
+        error: () => {
+          this.showNotice('Failed to delete the medical record. Please try again.', 'error');
+        }
+      });
+      return;
+    }
+
     if (Number.isFinite(recordId) && recordId > 0) {
       this.deletedMedicalRecordIds.add(recordId);
     }

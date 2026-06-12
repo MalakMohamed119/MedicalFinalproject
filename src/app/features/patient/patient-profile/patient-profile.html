@@ -160,7 +160,7 @@
             [class.fa-spin]="savingProfile()"
             [class.fa-floppy-disk]="!savingProfile()"
             aria-hidden="true"></i>
-          {{ savingProfile() ? 'Saving...' : 'Save profile' }}
+          {{ savingProfile() ? 'Saving...' : profileActionLabel() }}
         </button>
       </form>
 
@@ -228,6 +228,7 @@
               type="button"
               class="profile-icon-btn profile-icon-btn--danger"
               (click)="removeMedicalRecord(i)"
+              [disabled]="medicalRecords.length === 1"
               aria-label="Remove medical record">
               <i class="fa-solid fa-trash" aria-hidden="true"></i>
             </button>

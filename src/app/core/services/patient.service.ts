@@ -61,6 +61,13 @@ export class PatientService {
     ]);
   }
 
+  deleteAllergy(id: number): Observable<void> {
+    return this.deleteFromFirstAvailable([
+      `${this.patientUrl}/Allergy/${id}`,
+      `${environment.apiUrl}/patient/Allergy/${id}`
+    ]);
+  }
+
   private deleteFromFirstAvailable(urls: string[]): Observable<void> {
     const [url, ...fallbackUrls] = urls;
 
