@@ -1606,7 +1606,7 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 .doctor-appointments-page .appointment-card__actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem;
   margin-top: auto;
   padding-top: 0.85rem;
@@ -1622,6 +1622,10 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 800;
   box-shadow: none;
   white-space: nowrap;
+}
+
+.doctor-appointments-page .appointment-card__actions .btn--details {
+  grid-column: 1 / -1;
 }
 
 .doctor-appointments-page .appointment-card__actions .btn-secondary {

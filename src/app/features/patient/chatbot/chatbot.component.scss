@@ -403,12 +403,20 @@
   background: transparent;
   border: none;
   outline: none;
+  box-shadow: none;
   font-size: 15px;
   font-weight: 500;
   font-family: var(--font);
   color: var(--text-primary);
   line-height: 1.6;
   padding: 4px 0;
+
+  &:focus {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+  }
 
   &::placeholder {
     color: #9a9a9a;

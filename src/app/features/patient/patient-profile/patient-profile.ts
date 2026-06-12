@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, finalize, map } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap } from 'rxjs/operators';
 import { PatientFooterComponent } from '../../../shared/components/patient-footer/patient-footer.component';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
 import { Navbar } from '../../../shared/components/navbar/navbar';
@@ -16,6 +16,7 @@ import { AppointmentResponse } from '../../../shared/models/appointment-response
 import {
   PatientAllergy,
   PatientCreateRequest,
+  PatientMedicalData,
   PatientMedicalRecord,
   PatientProfileResponse,
   PatientUpdateRequest
@@ -90,6 +91,7 @@ export class PatientProfile implements OnInit {
   savingMedical = signal<boolean>(false);
   private hasSavedPatientProfile = signal<boolean>(false);
   private appointmentsLoaded = false;
+  private deletedMedicalRecordIds = new Set<number>();
 
   upcoming = signal<UpcomingAppointment[]>([]);
   past = signal<PastAppointment[]>([]);
@@ -395,17 +397,24 @@ export class PatientProfile implements OnInit {
     this.setAllergyRows(allergies);
     this.setMedicalRecordRows(medicalRecords);
 
-    const payload = this.buildUpdatePayload();
+    const payload = this.buildMedicalDataPayload(allergies, medicalRecords);
     this.savingMedical.set(true);
 
     if (this.hasSavedPatientProfile()) {
-      this.patientService
-        .updatePatient(payload)
-        .pipe(finalize(() => this.savingMedical.set(false)))
+      const deletedIds = Array.from(this.deletedMedicalRecordIds);
+      const deleteRequests = deletedIds.map((id) => this.patientService.deleteMedicalRecord(id));
+      const deleteRecords$ = deleteRequests.length > 0 ? forkJoin(deleteRequests) : of([]);
+
+      deleteRecords$
+        .pipe(
+          switchMap(() => this.patientService.saveMyMedicalData(payload)),
+          finalize(() => this.savingMedical.set(false))
+        )
         .subscribe({
-          next: () => {
-            this.applyPatientData(this.currentPatient(), this.mapUpdateToProfile(payload));
-            this.showNotice('Profile and medical data saved successfully.', 'success');
+          next: (profile) => {
+            this.deletedMedicalRecordIds.clear();
+            this.applyPatientData(this.currentPatient(), profile, payload);
+            this.showNotice('Medical data saved successfully.', 'success');
           },
           error: (error: HttpErrorResponse) => {
             this.showNotice(this.getSaveErrorMessage(error), 'error');
@@ -518,8 +527,19 @@ export class PatientProfile implements OnInit {
   }
 
   removeMedicalRecord(index: number): void {
-    if (this.medicalRecords.length > 1) {
-      this.medicalRecords.removeAt(index);
+    if (index < 0 || index >= this.medicalRecords.length) {
+      return;
+    }
+
+    const recordId = Number(this.medicalRecords.at(index).get('id')?.value);
+    if (Number.isFinite(recordId) && recordId > 0) {
+      this.deletedMedicalRecordIds.add(recordId);
+    }
+
+    this.medicalRecords.removeAt(index);
+
+    if (this.medicalRecords.length === 0) {
+      this.medicalRecords.push(this.createMedicalRecordGroup());
     }
   }
 
@@ -612,6 +632,24 @@ export class PatientProfile implements OnInit {
     };
   }
 
+  private buildMedicalDataPayload(
+    allergies: PatientAllergy[],
+    medicalRecords: PatientMedicalRecord[]
+  ): PatientMedicalData {
+    return {
+      allergies: allergies.map((allergy) => ({
+        id: allergy.id && allergy.id > 0 ? allergy.id : undefined,
+        name: allergy.name,
+        description: allergy.description
+      })),
+      medicalRecords: medicalRecords.map((record) => ({
+        id: record.id && record.id > 0 ? record.id : undefined,
+        diagnosis: record.diagnosis,
+        notes: record.notes
+      }))
+    };
+  }
+
   private mapUpdateToProfile(payload: PatientUpdateRequest): PatientProfileResponse {
     return {
       fullName: payload.fullName,
@@ -689,7 +727,16 @@ export class PatientProfile implements OnInit {
   private normalizeMedicalRecords(value: unknown): PatientMedicalRecord[] {
     if (Array.isArray(value)) {
       return value.map((item) => ({
-        id: this.readOptionalNumber(item, ['id', 'medicalRecordId', 'patientMedicalRecordId']),
+        id: this.readOptionalNumber(item, [
+          'id',
+          'Id',
+          'recordId',
+          'RecordId',
+          'medicalRecordId',
+          'MedicalRecordId',
+          'patientMedicalRecordId',
+          'PatientMedicalRecordId'
+        ]),
         diagnosis: this.readObjectString(item, 'diagnosis'),
         notes: this.readObjectString(item, 'notes')
       }));

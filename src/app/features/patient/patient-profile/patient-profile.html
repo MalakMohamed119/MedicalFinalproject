@@ -228,7 +228,6 @@
               type="button"
               class="profile-icon-btn profile-icon-btn--danger"
               (click)="removeMedicalRecord(i)"
-              [disabled]="medicalRecords.length === 1"
               aria-label="Remove medical record">
               <i class="fa-solid fa-trash" aria-hidden="true"></i>
             </button>
@@ -336,7 +335,13 @@
                     </span>
                   </p>
                 </div>
-                <button *ngIf="!isDoctor()" type="button" class="btn-cancel" (click)="cancelAppointment(a.id)">Cancel</button>
+                <button
+                  *ngIf="!isDoctor() && a.status === 'Pending'"
+                  type="button"
+                  class="btn-cancel"
+                  (click)="cancelAppointment(a.id)">
+                  Cancel
+                </button>
               </li>
             </ul>
           </div>

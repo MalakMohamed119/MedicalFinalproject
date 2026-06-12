@@ -1117,6 +1117,16 @@ select:focus,
   transform: none !important;
 }
 
+.chatbot-page .chat-input,
+.chatbot-page .chat-input:focus,
+.clinic-details-page .search-input-wrapper input[type="search"],
+.clinic-details-page .search-input-wrapper input[type="search"]:focus {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
 .status-badge,
 .badge,
 .clinic-id-pill,

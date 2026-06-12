@@ -51,6 +51,30 @@ export class PatientService {
     return this.http.put<void>(`${this.patientUrl}/Update`, data);
   }
 
+  deleteMedicalRecord(id: number): Observable<void> {
+    return this.deleteFromFirstAvailable([
+      `${this.patientUrl}/DeleteMedicalRecord/${id}`,
+      `${this.patientUrl}/MedicalRecord/${id}`,
+      `${this.patientUrl}/MedicalRecords/${id}`,
+      `${environment.apiUrl}/patient/MedicalRecord/Delete/${id}`,
+      `${environment.apiUrl}/patient/MedicalRecord/${id}`
+    ]);
+  }
+
+  private deleteFromFirstAvailable(urls: string[]): Observable<void> {
+    const [url, ...fallbackUrls] = urls;
+
+    return this.http.delete<void>(url).pipe(
+      catchError((error) => {
+        if ((error.status === 404 || error.status === 405) && fallbackUrls.length > 0) {
+          return this.deleteFromFirstAvailable(fallbackUrls);
+        }
+
+        return throwError(() => error);
+      })
+    );
+  }
+
   deletePatient(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.patientUrl}/Delete/${id}`);
   }

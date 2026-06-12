@@ -119,6 +119,7 @@ input[type="search"] {
   flex: 1;
   border: none;
   outline: none;
+  box-shadow: none;
   font-size: 1rem;
   color: $text;
   background: transparent;
@@ -129,7 +130,10 @@ input[type="search"] {
   }
 
   &:focus {
-    outline: none;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
   }
 }
 

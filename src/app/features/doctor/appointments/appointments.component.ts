@@ -593,7 +593,7 @@ export class DoctorAppointments implements OnInit {
   }
 
   canComplete(status: string): boolean {
-    return status === 'Pending' || status === 'Confirmed';
+    return status === 'Confirmed';
   }
 
   canReject(status: string): boolean {

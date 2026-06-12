@@ -157,12 +157,6 @@
 
               <div class="appointment-card__actions" (click)="$event.stopPropagation()">
                 <button
-                  type="button"
-                  class="btn btn-secondary btn--compact"
-                  (click)="openAppointmentDetail(appointment)">
-                  View Details
-                </button>
-                <button
                   *ngIf="canConfirm(appointment.status)"
                   type="button"
                   class="btn btn-success btn--compact"
@@ -185,6 +179,12 @@
                   (click)="openStatusConfirm(appointment.id, 'Rejected')"
                   [disabled]="updatingAppointmentId === appointment.id">
                   Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn--compact btn--details"
+                  (click)="openAppointmentDetail(appointment)">
+                  View Details
                 </button>
               </div>
             </article>
