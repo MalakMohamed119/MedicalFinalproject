@@ -127,7 +127,7 @@ export class PatientService {
 
   getDetailsByIdentityUserId(identityUserId: string): Observable<PatientProfileResponse> {
     return this.http.get<PatientProfileResponse>(
-      `${environment.apiUrl}/Patiant/DetailsByIdentityUserId/${identityUserId}`
+      `${environment.apiUrl}/analyze/${identityUserId}`
     ).pipe(
       catchError((error) => {
         if (error.status === 404) {
