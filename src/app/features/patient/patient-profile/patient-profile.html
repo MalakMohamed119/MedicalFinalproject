@@ -49,7 +49,7 @@
         <ul *ngIf="!isDoctor()" class="profile-chips" aria-label="Health details">
           <li class="profile-chip">
             <i class="bi bi-calendar3" aria-hidden="true"></i>
-            Age {{ age() || '—' }}
+            {{ ageLabel() }}
           </li>
           <li class="profile-chip">
             <i class="bi bi-gender-ambiguous" aria-hidden="true"></i>
@@ -153,15 +153,6 @@
           </label>
         </div>
 
-        <button type="submit" class="profile-save-btn" [disabled]="savingProfile()">
-          <i
-            class="fa-solid"
-            [class.fa-spinner]="savingProfile()"
-            [class.fa-spin]="savingProfile()"
-            [class.fa-floppy-disk]="!savingProfile()"
-            aria-hidden="true"></i>
-          {{ savingProfile() ? 'Saving...' : profileActionLabel() }}
-        </button>
       </form>
 
       <form class="profile-form-panel" [formGroup]="medicalForm" (ngSubmit)="saveMedicalData()">
@@ -235,15 +226,31 @@
           </div>
         </div>
 
-        <button type="submit" class="profile-save-btn" [disabled]="savingMedical()">
-          <i
-            class="fa-solid"
-            [class.fa-spinner]="savingMedical()"
-            [class.fa-spin]="savingMedical()"
-            [class.fa-notes-medical]="!savingMedical()"
-            aria-hidden="true"></i>
-          {{ savingMedical() ? 'Saving...' : 'Save medical data' }}
-        </button>
+        <div class="profile-save-actions">
+          <button
+            type="button"
+            class="profile-save-btn profile-save-btn--secondary"
+            [disabled]="savingProfile()"
+            (click)="saveProfile()">
+            <i
+              class="fa-solid"
+              [class.fa-spinner]="savingProfile()"
+              [class.fa-spin]="savingProfile()"
+              [class.fa-floppy-disk]="!savingProfile()"
+              aria-hidden="true"></i>
+            {{ savingProfile() ? 'Saving...' : profileActionLabel() }}
+          </button>
+
+          <button type="submit" class="profile-save-btn" [disabled]="savingMedical()">
+            <i
+              class="fa-solid"
+              [class.fa-spinner]="savingMedical()"
+              [class.fa-spin]="savingMedical()"
+              [class.fa-notes-medical]="!savingMedical()"
+              aria-hidden="true"></i>
+            {{ savingMedical() ? 'Saving...' : 'Save medical data' }}
+          </button>
+        </div>
       </form>
     </section>
 

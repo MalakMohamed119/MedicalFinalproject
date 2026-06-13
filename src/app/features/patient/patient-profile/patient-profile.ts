@@ -66,7 +66,7 @@ export class PatientProfile implements OnInit {
   patientId = signal<string | number | null>(null);
   patientName = signal<string>('');
   patientInitials = signal<string>('');
-  age = signal<number>(0);
+  age = signal<number | null>(null);
   gender = signal<string>('');
   bloodType = signal<string>('');
   userEmail = signal<string>('');
@@ -93,6 +93,9 @@ export class PatientProfile implements OnInit {
   readonly profileActionLabel = computed(() =>
     this.hasSavedPatientProfile() ? 'Update profile' : 'Save profile'
   );
+  readonly ageLabel = computed(() =>
+    this.age() !== null && this.age() !== undefined ? String(this.age()) : '—'
+  );
   private appointmentsLoaded = false;
   private deletedMedicalRecordIds = new Set<number>();
   private deletedAllergyIds = new Set<number>();
@@ -104,7 +107,7 @@ export class PatientProfile implements OnInit {
     displayName: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.email]],
     phoneNumber: [''],
-    age: [0],
+    age: this.formBuilder.control<number | null>(null, [Validators.min(0)]),
     gender: [''],
     dateOfBirth: [''],
     address: ['', [Validators.required]]
@@ -485,16 +488,19 @@ export class PatientProfile implements OnInit {
     const name = this.readString(merged, ['displayName', 'fullName', 'name']) || 'Unknown User';
     const email = this.readString(merged, ['email', 'userName']);
     const phone = this.readString(merged, ['phoneNumber', 'phone']);
-    const age = this.readNumber(merged, ['age']);
+    const rawAge = this.readNumber(merged, ['age']);
+    const dateOfBirth = this.readString(merged, ['dateOfBirth']);
     const gender = this.formatGender(this.readValue(merged, ['gender']));
     const bloodType = this.readString(merged, ['bloodType']);
     const address = this.readString(merged, ['address']);
 
+    const computedAge = this.computeAge(rawAge, dateOfBirth);
+
     this.patientName.set(name);
     this.patientInitials.set(this.getInitials(name));
+    this.age.set(computedAge);
     this.userEmail.set(email);
     this.phoneNumber.set(phone);
-    this.age.set(age);
     this.gender.set(gender);
     this.bloodType.set(bloodType);
     this.address.set(address);
@@ -503,9 +509,9 @@ export class PatientProfile implements OnInit {
       displayName: name === 'Unknown User' ? '' : name,
       email,
       phoneNumber: phone,
-      age,
+      age: computedAge,
       gender,
-      dateOfBirth: this.formatDateInput(this.readString(merged, ['dateOfBirth'])),
+      dateOfBirth: this.formatDateInput(dateOfBirth),
       address
     });
 
@@ -523,6 +529,32 @@ export class PatientProfile implements OnInit {
 
   addAllergy(): void {
     this.allergies.push(this.createAllergyGroup());
+  }
+
+  private computeAge(rawAge: number | undefined, dateOfBirth: string | null): number | null {
+    if (rawAge != null && Number.isFinite(rawAge) && rawAge > 0) {
+      return rawAge;
+    }
+
+    if (!dateOfBirth) {
+      return null;
+    }
+
+    const date = new Date(dateOfBirth);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+
+    const today = new Date();
+    let age = today.getFullYear() - date.getFullYear();
+    const monthDiff = today.getMonth() - date.getMonth();
+    const dayDiff = today.getDate() - date.getDate();
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age -= 1;
+    }
+
+    return age >= 0 ? age : null;
   }
 
   removeAllergy(index: number): void {
@@ -703,15 +735,28 @@ export class PatientProfile implements OnInit {
   }
 
   private mapUpdateToProfile(payload: PatientUpdateRequest): PatientProfileResponse {
+    const profile = this.profileForm.getRawValue();
     return {
       fullName: payload.fullName,
       displayName: payload.fullName,
       email: payload.email,
       phoneNumber: payload.phoneNumber,
+      age: this.parseAge(profile.age),
       address: payload.address,
       allergies: payload.allergies,
       medicalRecords: payload.medicalRecords
     };
+  }
+
+  private parseAge(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value) && value >= 0) {
+      return value;
+    }
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+    }
+    return undefined;
   }
 
   private buildCreatePayload(): PatientCreateRequest {
