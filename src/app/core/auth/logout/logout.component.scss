@@ -1,0 +1,24 @@
+.logout-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.logout-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.logout-spinner {
+  width: 48px;
+  height: 48px;
+}
+
+.logout-text {
+  margin: 0;
+}

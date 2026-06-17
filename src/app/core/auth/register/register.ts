@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 @Component({
   selector: 'app-register',
@@ -73,16 +74,7 @@ export class Register {
         this._router.navigate(['/login']);
       },
       error: (error: any) => {
-        const errors = error.error?.errors;
-        let msg: string;
-        if (errors) {
-          msg = Object.values(errors).flat().join(' ');
-        } else {
-          msg = error.error?.detail || 
-                error.error?.title || 
-                'Registration failed. Please try again.';
-        }
-        this._toastService.error(msg);
+        this._toastService.error(formatAppError(error, 'Registration failed. Please try again.'));
         this.isLoading = false;
       },
       complete: () => {

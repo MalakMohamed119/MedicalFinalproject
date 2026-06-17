@@ -260,10 +260,24 @@
   color: #64748b;
   background: transparent;
   cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  i {
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 1.125rem;
+    line-height: 1;
+  }
 
   &:hover {
     color: var(--ch-primary);
     background: rgba(var(--ch-accent-rgb), 0.1);
+  }
+
+  &:active {
+    transform: translateY(-50%) !important;
   }
 }
 

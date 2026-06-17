@@ -153,6 +153,18 @@
           </label>
         </div>
 
+        <div class="profile-save-actions">
+          <button type="submit" class="profile-save-btn" [disabled]="savingProfile()">
+            <i
+              class="fa-solid"
+              [class.fa-spinner]="savingProfile()"
+              [class.fa-spin]="savingProfile()"
+              [class.fa-floppy-disk]="!savingProfile()"
+              aria-hidden="true"></i>
+            {{ savingProfile() ? 'Saving...' : profileActionLabel() }}
+          </button>
+        </div>
+
       </form>
 
       <form class="profile-form-panel" [formGroup]="medicalForm" (ngSubmit)="saveMedicalData()">
@@ -227,20 +239,6 @@
         </div>
 
         <div class="profile-save-actions">
-          <button
-            type="button"
-            class="profile-save-btn profile-save-btn--secondary"
-            [disabled]="savingProfile()"
-            (click)="saveProfile()">
-            <i
-              class="fa-solid"
-              [class.fa-spinner]="savingProfile()"
-              [class.fa-spin]="savingProfile()"
-              [class.fa-floppy-disk]="!savingProfile()"
-              aria-hidden="true"></i>
-            {{ savingProfile() ? 'Saving...' : profileActionLabel() }}
-          </button>
-
           <button type="submit" class="profile-save-btn" [disabled]="savingMedical()">
             <i
               class="fa-solid"

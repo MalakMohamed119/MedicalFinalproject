@@ -1,8 +1,7 @@
 .complete-profile-page {
   min-height: 100vh;
-  background: #eef7f6;
-  color: #123235;
-  padding: 32px 16px;
+  color: var(--ch-title, #102331);
+  padding: clamp(1.5rem, 4vw, 2rem) clamp(1rem, 3vw, 1.5rem);
 }
 
 .complete-profile-shell {
@@ -11,72 +10,107 @@
 }
 
 .complete-profile-header {
-  margin-bottom: 20px;
+  margin-bottom: 1.25rem;
 
   &__eyebrow {
-    margin: 0 0 8px;
-    color: #0d6e7b;
-    font-size: 0.78rem;
+    margin: 0 0 0.5rem;
+    color: var(--ch-primary);
+    font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   h1 {
     margin: 0;
-    font-size: clamp(2rem, 4vw, 3.25rem);
-    line-height: 1.05;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    line-height: 1.08;
+    font-weight: 800;
+    color: var(--ch-title, #102331);
+    text-wrap: balance;
   }
 
   p:last-child {
     max-width: 580px;
-    margin: 12px 0 0;
-    color: #50676a;
-    line-height: 1.6;
+    margin: 0.75rem 0 0;
+    color: var(--ch-secondary, #64748b);
+    line-height: 1.65;
+    font-size: 0.95rem;
   }
 }
 
 .complete-profile-form,
 .state-panel {
-  background: #ffffff;
-  border: 1px solid rgba(13, 110, 123, 0.16);
-  border-radius: 8px;
-  box-shadow: 0 16px 42px rgba(18, 50, 53, 0.08);
+  border-radius: var(--ch-radius-pro, 8px);
 }
 
 .complete-profile-form {
   display: grid;
-  gap: 18px;
-  padding: 22px;
+  gap: 1.125rem;
+  padding: clamp(1.25rem, 3vw, 1.5rem);
+  animation: complete-form-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes complete-form-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .state-panel {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 120px;
-  padding: 22px;
-  color: #0d6e7b;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 140px;
+  padding: 1.5rem;
+  color: var(--ch-primary);
   font-weight: 700;
+  font-size: 0.95rem;
+
+  i {
+    font-size: 1.1rem;
+    color: var(--ch-accent);
+  }
 }
 
 .form-alert {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;
   border: 1px solid rgba(185, 28, 28, 0.2);
-  border-radius: 8px;
-  background: #fff1f2;
+  border-radius: var(--ch-radius-pro, 8px);
+  background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
   color: #991b1b;
-  padding: 12px 14px;
+  padding: 0.75rem 0.875rem;
   font-weight: 700;
+  font-size: 0.875rem;
+  animation: complete-alert-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes complete-alert-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .form-section {
   display: grid;
-  gap: 14px;
-  border-top: 1px solid #dcebea;
-  padding-top: 18px;
+  gap: 0.875rem;
+  border-top: 1px solid rgba(var(--ch-brand-rgb), 0.1);
+  padding-top: 1.125rem;
 
   &:first-of-type {
     border-top: 0;
@@ -88,11 +122,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.75rem;
 
   h2 {
     margin: 0;
     font-size: 1rem;
+    font-weight: 800;
+    color: var(--ch-title, #102331);
   }
 }
 
@@ -100,7 +136,7 @@
 .row-group {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 0.875rem;
 }
 
 .row-group {
@@ -110,11 +146,11 @@
 
 .form-field {
   display: grid;
-  gap: 7px;
+  gap: 0.4375rem;
 
   span {
-    color: #415c60;
-    font-size: 0.86rem;
+    color: var(--ch-text-soft, #475569);
+    font-size: 0.84rem;
     font-weight: 700;
   }
 
@@ -122,19 +158,28 @@
   select {
     width: 100%;
     min-height: 44px;
-    border: 1px solid #c9dcdb;
-    border-radius: 8px;
-    background: #fbfefe;
-    color: #123235;
-    padding: 0 12px;
+    border: 1px solid rgba(var(--ch-brand-rgb), 0.14);
+    border-radius: var(--ch-radius-pro, 8px);
+    background: #fbfdfe;
+    color: var(--ch-title, #102331);
+    padding: 0 0.75rem;
     font: inherit;
     outline: none;
-  }
+    transition:
+      border-color 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      background 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 
-  input:focus,
-  select:focus {
-    border-color: #0d6e7b;
-    box-shadow: 0 0 0 3px rgba(13, 110, 123, 0.12);
+    &:hover {
+      border-color: rgba(var(--ch-accent-rgb), 0.35);
+      background: #ffffff;
+    }
+
+    &:focus {
+      border-color: var(--ch-accent);
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(var(--ch-accent-rgb), 0.14);
+    }
   }
 }
 
@@ -145,10 +190,15 @@
 .icon-btn,
 .submit-btn {
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--ch-radius-pro, 8px);
   cursor: pointer;
   font: inherit;
   font-weight: 800;
+  transition:
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .icon-btn {
@@ -156,8 +206,17 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  background: #e6f5f3;
-  color: #0d6e7b;
+  background: rgba(var(--ch-accent-rgb), 0.08);
+  color: var(--ch-primary);
+
+  &:hover:not(:disabled) {
+    background: rgba(var(--ch-accent-rgb), 0.14);
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
 
   &:disabled {
     cursor: not-allowed;
@@ -168,6 +227,11 @@
 .icon-btn--danger {
   background: #fff1f2;
   color: #b91c1c;
+
+  &:hover:not(:disabled) {
+    background: #fee2e2;
+    color: #991b1b;
+  }
 }
 
 .submit-btn {
@@ -175,26 +239,25 @@
   align-items: center;
   justify-content: center;
   justify-self: end;
-  gap: 10px;
+  gap: 0.625rem;
   min-width: 150px;
   min-height: 46px;
-  background: #0d6e7b;
-  color: #ffffff;
-  padding: 0 20px;
+  padding: 0 1.25rem;
 
   &:disabled {
     cursor: wait;
     opacity: 0.72;
+    transform: none;
   }
 }
 
 @media (max-width: 720px) {
   .complete-profile-page {
-    padding: 22px 12px;
+    padding: 1.375rem 0.75rem;
   }
 
   .complete-profile-form {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .form-grid,
@@ -208,5 +271,17 @@
 
   .submit-btn {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .complete-profile-form,
+  .form-alert {
+    animation: none;
+  }
+
+  .icon-btn,
+  .submit-btn {
+    transition: none;
   }
 }

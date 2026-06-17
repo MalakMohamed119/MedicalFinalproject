@@ -15,6 +15,7 @@ import { PatientProfileResponse } from '../../../shared/models/patient.interface
 import { AppointmentResponse } from '../../../shared/models/appointment-response.interface';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
 import { formatAdminDate } from '../shared/admin-appointment.util';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 type PatientViewTab = 'all' | 'bookings' | 'withoutBookings';
 
@@ -89,8 +90,8 @@ export class ManagePatientsComponent implements OnInit {
           }
         });
       },
-      error: () => {
-        this.error.set('Failed to load patients.');
+      error: (err: any) => {
+        this.error.set(formatAppError(err, 'Failed to load patients. Please try again.'));
         this.loading.set(false);
       }
     });

@@ -1,130 +1,240 @@
-<!-- chatbot.component.html -->
-<div class="nav-arrow" (click)="navigateToHome()" title="Go to Home">
-  <i class="fa-solid fa-arrow-left"></i>
-</div>
-
-<section class="chatbot-page">
-  <div class="chat-wrapper">
-
-    <div class="chat-container full-width">
-
-      <!-- ================= STATUS BANNER ================= -->
-      <div class="chat-status-banner">
-        <i class="fa-solid fa-shield-halved"></i>
-        <span>This is <strong>your chat</strong> — your conversation is saved and will be here whenever you return</span>
+<div class="mg-chat" [class.mg-chat--sidebar-open]="sidebarOpen">
+  <!-- Sidebar -->
+  <aside class="mg-sidebar" aria-label="Chat history">
+    <div class="mg-sidebar__brand">
+      <div class="mg-sidebar__logo" aria-hidden="true">
+        <i class="fa-solid fa-heart-pulse"></i>
       </div>
-
-      <div
-        class="chat-messages"
-        #chatMessages
-        [class.has-messages]="messages.length > 0"
+      <div class="mg-sidebar__brand-text">
+        <strong>MedGuid AI</strong>
+        <span>Health Assistant</span>
+      </div>
+      <button
+        type="button"
+        class="mg-sidebar__close"
+        (click)="closeSidebar()"
+        aria-label="Close sidebar"
       >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
 
-        <div *ngIf="isLoadingHistory" class="loading-chat-list">
-          <div class="loading-spinner"></div>
-          <p>Loading your conversation...</p>
-        </div>
+    <div class="mg-sidebar__actions">
+      <button type="button" class="mg-sidebar__new" (click)="startNewChat()">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span>New conversation</span>
+      </button>
+    </div>
 
-        <div *ngIf="!isLoadingHistory && messages.length === 0" class="welcome-message">
-          <div class="welcome-icon">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <h2>What's on your mind today?</h2>
-          <p>Describe your symptoms and our medical assistant will help guide you. Your conversation is saved automatically.</p>
-        </div>
+    <div class="mg-sidebar__label">Recent chats</div>
 
-        <div
-          *ngFor="let message of messages; trackBy: trackByMessage"
-          class="message-wrapper"
+    <nav class="mg-sidebar__list" aria-label="Previous chats">
+      <p *ngIf="!sessions.length" class="mg-sidebar__empty">No conversations yet</p>
+
+      <button
+        type="button"
+        class="mg-sidebar__item"
+        *ngFor="let session of sessions; trackBy: trackBySession"
+        [class.mg-sidebar__item--active]="session.id === activeSessionId"
+        (click)="selectSession(session.id)"
+      >
+        <span class="mg-sidebar__item-icon" aria-hidden="true">
+          <i class="fa-regular fa-message"></i>
+        </span>
+        <span class="mg-sidebar__item-body">
+          <strong>{{ session.title }}</strong>
+          <small>{{ formatSessionDate(session.updatedAt) }}</small>
+        </span>
+        <span
+          class="mg-sidebar__delete"
+          role="button"
+          tabindex="0"
+          aria-label="Delete chat"
+          (click)="deleteSession(session.id, $event)"
+          (keydown.enter)="deleteSession(session.id, $event)"
         >
-          <div
-            class="message"
-            [class.user-message]="message.sender === 'user'"
-            [class.bot-message]="message.sender === 'bot'"
-          >
+          <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+        </span>
+      </button>
+    </nav>
 
-            <div
-              *ngIf="message.sender === 'bot'"
-              class="message-avatar bot-avatar"
-            >
-              <i class="fa-solid fa-robot"></i>
-            </div>
+    <div class="mg-sidebar__foot">
+      <button type="button" class="mg-sidebar__home" (click)="navigateToHome()">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        <span>Back to dashboard</span>
+      </button>
+    </div>
+  </aside>
 
-            <div class="message-content">
+  <div
+    class="mg-sidebar-backdrop"
+    *ngIf="sidebarOpen"
+    (click)="closeSidebar()"
+    aria-hidden="true"
+  ></div>
 
-              <div class="message-text">
-                {{ message.text }}
-              </div>
+  <!-- Main panel -->
+  <section class="mg-panel">
+    <header class="mg-header">
+      <button
+        type="button"
+        class="mg-header__menu"
+        (click)="toggleSidebar()"
+        aria-label="Open chat history"
+      >
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+      </button>
 
-              <div class="message-time">
-                {{ message.timestamp && !isInvalidDate(message.timestamp)
-                  ? formatTime(message.timestamp)
-                  : '' }}
-              </div>
-
-            </div>
-
-          </div>
+      <div class="mg-header__info">
+        <div class="mg-header__avatar" aria-hidden="true">
+          <i class="fa-solid fa-robot"></i>
         </div>
-
-        <!-- ================= TYPING ================= -->
-        <div *ngIf="isTyping" class="typing-indicator">
-
-          <div class="typing-avatar">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-
-          <div class="typing-content">
-
-            <div class="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-
-            <span class="typing-text">
-              Medical Assistant is typing...
-            </span>
-
-          </div>
-
+        <div class="mg-header__text">
+          <h1>{{ activeSession?.title || 'MedGuid Assistant' }}</h1>
+          <p>
+            <span class="mg-header__status" aria-label="Online"></span>
+            Online · Medical guidance
+          </p>
         </div>
-
       </div>
 
-      <!-- ================= INPUT ================= -->
-      <div class="chat-input-container">
+      <button
+        type="button"
+        class="mg-header__new"
+        (click)="startNewChat()"
+        aria-label="New chat"
+        title="New chat"
+      >
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+      </button>
+    </header>
 
-        <div class="input-box">
+    <div *ngIf="historyNotice" class="mg-alert mg-alert--info" role="status">
+      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      <span>{{ historyNotice }}</span>
+      <button type="button" class="mg-alert__close" (click)="dismissHistoryNotice()" aria-label="Dismiss">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
 
+    <div *ngIf="sendError" class="mg-alert mg-alert--error" role="alert">
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+      <span>{{ sendError }}</span>
+      <button type="button" class="mg-alert__close" (click)="dismissSendError()" aria-label="Dismiss">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <main class="mg-main" #chatMessages>
+      <div *ngIf="isLoadingHistory" class="mg-state">
+        <div class="mg-spinner" role="status" aria-label="Loading conversation"></div>
+        <p>Loading your conversations...</p>
+      </div>
+
+      <div *ngIf="!isLoadingHistory && messages.length === 0" class="mg-welcome">
+        <div class="mg-welcome__hero">
+          <div class="mg-welcome__icon" aria-hidden="true">
+            <i class="fa-solid fa-stethoscope"></i>
+          </div>
+          <h2>Your personal health assistant</h2>
+          <p>Ask about symptoms, medications, appointments, or general wellness. Start fresh or continue a previous chat.</p>
+        </div>
+
+        <div class="mg-welcome__suggestions" aria-label="Suggested questions">
+          <button type="button" class="mg-suggestion" (click)="useSuggestion('What are common flu symptoms?')">
+            <i class="fa-solid fa-temperature-high" aria-hidden="true"></i>
+            <span>What are common flu symptoms?</span>
+          </button>
+          <button type="button" class="mg-suggestion" (click)="useSuggestion('How do I book a clinic appointment?')">
+            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+            <span>How do I book a clinic appointment?</span>
+          </button>
+          <button type="button" class="mg-suggestion" (click)="useSuggestion('Tips for better sleep and recovery')">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            <span>Tips for better sleep and recovery</span>
+          </button>
+          <button type="button" class="mg-suggestion" (click)="useSuggestion('When should I see a doctor urgently?')">
+            <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
+            <span>When should I see a doctor urgently?</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingHistory && messages.length > 0" class="mg-thread">
+        <article
+          *ngFor="let message of messages; trackBy: trackByMessage"
+          class="mg-msg"
+          [class.mg-msg--user]="message.sender === 'user'"
+          [class.mg-msg--bot]="message.sender === 'bot'"
+        >
+          <div class="mg-msg__avatar" aria-hidden="true">
+            <i
+              class="fa-solid"
+              [class.fa-user]="message.sender === 'user'"
+              [class.fa-robot]="message.sender === 'bot'"
+            ></i>
+          </div>
+          <div class="mg-msg__content">
+            <div class="mg-msg__meta">
+              <span class="mg-msg__name">{{ message.sender === 'user' ? 'You' : 'MedGuid Assistant' }}</span>
+              <time
+                *ngIf="message.timestamp && !isInvalidDate(message.timestamp)"
+                class="mg-msg__time"
+              >
+                {{ formatTime(message.timestamp) }}
+              </time>
+            </div>
+            <div class="mg-msg__bubble">
+              <p>{{ message.text }}</p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <article *ngIf="isTyping" class="mg-msg mg-msg--bot mg-msg--typing" aria-live="polite">
+        <div class="mg-msg__avatar" aria-hidden="true">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="mg-msg__content">
+          <div class="mg-msg__meta">
+            <span class="mg-msg__name">MedGuid Assistant</span>
+            <span class="mg-msg__time">Typing...</span>
+          </div>
+          <div class="mg-msg__bubble mg-msg__bubble--typing">
+            <span class="mg-typing" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer class="mg-composer">
+      <div class="mg-composer__wrap">
+        <div class="mg-composer__field">
           <input
             type="text"
-            class="chat-input"
-            placeholder="Ask anything"
+            class="mg-composer__input"
+            placeholder="Ask MedGuid anything about your health..."
             [(ngModel)]="userInput"
             (keydown)="onEnterKey($event)"
             [disabled]="isTyping"
           >
-
           <button
-            class="send-button"
+            type="button"
+            class="mg-composer__send"
             [disabled]="!userInput.trim() || isTyping"
             (click)="sendMessage()"
-            title="Send message"
+            aria-label="Send message"
           >
-            <i class="fa-solid fa-arrow-up"></i>
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
           </button>
-
         </div>
-
-        <div class="input-hint">
-          <i class="fa-solid fa-lock" style="margin-right: 4px;"></i>
-          Your chat history is saved privately to your account
-        </div>
-
+        <p class="mg-composer__disclaimer">
+          <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+          MedGuid provides general guidance only. For emergencies, contact a doctor immediately.
+        </p>
       </div>
-
-    </div>
-
-  </div>
-</section>
+    </footer>
+  </section>
+</div>

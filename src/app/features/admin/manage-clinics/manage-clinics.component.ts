@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { ClinicResponse } from '../../../shared/models/clinic-response.interface';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 @Component({
   selector: 'app-manage-clinics',
@@ -35,8 +36,8 @@ export class ManageClinicsComponent implements OnInit {
         this.clinics.set(clinics);
         this.loading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to load clinics.');
+      error: (err) => {
+        this.error.set(formatAppError(err, 'Failed to load clinics. Please try again.'));
         this.loading.set(false);
       }
     });

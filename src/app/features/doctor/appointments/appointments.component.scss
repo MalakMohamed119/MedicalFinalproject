@@ -1173,15 +1173,7 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 .appointment-card__avatar {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
   flex-shrink: 0;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--ch-primary);
-  background: rgba(var(--ch-brand-rgb), 0.1);
-  border: 1px solid rgba(var(--ch-brand-rgb), 0.14);
 }
 
 .appointment-card__meta {
@@ -1308,13 +1300,7 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 .detail-modal__avatar {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
   flex-shrink: 0;
-  font-weight: 800;
-  color: var(--ch-primary);
-  background: rgba(var(--ch-brand-rgb), 0.1);
 }
 
 .detail-modal__status {
@@ -1566,10 +1552,7 @@ $font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
 .appointment-card__avatar,
 .detail-modal__avatar {
-  border-radius: 12px;
-  color: #ffffff;
-  background: linear-gradient(135deg, #0d6e7b, #049ebd);
-  box-shadow: 0 10px 22px rgba(4, 158, 189, 0.18);
+  --avatar-icon-size: 1.1rem;
 }
 
 .appointment-card__quick-info {

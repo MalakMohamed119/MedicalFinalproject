@@ -61,7 +61,7 @@
             [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
           />
 
-          <div class="error-message" *ngIf="formControls['email'].touched">
+          <div class="error-message" *ngIf="formControls['email'].touched && formControls['email'].invalid">
             <span *ngIf="formControls['email'].errors?.['required']">Email is required</span>
             <span *ngIf="formControls['email'].errors?.['email']">Please enter a valid email</span>
           </div>
@@ -91,7 +91,7 @@
             </button>
           </div>
 
-          <div class="error-message" *ngIf="formControls['password'].touched">
+          <div class="error-message" *ngIf="formControls['password'].touched && formControls['password'].invalid">
             <span *ngIf="formControls['password'].errors?.['required']">Password is required</span>
             <span *ngIf="formControls['password'].errors?.['minlength']">
               Password must be at least 6 characters

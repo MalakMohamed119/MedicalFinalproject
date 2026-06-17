@@ -1,35 +1,62 @@
-<footer class="relief-footer">
-  <div class="footer-container">
-    <div class="footer-section brand-info">
-      <div class="footer-logo">
-        <img src="assets/logo.png" alt="MedGuid logo" width="45" height="45" />
-        <span>MedGuid</span>
+<footer class="relief-footer relief-footer--patient">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <section class="footer-brand" aria-label="MedGuid">
+        <a routerLink="/home-for-patient" class="footer-logo">
+          <img src="assets/logo.png" alt="" width="44" height="44" />
+          <span>MedGuid</span>
+        </a>
+        <p class="footer-tagline">Book appointments, browse clinics, and manage your health visits in one place.</p>
+        <div class="footer-social" aria-label="Social media">
+          <span class="footer-social__item" title="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></span>
+          <span class="footer-social__item" title="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></span>
+          <span class="footer-social__item" title="LinkedIn"><i class="fa-brands fa-linkedin-in" aria-hidden="true"></i></span>
+        </div>
+      </section>
+
+      <nav class="footer-nav" aria-label="Quick links">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a routerLink="/home-for-patient">Home</a></li>
+          <li><a routerLink="/clinic-details">Browse Clinics</a></li>
+          <li><a routerLink="/my-appointments">My Appointments</a></li>
+          <li><a routerLink="/profile">My Profile</a></li>
+          <li><a routerLink="/chatbot">Health Assistant</a></li>
+        </ul>
+      </nav>
+
+      <section class="footer-contact" aria-label="Contact">
+        <h4>Contact</h4>
+        <ul>
+          <li>
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            <a href="mailto:support@medguid.com">support@medguid.com</a>
+          </li>
+          <li>
+            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            <span>+20 123 456 7890</span>
+          </li>
+          <li>
+            <i class="fa-solid fa-clock" aria-hidden="true"></i>
+            <span>Support · Sun – Thu, 9am – 6pm</span>
+          </li>
+        </ul>
+      </section>
+    </div>
+
+    <div class="footer-bar">
+      <div class="footer-bar__meta">
+        <p>&copy; 2026 MedGuid. All rights reserved.</p>
+        <nav class="footer-legal" aria-label="Legal links">
+          <a href="#">Privacy</a>
+          <span aria-hidden="true">·</span>
+          <a href="#">Terms</a>
+        </nav>
       </div>
-      <p>Your health, your schedule — book and manage appointments with ease.</p>
-      <div class="social-icons">
-        <a href="#" class="social-btn facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" class="social-btn instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" class="social-btn linkedin" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
-        <a href="#" class="social-btn twitter" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
-      </div>
+      <span class="footer-badge">
+        <i class="fa-solid fa-heart-pulse" aria-hidden="true"></i>
+        Patient Portal
+      </span>
     </div>
-    <div class="footer-section links">
-      <h4><i class="fa-solid fa-link"></i> Quick Links</h4>
-      <ul>
-        <li><a routerLink="/home-for-patient"><i class="fa-solid fa-house-chimney-medical"></i> Home</a></li>
-        <li><a routerLink="/clinic-details"><i class="fa-solid fa-hospital"></i> Browse Clinics</a></li>
-        <li><a routerLink="/profile"><i class="fa-solid fa-user"></i> My Profile</a></li>
-        <li><a routerLink="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a></li>
-      </ul>
-    </div>
-    <div class="footer-section contact">
-      <h4><i class="fa-solid fa-headset"></i> Contact</h4>
-      <p><i class="fa-solid fa-envelope"></i> support@medguid.com</p>
-      <p><i class="fa-solid fa-phone"></i> +20 123 456 789</p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p><i class="fa-solid fa-shield-halved"></i> &copy; 2026 MedGuid. All rights reserved.</p>
   </div>
 </footer>
-

@@ -5,13 +5,14 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-logout',
   template: `
-    <div class="flex items-center justify-center min-h-screen">
-      <div class="text-center">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p class="text-gray-600">Signing out...</p>
+    <div class="logout-page">
+      <div class="logout-card">
+        <div class="logout-spinner" role="status" aria-label="Signing out"></div>
+        <p class="logout-text">Signing out...</p>
       </div>
     </div>
-  `
+  `,
+  styleUrl: './logout.component.scss'
 })
 export class LogoutComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}

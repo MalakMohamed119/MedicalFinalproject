@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { PatientService } from '../../services/patient.service';
 import { ToastService } from '../../services/toast.service';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 import { jwtDecode } from 'jwt-decode';
 
 @Component({
@@ -79,10 +80,10 @@ export class Login {
       error: (err: any) => {
         const errorMessage =
           err.status === 401
-            ? 'Invalid email or password'
+            ? 'Invalid email or password. Please check your credentials and try again.'
             : err.status === 502
-              ? 'Auth service is unavailable. Start Docker container Clinic-AuthV22 and the API gateway on port 8082.'
-              : err.error?.detail || err.error?.message || err.error?.title || 'Login failed. Please try again.';
+              ? 'Auth service is unavailable. Please try again later.'
+              : formatAppError(err, 'Login failed. Please try again.');
         this.toastService.error(errorMessage);
         this.isLoading.set(false);
       }

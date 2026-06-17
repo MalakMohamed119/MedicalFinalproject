@@ -1,7 +1,70 @@
 @use '../manage-doctors/manage-doctors.component' as *;
 
+.admin-page-main {
+  animation: clinics-page-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 .page-count {
   font-size: 0.875rem;
-  color: #64748b;
-  font-weight: 600;
+  color: var(--ch-secondary, #64748b);
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(var(--ch-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--ch-brand-rgb), 0.1);
+}
+
+.admin-page-main .table-container {
+  overflow: hidden;
+  transition:
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    border-color: rgba(var(--ch-accent-rgb), 0.22) !important;
+  }
+}
+
+.admin-page-main .doctors-table tbody tr {
+  transition: background 0.18s ease;
+}
+
+.admin-page-main .doctors-table tbody tr:hover {
+  background: rgba(var(--ch-accent-rgb), 0.055);
+}
+
+.admin-page-main .loading-state .spinner {
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  border-color: rgba(var(--ch-brand-rgb), 0.12);
+  border-top-color: var(--ch-accent, #049ebd);
+}
+
+.admin-page-main .empty-state {
+  animation: clinics-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes clinics-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clinics-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-page-main,
+  .admin-page-main .empty-state {
+    animation: none;
+  }
 }

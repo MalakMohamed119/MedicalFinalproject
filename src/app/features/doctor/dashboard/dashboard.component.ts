@@ -6,6 +6,7 @@ import { ClinicService } from '../../../core/services/clinic.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Navbar } from '../../../shared/components/navbar/navbar';
 import { DoctorFooterComponent } from '../../../shared/components/doctor-footer/doctor-footer.component';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 interface DashboardStats {
   appointments: number;
@@ -86,7 +87,7 @@ export class DoctorDashboard implements OnInit {
       error: (err: unknown) => {
         clearTimeout(safetyTimeout);
         console.error('Dashboard error:', err);
-        this.error.set('Failed to load dashboard. Please try again.');
+        this.error.set(formatAppError(err, 'Failed to load dashboard. Please try again.'));
         this.loading.set(false);
         this.stats.set({
           appointments: 0,

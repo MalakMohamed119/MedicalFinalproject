@@ -61,7 +61,7 @@
             [class.is-invalid]="formControls['name'].touched && formControls['name'].invalid"
           />
 
-          <div class="error-message" *ngIf="formControls['name'].touched">
+          <div class="error-message" *ngIf="formControls['name'].touched && formControls['name'].invalid">
             <span *ngIf="formControls['name'].errors?.['required']">Name is required</span>
             <span *ngIf="formControls['name'].errors?.['minlength']">
               Name must be at least 3 characters
@@ -86,7 +86,7 @@
             [class.is-invalid]="formControls['email'].touched && formControls['email'].invalid"
           />
 
-          <div class="error-message" *ngIf="formControls['email'].touched">
+          <div class="error-message" *ngIf="formControls['email'].touched && formControls['email'].invalid">
             <span *ngIf="formControls['email'].errors?.['required']">Email is required</span>
             <span *ngIf="formControls['email'].errors?.['email']">Please enter a valid email</span>
           </div>
@@ -106,7 +106,7 @@
             [class.is-invalid]="formControls['phone'].touched && formControls['phone'].invalid"
           />
 
-          <div class="error-message" *ngIf="formControls['phone'].touched">
+          <div class="error-message" *ngIf="formControls['phone'].touched && formControls['phone'].invalid">
             <span *ngIf="formControls['phone'].errors?.['required']">Phone number is required</span>
             <span *ngIf="formControls['phone'].errors?.['pattern']">
               Please enter a valid Egyptian phone number
@@ -139,7 +139,7 @@
             </button>
           </div>
 
-          <div class="error-message" *ngIf="formControls['password'].touched">
+          <div class="error-message" *ngIf="formControls['password'].touched && formControls['password'].invalid">
             <span *ngIf="formControls['password'].errors?.['required']">Password is required</span>
             <span *ngIf="formControls['password'].errors?.['pattern']">
               Use 8+ characters with uppercase, lowercase, number, and special character
@@ -172,7 +172,7 @@
             </button>
           </div>
 
-          <div class="error-message" *ngIf="formControls['rePassword'].touched">
+          <div class="error-message" *ngIf="formControls['rePassword'].touched && (formControls['rePassword'].invalid || passwordMismatch)">
             <span *ngIf="formControls['rePassword'].errors?.['required']">
               Please confirm your password
             </span>

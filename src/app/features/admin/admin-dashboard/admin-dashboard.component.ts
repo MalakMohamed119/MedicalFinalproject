@@ -6,6 +6,7 @@ import { ClinicService } from '../../../core/services/clinic.service';
 import { AppointmentService } from '../../../core/services/appointment.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { DashboardResponse } from '../../../shared/models/dashboard-response.interface';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 interface NavItem {
   label: string;
@@ -107,7 +108,7 @@ export class AdminDashboardComponent implements OnInit {
         } else if (err.status === 403) {
           this.error.set('Access denied. You do not have admin privileges.');
         } else {
-          this.error.set('Failed to load dashboard data. Please try again.');
+          this.error.set(formatAppError(err, 'Failed to load dashboard data. Please try again.'));
         }
         this.loading.set(false);
       }

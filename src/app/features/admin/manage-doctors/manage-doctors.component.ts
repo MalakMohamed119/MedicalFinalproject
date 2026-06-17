@@ -8,6 +8,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ClinicService } from '../../../core/services/clinic.service';
 import { DoctorResponse } from '../../../shared/models/doctor-response.interface';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 interface PaginatedResult<T> {
   items?: T[];
@@ -143,7 +144,7 @@ export class ManageDoctorsComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Doctors load error:', err);
-        this.error.set('Failed to load doctors');
+        this.error.set(formatAppError(err, 'Failed to load doctors. Please try again.'));
         this.loading.set(false);
       }
     });
@@ -163,7 +164,7 @@ export class ManageDoctorsComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Doctors load error:', err);
-        this.error.set('Failed to load doctors');
+        this.error.set(formatAppError(err, 'Failed to load doctors. Please try again.'));
         this.loading.set(false);
       }
     });
@@ -202,7 +203,7 @@ export class ManageDoctorsComponent implements OnInit {
         ));
       },
       error: (err: any) => {
-        this.error.set('Failed to update doctor status');
+        this.error.set(formatAppError(err, 'Failed to update doctor status. Please try again.'));
         console.error(err);
       }
     });
@@ -221,7 +222,7 @@ export class ManageDoctorsComponent implements OnInit {
         this.totalCount.update(count => count - 1);
       },
       error: (err: any) => {
-        this.error.set('Failed to delete doctor');
+        this.error.set(formatAppError(err, 'Failed to delete doctor. Please try again.'));
         console.error(err);
       }
     });
@@ -259,8 +260,8 @@ export class ManageDoctorsComponent implements OnInit {
         this.closeModals();
         this.editLoading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to update doctor.');
+      error: (err: any) => {
+        this.error.set(formatAppError(err, 'Failed to update doctor. Please try again.'));
         this.editLoading.set(false);
       }
     });
@@ -288,8 +289,8 @@ export class ManageDoctorsComponent implements OnInit {
         this.closeModals();
         this.editLoading.set(false);
       },
-      error: () => {
-        this.error.set('Failed to update password.');
+      error: (err: any) => {
+        this.error.set(formatAppError(err, 'Failed to update password. Please try again.'));
         this.editLoading.set(false);
       }
     });

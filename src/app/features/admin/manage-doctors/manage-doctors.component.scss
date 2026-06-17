@@ -711,14 +711,7 @@ $transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 .user-avatar {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #0d6e7b, #049ebd);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-info {

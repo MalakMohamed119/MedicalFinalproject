@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { Router } from '@angular/router';
 import { AdminSidebarComponent } from '../shared/admin-sidebar/admin-sidebar.component';
 import { ClinicService } from '../../../core/services/clinic.service';
+import { formatAppError } from '../../../shared/utils/error-message.util';
 
 @Component({
   selector: 'app-add-doctor',
@@ -128,22 +129,7 @@ export class AddDoctorComponent {
       },
       error: (err: any) => {
         console.log('Create doctor error:', err);
-        const backendErrors = err.error?.errors || err.error?.Errors;
-        if (backendErrors && typeof backendErrors === 'object') {
-          const messages = Object.values(backendErrors).flat().join(' ');
-          this.errorMessage.set(messages);
-        } else if (Array.isArray(err.error?.errors)) {
-          this.errorMessage.set(
-            err.error.errors
-              .map((error: any) => error.description || error.message || error.code)
-              .filter(Boolean)
-              .join(' ')
-          );
-        } else {
-          this.errorMessage.set(
-            err.error?.detail || err.error?.message || err.error?.title || err.message || 'Failed to create doctor'
-          );
-        }
+        this.errorMessage.set(formatAppError(err, 'Failed to create doctor. Please try again.'));
         this.isLoading.set(false);
         console.error(err);
       }
